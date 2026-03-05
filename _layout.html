@@ -1,0 +1,149 @@
+<!-- 
+  _layout.html — الهيكل المشترك لكل صفحات المنصة بعد الدخول
+  نسخ هذا الكود في كل صفحة وغيّر فقط: 
+    1. عنوان الصفحة في <title>
+    2. nav-item.active حسب الصفحة الحالية
+    3. محتوى .main
+-->
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — [اسم الصفحة]</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+
+
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- OFFLINE BADGE -->
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<!-- RATING MODAL -->
+<div class="rating-modal" id="ratingModal">
+  <div class="rating-box">
+    <div style="font-size:36px;margin-bottom:10px;">🌟</div>
+    <h3 style="font-size:18px;font-weight:900;margin-bottom:6px;">قيّم الكورس</h3>
+    <p style="font-size:13px;color:var(--text-dim);">رأيك يهمنا ويساعد الطلاب الآخرين</p>
+    <div class="rating-stars" id="ratingStars">
+      <span class="rating-star" onclick="setRating(1)">⭐</span>
+      <span class="rating-star" onclick="setRating(2)">⭐</span>
+      <span class="rating-star" onclick="setRating(3)">⭐</span>
+      <span class="rating-star" onclick="setRating(4)">⭐</span>
+      <span class="rating-star" onclick="setRating(5)">⭐</span>
+    </div>
+    <textarea class="notes-area" placeholder="اكتب تعليقك عن الكورس..." style="margin-bottom:14px;"></textarea>
+    <div style="display:flex;gap:10px;">
+      <button class="submit-btn" style="flex:1;" onclick="submitRating()">إرسال التقييم</button>
+      <button class="submit-btn" style="flex:1;background:var(--bg3);color:var(--text);" onclick="closeModal('ratingModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- CERTIFICATE MODAL -->
+<div class="cert-modal" id="certModal">
+  <div class="cert-box">
+    <div class="confetti-wrap" id="confettiWrap"></div>
+    <div class="cert-big-icon">🎓</div>
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:8px;">مبروك! أكملت الكورس 🎉</h2>
+    <p style="color:var(--text-dim);font-size:13px;margin-bottom:20px;">شهادتك جاهزة للتحميل الآن</p>
+    <div style="background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(99,102,241,0.1));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:13px;color:var(--text-dim);">شهادة إتمام</div>
+      <div style="font-size:18px;font-weight:900;margin:6px 0;" id="certCourseName">كورس الرياضيات</div>
+      <div style="font-size:12px;color:var(--text-dim);">طالب ALSHHAB</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="submit-btn" style="flex:1;" onclick="downloadCert()">⬇️ تحميل PDF</button>
+      <button class="submit-btn" style="flex:1;background:var(--bg3);color:var(--text);" onclick="closeModal('certModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">
+        🔔
+        <span class="notif-dot"></span>
+      </button>
+      <div class="notif-dropdown" id="notifDrop">
+        <h4>الإشعارات</h4>
+        <div class="notif-item">🎉 <div><strong>مرحباً بك في ALSHHAB!</strong><br><span style="color:var(--text-dim);font-size:11px;">ابدأ رحلتك التعليمية الآن</span></div></div>
+        <div class="notif-item">📚 <div><strong>كورس جديد قريباً</strong><br><span style="color:var(--text-dim);font-size:11px;">سيُطلق خلال 3 أيام</span></div></div>
+        <div class="notif-item">🏆 <div><strong>أكملت أول خطوة!</strong><br><span style="color:var(--text-dim);font-size:11px;">حصلت على 10 XP</span></div></div>
+      </div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<!-- BOTTOM NAV (Mobile) -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT - غيّر المحتوى هنا -->
+  <main class="main">
+    <!-- محتوى الصفحة هنا -->
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script>
+  // كود خاص بالصفحة هنا
+</script>
+</body>
+</html>
