@@ -11,14 +11,7 @@
 </head>
 <body>
 
-<!-- CUSTOM CURSOR -->
-
-
-
-<!-- TOAST -->
 <div id="toast"></div>
-
-<!-- OFFLINE BADGE -->
 <div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
 
 <!-- SPLASH SCREEN -->
@@ -30,7 +23,7 @@
 
 <!-- COOKIE CONSENT -->
 <div id="cookie-bar">
-  <p>🍪 نستخدم الكوكيز لتحسين تجربتك على منصة ALSHHAB. باستمرارك فأنت توافق على <strong>سياسة الخصوصية</strong>.</p>
+  <p>🍪 نستخدم الكوكيز لتحسين تجربتك على منصة ALSHHAB.</p>
   <button class="cookie-accept" onclick="acceptCookies()">موافق</button>
 </div>
 
@@ -38,10 +31,10 @@
 <div class="settings-panel" id="settingsPanel">
   <h4>🎨 لون المنصة</h4>
   <div class="theme-dots">
-    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')" title="أخضر"></div>
-    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')" title="أزرق"></div>
-    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')" title="بنفسجي"></div>
-    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')" title="برتقالي"></div>
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
   </div>
   <h4>🌙 المظهر</h4>
   <div style="display:flex;gap:8px;">
@@ -49,17 +42,22 @@
     <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
   </div>
 </div>
-<button class="float-settings" onclick="toggleSettings()" title="الإعدادات">⚙️</button>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
 
 <!-- AUTH SCREEN -->
-<div id="auth-screen" class="show" style="position:relative;inset:unset;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
   <div class="auth-box">
     <div class="auth-logo">A L S H H A B</div>
     <div class="auth-sub">منصة تعليمية 🎓</div>
+
     <div class="auth-tabs">
       <div class="auth-tab active" onclick="switchAuth('login')">تسجيل الدخول</div>
       <div class="auth-tab" onclick="switchAuth('register')">حساب جديد</div>
     </div>
+
+    <!-- رسائل -->
+    <div id="authError" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;"></div>
+    <div id="authSuccess" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:var(--accent);padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;"></div>
 
     <!-- Login -->
     <div class="auth-form active" id="form-login">
@@ -67,82 +65,142 @@
       <input class="inp" type="email" placeholder="example@email.com" id="login-email">
       <label class="inp-label">كلمة السر</label>
       <input class="inp" type="password" placeholder="••••••••" id="login-pass">
-      <button class="btn-full" onclick="doLogin()">دخول ←</button>
-      <button class="google-btn" onclick="doLogin()">🌐 الدخول بحساب Google</button>
-      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--text-dim);cursor:pointer;" onclick="showOTP()">نسيت كلمة السر؟</p>
+      <button class="btn-full" id="loginBtn" onclick="doLogin()">دخول ←</button>
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--text-dim);cursor:pointer;" onclick="switchAuth('reset')">نسيت كلمة السر؟</p>
     </div>
 
     <!-- Register -->
     <div class="auth-form" id="form-register">
       <label class="inp-label">الاسم الكامل</label>
-      <input class="inp" type="text" placeholder="اكتب اسمك">
+      <input class="inp" type="text" placeholder="اكتب اسمك" id="reg-name">
       <label class="inp-label">البريد الإلكتروني</label>
-      <input class="inp" type="email" placeholder="example@email.com">
-      <label class="inp-label">كلمة السر</label>
-      <input class="inp" type="password" placeholder="••••••••">
-      <button class="btn-full" onclick="showOTP()">إنشاء الحساب ←</button>
-      <button class="google-btn" onclick="doLogin()">🌐 التسجيل بحساب Google</button>
+      <input class="inp" type="email" placeholder="example@email.com" id="reg-email">
+      <label class="inp-label">كلمة السر (6 أحرف على الأقل)</label>
+      <input class="inp" type="password" placeholder="••••••••" id="reg-pass">
+      <button class="btn-full" id="registerBtn" onclick="doRegister()">إنشاء الحساب ←</button>
     </div>
 
-    <!-- OTP -->
-    <div class="auth-form" id="form-otp">
-      <p style="text-align:center;color:var(--text-dim);font-size:13px;margin-bottom:5px;">أدخل الكود المرسل على إيميلك</p>
-      <div class="otp-grid">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,0)">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,1)">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,2)">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,3)">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,4)">
-        <input class="otp-input" maxlength="1" oninput="otpNext(this,5)">
-      </div>
-      <button class="btn-full" onclick="doLogin()">تأكيد الكود ✓</button>
+    <!-- Reset Password -->
+    <div class="auth-form" id="form-reset">
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:15px;">أدخل إيميلك وهنبعتلك رابط إعادة تعيين كلمة السر</p>
+      <label class="inp-label">البريد الإلكتروني</label>
+      <input class="inp" type="email" placeholder="example@email.com" id="reset-email">
+      <button class="btn-full" id="resetBtn" onclick="doReset()">إرسال الرابط ←</button>
       <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-dim);cursor:pointer;" onclick="switchAuth('login')">← رجوع</p>
     </div>
   </div>
 </div>
 
 <script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
 <script>
-  // ===== SPLASH =====
-  setTimeout(()=>{
-    const s = document.getElementById('splash');
-    s.style.opacity='0';
-    setTimeout(()=>{ s.style.display='none'; },600);
-  },2200);
+  // لو مسجل دخول خلاص، روّحه للداشبورد
+  if (sb.isLoggedIn()) window.location.href = 'dashboard.html';
 
-  // ===== AUTH FUNCTIONS =====
+  // Splash
+  setTimeout(() => {
+    const s = document.getElementById('splash');
+    s.style.opacity = '0';
+    setTimeout(() => s.style.display = 'none', 600);
+  }, 2200);
+
   function switchAuth(tab) {
-    document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    document.querySelectorAll('.auth-tab').forEach((t, i) => {
       t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1));
     });
-    document.getElementById('form-login').classList.toggle('active', tab==='login');
-    document.getElementById('form-register').classList.toggle('active', tab==='register');
-    document.getElementById('form-otp').classList.remove('active');
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById('form-' + tab).classList.add('active');
+    hideMessages();
   }
 
-  function showOTP() {
-    document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
-    document.getElementById('form-otp').classList.add('active');
+  function showError(msg) {
+    const el = document.getElementById('authError');
+    el.textContent = '⚠️ ' + msg;
+    el.style.display = 'block';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+  function showSuccess(msg) {
+    const el = document.getElementById('authSuccess');
+    el.textContent = '✅ ' + msg;
+    el.style.display = 'block';
+    document.getElementById('authError').style.display = 'none';
+  }
+  function hideMessages() {
+    document.getElementById('authError').style.display = 'none';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+  function setLoading(btnId, loading, defaultText) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = loading ? '⏳ جاري...' : defaultText;
   }
 
-  function otpNext(inp,idx){
-    if(inp.value.length===1){
-      const inputs=document.querySelectorAll('.otp-input');
-      if(inputs[idx+1]) inputs[idx+1].focus();
+  // ===== LOGIN =====
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    if (!email || !pass) { showError('أدخل الإيميل وكلمة السر'); return; }
+    hideMessages();
+    setLoading('loginBtn', true, 'دخول ←');
+    try {
+      await sb.signIn(email, pass);
+      showSuccess('أهلاً بك! جاري التحويل...');
+      setTimeout(() => window.location.href = 'dashboard.html', 1500);
+    } catch(e) {
+      showError(e.message || 'الإيميل أو كلمة السر غلط');
+      setLoading('loginBtn', false, 'دخول ←');
     }
   }
 
-  function doLogin(){
-    const email = document.getElementById('login-email')?.value?.trim();
-    const name = email ? email.split('@')[0] : 'طالب';
-    // Save user to localStorage
-    const existing = JSON.parse(localStorage.getItem('alshhab_user') || '{}');
-    if (!existing.name) {
-      localStorage.setItem('alshhab_user', JSON.stringify({ name, email: email || '' }));
+  // ===== REGISTER =====
+  async function doRegister() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    if (!name || !email || !pass) { showError('أكمل كل الحقول'); return; }
+    if (pass.length < 6) { showError('كلمة السر لازم تكون 6 أحرف على الأقل'); return; }
+    hideMessages();
+    setLoading('registerBtn', true, 'إنشاء الحساب ←');
+    try {
+      const res = await sb.signUp(email, pass, name);
+      if (res.user && !res.access_token) {
+        showSuccess('تم إنشاء الحساب! افتح إيميلك وأكد الحساب ثم ادخل 📧');
+        setLoading('registerBtn', false, 'إنشاء الحساب ←');
+      } else {
+        showSuccess('تم إنشاء الحساب! 🎉 جاري التحويل...');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+      }
+    } catch(e) {
+      showError(e.message || 'حدث خطأ، حاول تاني');
+      setLoading('registerBtn', false, 'إنشاء الحساب ←');
     }
-    showToast('جاري الدخول...');
-    setTimeout(()=>{ window.location.href = 'dashboard.html'; }, 800);
   }
+
+  // ===== RESET PASSWORD =====
+  async function doReset() {
+    const email = document.getElementById('reset-email').value.trim();
+    if (!email) { showError('أدخل الإيميل أولاً'); return; }
+    setLoading('resetBtn', true, 'إرسال الرابط ←');
+    try {
+      await fetch(`${sb.url}/auth/v1/recover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': sb.key },
+        body: JSON.stringify({ email }),
+      });
+      showSuccess('تم إرسال رابط إعادة التعيين على إيميلك 📧');
+    } catch {
+      showError('حدث خطأ، تأكد من الإيميل');
+    }
+    setLoading('resetBtn', false, 'إرسال الرابط ←');
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('form-login').classList.contains('active')) doLogin();
+    else if (document.getElementById('form-register').classList.contains('active')) doRegister();
+    else if (document.getElementById('form-reset').classList.contains('active')) doReset();
+  });
 </script>
 </body>
 </html>
