@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — الدفع</title>
+  <title>ALSHEHAB — الدفع</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -29,7 +29,7 @@
 </div>
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <button class="icon-btn" onclick="toggleTheme()">🌙</button>
     <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
@@ -47,6 +47,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
@@ -69,7 +70,7 @@
         </div>
         <button class="btn-full" onclick="showToast('تم الدفع بنجاح! 🎉 مرحباً في الكورس')">ادفع 79 ج.م 🔒</button>
         <div class="coupon-row">
-          <input class="coupon-inp" type="text" placeholder="كود الخصم (مثل: ALSHHAB20)" id="couponInp">
+          <input class="coupon-inp" type="text" placeholder="كود الخصم (مثل: ALSHEHAB20)" id="couponInp">
           <button class="coupon-btn" onclick="applyCoupon()">تطبيق</button>
         </div>
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
@@ -88,7 +89,7 @@
 <script>
   function applyCoupon(){
     const val = document.getElementById('couponInp').value.trim().toUpperCase();
-    const coupons = { 'ALSHHAB20': 20, 'SAVE50': 50, 'FREE100': 100 };
+    const coupons = { 'ALSHEHAB20': 20, 'SAVE50': 50, 'FREE100': 100 };
     if(coupons[val]){
       showToast(`🎉 تم تطبيق كود الخصم! خصم ${coupons[val]}%`);
       document.getElementById('couponInp').style.borderColor = 'var(--accent)';
