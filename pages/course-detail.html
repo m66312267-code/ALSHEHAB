@@ -141,9 +141,18 @@
 
       <div class="video-section">
         <div>
-          <div class="video-player" style="margin-bottom:16px;">
-            <div class="play-btn" onclick="showToast('شغّل الفيديو ▶️')">▶️</div>
-            <div class="video-progress-bar"><div class="video-progress-fill"></div></div>
+          <!-- YouTube Player -->
+          <div style="margin-bottom:16px;">
+            <div id="videoTitle" style="font-size:15px;font-weight:700;margin-bottom:10px;"></div>
+            <div id="videoWrapper" style="background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;">
+              <div id="noVideoMsg" style="color:#666;font-size:13px;text-align:center;padding:20px;">اختار درس من القائمة لتشغيله ▶️</div>
+              <iframe id="ytIframe" width="100%" height="100%" style="border:none;display:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <button id="btnPrev" onclick="prevLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">→ السابق</button>
+              <button id="btnMark" onclick="markDone()" style="flex:1;background:rgba(0,212,170,0.1);border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">✅ تمييز كمكتمل</button>
+              <button id="btnNext" onclick="nextLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">← التالي</button>
+            </div>
           </div>
 
           <div class="panel" style="margin-bottom:16px;">
@@ -177,15 +186,6 @@
                 <div class="comment-meta">منذ 3 أيام</div>
               </div>
             </div>
-            <div class="comment-item">
-              <div class="comment-avatar" style="background:linear-gradient(135deg,#f97316,#e05c00);">س</div>
-              <div class="comment-body">
-                <strong style="font-size:13px;">سارة علي</strong>
-                <div class="stars">★★★★★</div>
-                <p>استفدت كتير من الكورس ده، شكراً جزيلاً</p>
-                <div class="comment-meta">منذ أسبوع</div>
-              </div>
-            </div>
             <div class="inp-group" style="margin-top:14px;">
               <input class="inp" type="text" placeholder="اكتب تعليقك...">
             </div>
@@ -194,18 +194,19 @@
         </div>
 
         <div class="playlist">
-          <div class="playlist-header">📋 محتوى الكورس (36 درس)</div>
-          <div style="max-height:600px;overflow-y:auto;">
-            <div class="playlist-item active"><span class="pnum">1</span><span class="ptitle">مقدمة</span><span class="pdone">✅</span></div>
-            <div class="playlist-item"><span class="pnum">2</span><span class="ptitle">أنواع الكلمة</span><span class="pdur">12:30</span></div>
-            <div class="playlist-item"><span class="pnum">3</span><span class="ptitle">الاسم وأنواعه</span><span class="pdur">18:45</span></div>
-            <div class="playlist-item"><span class="pnum">4</span><span class="ptitle">الفعل وأزمنته</span><span class="pdur">22:10</span></div>
-            <div class="playlist-item"><span class="pnum">5</span><span class="ptitle">الحرف وأنواعه</span><span class="pdur">15:00</span></div>
-            <div class="playlist-item"><span class="pnum">6</span><span class="ptitle">الإعراب والبناء</span><span class="pdur">25:30</span></div>
-            <div class="playlist-item"><span class="pnum">7</span><span class="ptitle">المبتدأ والخبر</span><span class="pdur">19:15</span></div>
-            <div class="playlist-item"><span class="pnum">8</span><span class="ptitle">الفاعل والمفعول</span><span class="pdur">21:00</span></div>
-            <div class="playlist-item"><span class="pnum">9</span><span class="ptitle">النعت والبدل</span><span class="pdur">16:45</span></div>
-            <div class="playlist-item"><span class="pnum">10</span><span class="ptitle">الإضافة والتوابع</span><span class="pdur">23:00</span></div>
+          <div class="playlist-header" id="playlistHeader">📋 محتوى الكورس</div>
+          <div style="max-height:600px;overflow-y:auto;" id="playlistContainer">
+            <div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">جاري تحميل الدروس...</div>
+          </div>
+          <!-- Progress Bar -->
+          <div style="padding:12px;border-top:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+              <span>تقدمك</span>
+              <span id="progressText">0%</span>
+            </div>
+            <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+              <div id="progressFill" style="height:100%;background:linear-gradient(90deg,var(--accent),#6366f1);width:0%;transition:width 0.4s;border-radius:3px;"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -214,32 +215,156 @@
 </div>
 
 <script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
 <script>
-  function answerQuiz(el,correct){
-    document.querySelectorAll('.quiz-opt').forEach(o=>o.style.pointerEvents='none');
-    el.classList.add(correct?'correct':'wrong');
-    if(!correct) document.querySelectorAll('.quiz-opt')[1].classList.add('correct');
-    showToast(correct?'إجابة صحيحة! +10 XP 🎉':'إجابة خاطئة. حاول مرة أخرى');
+  requireAuth();
+
+  // ===== Load Course =====
+  const params = new URLSearchParams(location.search);
+  const courseId = params.get('id');
+  let course = null;
+  let currentLesson = 0;
+  let doneLessons = [];
+
+  function loadCourse() {
+    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
+    course = courses.find(c => c.id === courseId) || courses[0] || null;
+    if (!course) {
+      showToast('الكورس مش موجود ⚠️');
+      return;
+    }
+    doneLessons = JSON.parse(localStorage.getItem('alshehab_done_' + course.id) || '[]');
+
+    // Update hero info
+    document.querySelector('.cdh-thumb').textContent = course.emoji || '📚';
+    document.querySelector('.cdh-info h2').textContent = course.title;
+    document.querySelector('.cdh-info p').textContent = course.desc || '';
+    document.querySelector('[id="cdLessons"]') && (document.getElementById('cdLessons').textContent = (course.lessons?.length || 0) + ' درس');
+
+    // Stats
+    const stats = document.querySelector('.cdh-stats');
+    if (stats) stats.innerHTML = `
+      <div class="cdh-stat"><strong>${course.lessons?.length || 0}</strong> درس</div>
+      <div class="cdh-stat"><strong>${course.instructor || 'المدرّس'}</strong></div>
+      <div class="cdh-stat"><strong>${course.students || 0}+</strong> طالب</div>
+      <div class="cdh-stat"><strong>${course.rating || 5}</strong> ⭐</div>`;
+
+    // Price badge
+    const priceBadge = document.querySelector('.badge.badge-free');
+    if (priceBadge) priceBadge.textContent = course.price == 0 ? 'مجاني' : course.price + ' ج.م';
+
+    renderPlaylist();
+    if (course.lessons?.length > 0) playLesson(0);
+  }
+
+  function renderPlaylist() {
+    const lessons = course?.lessons || [];
+    const header = document.getElementById('playlistHeader');
+    const container = document.getElementById('playlistContainer');
+    if (!container) return;
+    header.textContent = `📋 محتوى الكورس (${lessons.length} درس)`;
+    if (lessons.length === 0) {
+      container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">لا توجد دروس بعد</div>';
+      return;
+    }
+    container.innerHTML = lessons.map((l, i) => {
+      const done = doneLessons.includes(l.id);
+      return `<div class="playlist-item${i === currentLesson ? ' active' : ''}" onclick="playLesson(${i})" id="pitem_${i}">
+        <span class="pnum">${i + 1}</span>
+        <span class="ptitle">${l.title}</span>
+        <span class="${done ? 'pdone' : 'pdur'}">${done ? '✅' : (l.youtubeId ? '▶️' : '—')}</span>
+      </div>`;
+    }).join('');
+    updateProgress();
+  }
+
+  function playLesson(index) {
+    const lessons = course?.lessons || [];
+    if (!lessons[index]) return;
+    currentLesson = index;
+    const l = lessons[index];
+
+    // Update active
+    document.querySelectorAll('.playlist-item').forEach((el, i) => el.classList.toggle('active', i === index));
+    document.getElementById('videoTitle').textContent = `${index + 1}. ${l.title}`;
+
+    const iframe = document.getElementById('ytIframe');
+    const noMsg = document.getElementById('noVideoMsg');
+    if (l.youtubeId) {
+      iframe.src = `https://www.youtube.com/embed/${l.youtubeId}?autoplay=1&rel=0`;
+      iframe.style.display = 'block';
+      noMsg.style.display = 'none';
+    } else {
+      iframe.style.display = 'none';
+      noMsg.style.display = 'flex';
+      noMsg.textContent = 'هذا الدرس ليس له فيديو بعد 🎬';
+    }
+  }
+
+  function markDone() {
+    const lessons = course?.lessons || [];
+    const l = lessons[currentLesson];
+    if (!l) return;
+    if (!doneLessons.includes(l.id)) {
+      doneLessons.push(l.id);
+      localStorage.setItem('alshehab_done_' + course.id, JSON.stringify(doneLessons));
+      showToast('تم تمييز الدرس كمكتمل ✅ +10 XP');
+      // Add XP
+      const xp = parseInt(localStorage.getItem('alshehab_xp') || '0') + 10;
+      localStorage.setItem('alshehab_xp', xp);
+    } else {
+      showToast('الدرس مكتمل بالفعل ✅');
+    }
+    renderPlaylist();
+  }
+
+  function nextLesson() {
+    const lessons = course?.lessons || [];
+    if (currentLesson < lessons.length - 1) playLesson(currentLesson + 1);
+    else showToast('هذا آخر درس في الكورس 🎓');
+  }
+
+  function prevLesson() {
+    if (currentLesson > 0) playLesson(currentLesson - 1);
+    else showToast('هذا أول درس في الكورس');
+  }
+
+  function updateProgress() {
+    const lessons = course?.lessons || [];
+    const pct = lessons.length > 0 ? Math.round((doneLessons.length / lessons.length) * 100) : 0;
+    const fill = document.getElementById('progressFill');
+    const text = document.getElementById('progressText');
+    if (fill) fill.style.width = pct + '%';
+    if (text) text.textContent = pct + '%';
+  }
+
+  function answerQuiz(el, correct) {
+    document.querySelectorAll('.quiz-opt').forEach(o => o.style.pointerEvents = 'none');
+    el.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) document.querySelectorAll('.quiz-opt')[1].classList.add('correct');
+    showToast(correct ? 'إجابة صحيحة! +10 XP 🎉' : 'إجابة خاطئة. حاول مرة أخرى');
   }
 
   let autosaveTimer;
-  function autoSaveNotes(){
+  function autoSaveNotes() {
     clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(()=>{
+    autosaveTimer = setTimeout(() => {
       const notes = document.getElementById('courseNotes')?.value;
-      if(notes !== undefined) {
-        localStorage.setItem('alshehab_notes', notes);
+      if (notes !== undefined) {
+        localStorage.setItem('alshehab_notes_' + courseId, notes);
         const ind = document.getElementById('autosaveInd');
-        ind.classList.add('show');
-        setTimeout(()=>ind.classList.remove('show'), 2000);
+        if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 2000); }
       }
-    }, 1000);
+    }, 800);
   }
-  window.addEventListener('load', ()=>{
-    const saved = localStorage.getItem('alshehab_notes');
-    const el = document.getElementById('courseNotes');
-    if(saved && el) el.value = saved;
+
+  // Load saved notes
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem('alshehab_notes_' + courseId);
+    if (saved) { const n = document.getElementById('courseNotes'); if (n) n.value = saved; }
   });
+
+  loadCourse();
 
   let currentRating = 0;
   function setRating(n){
