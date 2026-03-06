@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — حسابي</title>
+  <title>ALSHEHAB — حسابي</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -32,7 +32,7 @@
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
@@ -63,6 +63,7 @@
     <div class="nav-item active"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
@@ -76,8 +77,8 @@
       <div class="profile-hero">
         <div class="profile-av" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
         <div class="profile-info">
-          <h3>طالب ALSHHAB</h3>
-          <p>student@alshhab.com</p>
+          <h3>طالب ALSHEHAB</h3>
+          <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2556515041404b51654449564d4d44470b464a48">[email&#160;protected]</a></p>
           <div class="level-badge">⭐ مبتدئ — 0 / 500 XP</div>
           <div class="xp-bar-wrap" style="width:220px;">
             <div class="xp-info"><span>0 XP</span><span>500 XP</span></div>
@@ -96,11 +97,11 @@
         <h3>تعديل البيانات</h3>
         <div class="inp-group">
           <label>الاسم الكامل</label>
-          <input class="inp" type="text" id="profileName" placeholder="اكتب اسمك" value="طالب ALSHHAB">
+          <input class="inp" type="text" id="profileName" placeholder="اكتب اسمك" value="طالب ALSHEHAB">
         </div>
         <div class="inp-group">
           <label>البريد الإلكتروني</label>
-          <input class="inp" type="email" id="profileEmail" value="student@alshhab.com">
+          <input class="inp" type="email" id="profileEmail" value="student@alshehab.com">
         </div>
         <div class="inp-group">
           <label>كلمة السر الجديدة</label>
@@ -144,16 +145,16 @@
   </main>
 </div>
 
-<script src="../js/shared.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../js/shared.js"></script>
 <script src="../js/supabase.js"></script>
 <script>requireAuth();</script>
 <script>
   // Load real user data
-  const userData = JSON.parse(localStorage.getItem('alshhab_user') || '{}');
-  const xp = parseInt(localStorage.getItem('alshhab_xp') || '0');
-  const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
-  const completed = JSON.parse(localStorage.getItem('alshhab_completed') || '[]');
-  const studyLog = JSON.parse(localStorage.getItem('alshhab_studylog') || '{}');
+  const userData = JSON.parse(localStorage.getItem('alshehab_user') || '{}');
+  const xp = parseInt(localStorage.getItem('alshehab_xp') || '0');
+  const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
+  const completed = JSON.parse(localStorage.getItem('alshehab_completed') || '[]');
+  const studyLog = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
 
   // Fill name & email
   if (userData.name) {
@@ -186,11 +187,4 @@
   function saveProfile() {
     const name = document.getElementById('profileName').value.trim();
     const email = document.getElementById('profileEmail').value.trim();
-    if (!name) { showToast('اكتب اسمك ⚠️'); return; }
-    localStorage.setItem('alshhab_user', JSON.stringify({ ...userData, name, email }));
-    showToast('تم حفظ التغييرات ✅');
-    setTimeout(() => location.reload(), 800);
-  }
-</script>
-</body>
-</html>
+    if (!name) { showToast('اكتب اسمك ⚠️'); retur
