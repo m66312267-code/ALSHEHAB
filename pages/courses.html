@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — الكورسات</title>
+  <title>ALSHEHAB — الكورسات</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -32,13 +32,13 @@
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
       <div class="notif-dropdown" id="notifDrop">
         <h4>الإشعارات</h4>
-        <div class="notif-item">🎉 <div><strong>مرحباً بك في ALSHHAB!</strong><br><span style="color:var(--text-dim);font-size:11px;">ابدأ رحلتك التعليمية الآن</span></div></div>
+        <div class="notif-item">🎉 <div><strong>مرحباً بك في ALSHEHAB!</strong><br><span style="color:var(--text-dim);font-size:11px;">ابدأ رحلتك التعليمية الآن</span></div></div>
         <div class="notif-item">📚 <div><strong>كورس جديد قريباً</strong></div></div>
       </div>
     </div>
@@ -67,6 +67,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
@@ -120,7 +121,7 @@
     const empty = document.getElementById('emptyState');
     if (list.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
-    const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
+    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
     grid.innerHTML = list.map((c, i) => {
       const isFav = favorites.includes(c.id);
       const isEnrolled = enrolled.includes(c.id);
@@ -187,7 +188,7 @@
   async function enrollCourse(id) {
     await Courses.enroll(id);
     const course = allCourses.find(c => c.id === id);
-    if (course) localStorage.setItem('alshhab_lastcourse', course.title);
+    if (course) localStorage.setItem('alshehab_lastcourse', course.title);
     showToast('تم التسجيل في الكورس! ✅');
     setTimeout(() => window.location.href = 'course-detail.html?id=' + id, 800);
   }
