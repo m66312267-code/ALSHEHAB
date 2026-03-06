@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — تفاصيل الكورس</title>
+  <title>ALSHEHAB — تفاصيل الكورس</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -46,7 +46,7 @@
     <div style="background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(99,102,241,0.1));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
       <div style="font-size:13px;color:var(--text-dim);">شهادة إتمام</div>
       <div style="font-size:18px;font-weight:900;margin:6px 0;">كورس الرياضيات</div>
-      <div style="font-size:12px;color:var(--text-dim);">طالب ALSHHAB</div>
+      <div style="font-size:12px;color:var(--text-dim);">طالب ALSHEHAB</div>
     </div>
     <div style="display:flex;gap:10px;">
       <button class="submit-btn" style="flex:1;" onclick="downloadCert()">⬇️ تحميل PDF</button>
@@ -72,7 +72,7 @@
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
@@ -106,6 +106,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
@@ -227,7 +228,7 @@
     autosaveTimer = setTimeout(()=>{
       const notes = document.getElementById('courseNotes')?.value;
       if(notes !== undefined) {
-        localStorage.setItem('alshhab_notes', notes);
+        localStorage.setItem('alshehab_notes', notes);
         const ind = document.getElementById('autosaveInd');
         ind.classList.add('show');
         setTimeout(()=>ind.classList.remove('show'), 2000);
@@ -235,7 +236,7 @@
     }, 1000);
   }
   window.addEventListener('load', ()=>{
-    const saved = localStorage.getItem('alshhab_notes');
+    const saved = localStorage.getItem('alshehab_notes');
     const el = document.getElementById('courseNotes');
     if(saved && el) el.value = saved;
   });
