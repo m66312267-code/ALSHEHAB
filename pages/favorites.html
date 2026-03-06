@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — المفضلة</title>
+  <title>ALSHEHAB — المفضلة</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -26,7 +26,7 @@
 </div>
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <button class="icon-btn" onclick="toggleTheme()">🌙</button>
     <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
@@ -51,6 +51,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
@@ -73,8 +74,8 @@
 </div>
 <script src="../js/shared.js"></script>
 <script>
-  const favIds = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
-  const allCourses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+  const favIds = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
+  const allCourses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
   const favCourses = allCourses.filter(c => favIds.includes(c.id));
   const grid = document.getElementById('favGrid');
   const empty = document.getElementById('favEmpty');
@@ -99,9 +100,9 @@
   }
 
   function removeFav(btn, id) {
-    let favs = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    let favs = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
     favs = favs.filter(f => f !== id);
-    localStorage.setItem('alshhab_favs', JSON.stringify(favs));
+    localStorage.setItem('alshehab_favs', JSON.stringify(favs));
     btn.closest('.course-card').remove();
     showToast('تم الحذف من المفضلة');
     if (document.querySelectorAll('.course-card').length === 0) {
