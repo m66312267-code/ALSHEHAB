@@ -88,35 +88,49 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="inp-group"><label>اسم الكورس *</label><input class="inp" id="cTitle" placeholder="مثل: كورس الرياضيات"></div>
           <div class="inp-group"><label>الإيموجي</label><input class="inp" id="cEmoji" placeholder="مثل: 📐" maxlength="2"></div>
-          <div class="inp-group"><label>وصف الكورس</label><input class="inp" id="cDesc" placeholder="وصف مختصر"></div>
+          <div class="inp-group" style="grid-column:1/-1;"><label>وصف الكورس</label><input class="inp" id="cDesc" placeholder="وصف مختصر للكورس"></div>
           <div class="inp-group"><label>الفئة</label>
             <select class="inp" id="cCat" style="cursor:pointer;">
-              <option value="math">رياضيات</option>
-              <option value="science">علوم</option>
-              <option value="lang">لغات</option>
-              <option value="code">برمجة</option>
-              <option value="other">أخرى</option>
+              <option value="math">📐 رياضيات</option>
+              <option value="science">🔬 علوم</option>
+              <option value="lang">🌍 لغات</option>
+              <option value="code">💻 برمجة</option>
+              <option value="other">📚 أخرى</option>
             </select>
           </div>
-          <div class="inp-group"><label>السعر (0 = مجاني)</label><input class="inp" id="cPrice" type="number" min="0" placeholder="0"></div>
+          <div class="inp-group"><label>السعر بالجنيه (0 = مجاني)</label><input class="inp" id="cPrice" type="number" min="0" placeholder="0" value="0"></div>
           <div class="inp-group"><label>الحالة</label>
             <select class="inp" id="cStatus" style="cursor:pointer;">
-              <option value="active">منشور</option>
-              <option value="soon">قريباً</option>
+              <option value="active">✅ منشور</option>
+              <option value="soon">⏳ قريباً</option>
             </select>
           </div>
-          <div class="inp-group"><label>عدد الدروس</label><input class="inp" id="cLessons" type="number" placeholder="مثل: 30"></div>
-          <div class="inp-group"><label>عدد الساعات</label><input class="inp" id="cHours" type="number" placeholder="مثل: 15"></div>
+          <div class="inp-group"><label>المدرّس</label><input class="inp" id="cInstructor" placeholder="اسم المدرّس"></div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="cIsNew"> جديد
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="cIsHot"> 🔥 الأكثر
-          </label>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="cIsNew"> 🆕 جديد</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="cIsHot"> 🔥 الأكثر</label>
         </div>
-        <button class="submit-btn" style="margin-top:14px;" onclick="addCourse()">✅ إضافة الكورس</button>
+
+        <!-- LESSONS -->
+        <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 style="margin:0;">🎬 دروس الكورس</h3>
+          <span style="font-size:12px;color:var(--text-dim);" id="lessonCount">0 درس</span>
+        </div>
+
+        <div style="background:rgba(0,212,170,0.06);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--text-dim);line-height:1.8;">
+          💡 <strong style="color:var(--text);">إزاي تجيب رابط YouTube Unlisted؟</strong><br>
+          ارفع الفيديو على يوتيوب ← في الخصوصية اختار <strong style="color:var(--accent);">"غير مدرج"</strong> ← اضغط مشاركة ← انسخ الرابط<br>
+          كده الفيديو <strong style="color:var(--accent);">مش هيظهر في البحث</strong>، بس بيشتغل جوه المنصة فقط ✅
+        </div>
+
+        <div id="lessonsContainer"></div>
+        <button onclick="addLessonRow()" style="background:rgba(0,212,170,0.08);border:1px dashed var(--accent);color:var(--accent);border-radius:10px;padding:10px;width:100%;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;margin-top:4px;">
+          + إضافة درس جديد
+        </button>
+
+        <button class="submit-btn" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="addCourse()">✅ حفظ الكورس ونشره</button>
       </div>
 
       <!-- Courses Table -->
@@ -187,9 +201,83 @@
       </tr>`).join('');
   }
 
+  let lessonRows = [];
+
+  function getYouTubeID(url) {
+    const r = url.match(/(?:youtu\.be\/|v=|\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return r ? r[1] : null;
+  }
+
+  function addLessonRow() {
+    const id = 'lesson_' + Date.now();
+    lessonRows.push(id);
+    updateLessonCount();
+    const container = document.getElementById('lessonsContainer');
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:13px;font-weight:700;color:var(--accent);">درس ${lessonRows.length}</span>
+        <button onclick="removeLessonRow('${id}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;">✕ حذف</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="inp-group" style="margin:0;"><label>عنوان الدرس *</label><input class="inp" id="${id}_title" placeholder="مثل: مقدمة الكورس" oninput="updateLessonCount()"></div>
+        <div class="inp-group" style="margin:0;"><label>رابط YouTube</label>
+          <input class="inp" id="${id}_url" placeholder="https://youtu.be/..." oninput="previewLesson('${id}')">
+        </div>
+      </div>
+      <div id="${id}_preview" style="margin-top:10px;display:none;">
+        <div style="font-size:11px;color:var(--accent);margin-bottom:6px;">✅ معاينة الفيديو:</div>
+        <iframe id="${id}_iframe" width="100%" height="180" style="border-radius:8px;border:none;" allowfullscreen></iframe>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  function removeLessonRow(id) {
+    document.getElementById(id)?.remove();
+    lessonRows = lessonRows.filter(r => r !== id);
+    updateLessonCount();
+  }
+
+  function previewLesson(id) {
+    const url = document.getElementById(id + '_url')?.value.trim();
+    const vid = getYouTubeID(url);
+    const preview = document.getElementById(id + '_preview');
+    const iframe = document.getElementById(id + '_iframe');
+    if (vid && preview && iframe) {
+      iframe.src = `https://www.youtube.com/embed/${vid}`;
+      preview.style.display = 'block';
+    } else if (preview) {
+      preview.style.display = 'none';
+    }
+  }
+
+  function updateLessonCount() {
+    const filled = lessonRows.filter(id => document.getElementById(id + '_title')?.value.trim()).length;
+    document.getElementById('lessonCount').textContent = lessonRows.length + ' درس' + (filled > 0 ? ` (${filled} مكتمل)` : '');
+  }
+
   function addCourse() {
     const title = document.getElementById('cTitle').value.trim();
     if (!title) { showToast('اكتب اسم الكورس أولاً ⚠️'); return; }
+
+    // جمع الدروس
+    const lessons = [];
+    lessonRows.forEach((id, i) => {
+      const t = document.getElementById(id + '_title')?.value.trim();
+      const url = document.getElementById(id + '_url')?.value.trim();
+      if (t) {
+        lessons.push({
+          id: 'l_' + Date.now() + '_' + i,
+          title: t,
+          youtubeUrl: url || '',
+          youtubeId: getYouTubeID(url || '') || '',
+          order: i + 1
+        });
+      }
+    });
+
     const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
     const newCourse = {
       id: 'c_' + Date.now(),
@@ -199,20 +287,26 @@
       category: document.getElementById('cCat').value,
       price: parseInt(document.getElementById('cPrice').value) || 0,
       status: document.getElementById('cStatus').value,
-      lessons: parseInt(document.getElementById('cLessons').value) || null,
-      hours: parseInt(document.getElementById('cHours').value) || null,
+      instructor: document.getElementById('cInstructor').value.trim(),
       isNew: document.getElementById('cIsNew').checked,
       isHot: document.getElementById('cIsHot').checked,
+      lessons,
+      lessonCount: lessons.length,
       rating: 5,
       students: 0,
     };
     courses.push(newCourse);
     localStorage.setItem('alshehab_courses', JSON.stringify(courses));
-    // Reset form
-    ['cTitle','cEmoji','cDesc','cPrice','cLessons','cHours'].forEach(id => document.getElementById(id).value = '');
+
+    // Reset
+    ['cTitle','cEmoji','cDesc','cPrice','cInstructor'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('cIsNew').checked = false;
     document.getElementById('cIsHot').checked = false;
-    showToast('تم إضافة الكورس ✅');
+    document.getElementById('lessonsContainer').innerHTML = '';
+    lessonRows = [];
+    updateLessonCount();
+
+    showToast(`تم نشر الكورس بـ ${lessons.length} درس ✅`);
     loadStats();
   }
 
