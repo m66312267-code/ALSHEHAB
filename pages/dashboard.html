@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title ALSHEHAB ></title>
+  <title>ALSHEHAB — الرئيسية</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -34,7 +34,7 @@
 
 <!-- TOPBAR -->
 <header class="topbar">
-   <div class="logo"> ALSHEHAB</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()" id="notifBtn">🔔<span class="notif-dot" id="notifDot" style="display:none;"></span></button>
@@ -72,6 +72,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="signOut()"><span>🚪</span> تسجيل الخروج</div>
@@ -80,7 +81,7 @@
 
   <main class="main">
     <div class="page active">
-      <div class="page-title">أهلاً بك، <span style="color:var(--accent)">طالب ALSHEHAB </span> 👋</div>
+      <div class="page-title">أهلاً بك، <span style="color:var(--accent)">طالب ALSHEHAB</span> 👋</div>
       <div class="page-sub">متابع رحلتك التعليمية من هنا</div>
 
       <!-- Stats Cards -->
@@ -143,16 +144,25 @@
 <script src="../js/shared.js"></script>
 <script src="../js/supabase.js"></script>
 <script>
-  // انتظر الـ session تتحفظ قبل ما تتحقق
-  setTimeout(() => {
-    if (!sb.isLoggedIn()) window.location.href = 'index.html';
-  }, 800);
-  function signOut() { sb.signOut(); }
-  const user = getCurrentUser();
+  // ===== AUTH CHECK =====
+  // الصفحة مش بتشتغل غير لما الـ session تكون موجودة
+  let user = sb.getUser();
 
-  // Set avatar initial
-  const profile_name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'A';
-  document.getElementById('avatarBtn').textContent = profile_name.charAt(0).toUpperCase();
+  if (!user) {
+    // مش مسجل — روح للدخول فوراً
+    window.location.replace('index.html');
+  } else {
+    // مسجل — شغّل الصفحة
+    initDashboard();
+  }
+
+  function initDashboard() {
+    function signOut() { sb.signOut(); }
+    window.signOut = signOut;
+
+    // Set avatar
+    const profile_name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'A';
+    document.getElementById('avatarBtn').textContent = profile_name.charAt(0).toUpperCase();
 
   // ===== LOAD REAL NOTIFICATIONS =====
   async function loadNotifications() {
@@ -224,7 +234,7 @@
     document.getElementById('progFill').style.width = pct + '%';
 
     // Streak from localStorage (still local)
-    const studyLog = JSON.parse(localStorage.getItem('alshhab_studylog') || '{}');
+    const studyLog = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
     let streak = 0;
     for (let i = 0; i < 30; i++) {
       const d = new Date(); d.setDate(d.getDate() - i);
@@ -271,15 +281,8 @@
     });
   }
 
-  loadDashboard();
+    loadDashboard();
+  } // end initDashboard
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
