@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — الشهادات</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="toast"></div><div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item active"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">🎓 الشهادات</div>
+      <div class="page-sub">شهاداتك من إتمام الكورسات</div>
+      <div class="panel" style="text-align:center;padding:40px;margin-bottom:20px;">
+        <div style="font-size:48px;margin-bottom:15px;">🎓</div>
+        <p style="color:var(--text-dim);font-size:14px;">أكمل كورساً للحصول على شهادتك</p>
+        <button class="submit-btn" style="margin-top:15px;" onclick="window.location.href='courses.html'">ابدأ تعلم</button>
+      </div>
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:15px;color:var(--text-dim);">نماذج شهادات ALSHHAB</h3>
+      <div class="certs-grid">
+        <div class="cert-card">
+          <div class="cert-icon">📝</div>
+          <h4>اللغة العربية</h4>
+          <p>شهادة إتمام كورس اللغة العربية</p>
+          <div class="cert-dl" onclick="showToast('أكمل الكورس أولاً 📚')">تحميل PDF</div>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">⚛️</div>
+          <h4>الفيزياء</h4>
+          <p>شهادة إتمام كورس الفيزياء</p>
+          <div class="cert-dl" onclick="showToast('أكمل الكورس أولاً 📚')">تحميل PDF</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../js/shared.js"></script>
+</body>
+</html>

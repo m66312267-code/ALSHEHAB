@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — لوحة التحكم</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
+      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4></div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item active"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">⚙️ لوحة التحكم</div>
+      <div class="page-sub">إدارة المنصة والكورسات والطلاب</div>
+
+      <div class="admin-grid" id="adminStats">
+        <div class="admin-stat"><div class="an" id="asCourses">0</div><div class="al">📚 كورسات</div></div>
+        <div class="admin-stat"><div class="an" id="asEnrolled">0</div><div class="al">👥 تسجيلات</div></div>
+        <div class="admin-stat"><div class="an" id="asCompleted">0</div><div class="al">✅ مكتملة</div></div>
+        <div class="admin-stat"><div class="an" id="asFavs">0</div><div class="al">❤️ مفضلة</div></div>
+      </div>
+
+      <!-- Add Course Form -->
+      <div class="panel" style="margin-bottom:18px;">
+        <h3>➕ إضافة كورس جديد</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="inp-group"><label>اسم الكورس *</label><input class="inp" id="cTitle" placeholder="مثل: كورس الرياضيات"></div>
+          <div class="inp-group"><label>الإيموجي</label><input class="inp" id="cEmoji" placeholder="مثل: 📐" maxlength="2"></div>
+          <div class="inp-group"><label>وصف الكورس</label><input class="inp" id="cDesc" placeholder="وصف مختصر"></div>
+          <div class="inp-group"><label>الفئة</label>
+            <select class="inp" id="cCat" style="cursor:pointer;">
+              <option value="math">رياضيات</option>
+              <option value="science">علوم</option>
+              <option value="lang">لغات</option>
+              <option value="code">برمجة</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div class="inp-group"><label>السعر (0 = مجاني)</label><input class="inp" id="cPrice" type="number" min="0" placeholder="0"></div>
+          <div class="inp-group"><label>الحالة</label>
+            <select class="inp" id="cStatus" style="cursor:pointer;">
+              <option value="active">منشور</option>
+              <option value="soon">قريباً</option>
+            </select>
+          </div>
+          <div class="inp-group"><label>عدد الدروس</label><input class="inp" id="cLessons" type="number" placeholder="مثل: 30"></div>
+          <div class="inp-group"><label>عدد الساعات</label><input class="inp" id="cHours" type="number" placeholder="مثل: 15"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="cIsNew"> جديد
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="cIsHot"> 🔥 الأكثر
+          </label>
+        </div>
+        <button class="submit-btn" style="margin-top:14px;" onclick="addCourse()">✅ إضافة الكورس</button>
+      </div>
+
+      <!-- Courses Table -->
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="margin:0;">📋 الكورسات الحالية</h3>
+          <button class="submit-btn" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);" onclick="clearAllCourses()">🗑 مسح الكل</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table" id="coursesTable">
+            <thead><tr><th>الكورس</th><th>الفئة</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody id="coursesTableBody"></tbody>
+          </table>
+          <div id="noCoursesMsg" style="text-align:center;padding:30px;color:var(--text-dim);font-size:13px;">لم تتم إضافة أي كورس بعد</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+  // ===== ADMIN GUARD =====
+  (async function checkAdmin() {
+    // أولاً: لازم يكون مسجل دخول
+    if (!sb.isLoggedIn()) {
+      window.location.href = 'index.html';
+      return;
+    }
+    // تانياً: لازم يكون role = 'admin'
+    const user = sb.getUser();
+    const profile = await getProfile(user.id);
+    if (!profile || profile.role !== 'admin') {
+      showToast('⛔ مش مسموحلك تدخل هنا');
+      setTimeout(() => window.location.href = 'dashboard.html', 1200);
+    }
+  })();
+
+  function loadStats() {
+    const courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
+    const completed = JSON.parse(localStorage.getItem('alshhab_completed') || '[]');
+    const favs = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    document.getElementById('asCourses').textContent = courses.length;
+    document.getElementById('asEnrolled').textContent = enrolled.length;
+    document.getElementById('asCompleted').textContent = completed.length;
+    document.getElementById('asFavs').textContent = favs.length;
+    renderTable(courses);
+  }
+
+  function renderTable(courses) {
+    const tbody = document.getElementById('coursesTableBody');
+    const noMsg = document.getElementById('noCoursesMsg');
+    if (courses.length === 0) {
+      tbody.innerHTML = '';
+      noMsg.style.display = 'block';
+      return;
+    }
+    noMsg.style.display = 'none';
+    tbody.innerHTML = courses.map(c => `
+      <tr>
+        <td>${c.emoji||'📚'} ${c.title}</td>
+        <td>${c.category||'—'}</td>
+        <td>${c.price == 0 ? '<span class="badge badge-free">مجاني</span>' : c.price + ' ج.م'}</td>
+        <td>${c.status === 'soon' ? '<span class="badge badge-soon">قريباً</span>' : '<span class="badge badge-free">منشور</span>'}</td>
+        <td><button class="course-btn btn-enroll" style="font-size:11px;padding:5px 10px;background:#ef4444;" onclick="deleteCourse('${c.id}')">🗑 حذف</button></td>
+      </tr>`).join('');
+  }
+
+  function addCourse() {
+    const title = document.getElementById('cTitle').value.trim();
+    if (!title) { showToast('اكتب اسم الكورس أولاً ⚠️'); return; }
+    const courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    const newCourse = {
+      id: 'c_' + Date.now(),
+      title,
+      emoji: document.getElementById('cEmoji').value.trim() || '📚',
+      desc: document.getElementById('cDesc').value.trim(),
+      category: document.getElementById('cCat').value,
+      price: parseInt(document.getElementById('cPrice').value) || 0,
+      status: document.getElementById('cStatus').value,
+      lessons: parseInt(document.getElementById('cLessons').value) || null,
+      hours: parseInt(document.getElementById('cHours').value) || null,
+      isNew: document.getElementById('cIsNew').checked,
+      isHot: document.getElementById('cIsHot').checked,
+      rating: 5,
+      students: 0,
+    };
+    courses.push(newCourse);
+    localStorage.setItem('alshhab_courses', JSON.stringify(courses));
+    // Reset form
+    ['cTitle','cEmoji','cDesc','cPrice','cLessons','cHours'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cIsNew').checked = false;
+    document.getElementById('cIsHot').checked = false;
+    showToast('تم إضافة الكورس ✅');
+    loadStats();
+  }
+
+  function deleteCourse(id) {
+    let courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    courses = courses.filter(c => c.id !== id);
+    localStorage.setItem('alshhab_courses', JSON.stringify(courses));
+    showToast('تم حذف الكورس 🗑');
+    loadStats();
+  }
+
+  function clearAllCourses() {
+    if (!confirm('مؤكد تمسح كل الكورسات؟')) return;
+    localStorage.setItem('alshhab_courses', '[]');
+    showToast('تم مسح كل الكورسات');
+    loadStats();
+  }
+
+  loadStats();
+</script>
+</body>
+</html>

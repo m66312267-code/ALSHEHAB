@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — المفضلة</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="toast"></div><div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item active"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item active"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">❤️ المفضلة</div>
+      <div class="page-sub">الكورسات اللي حفظتها</div>
+      <div id="favGrid" class="courses-grid"></div>
+      <div id="favEmpty" style="display:none;">
+        <div class="panel" style="text-align:center;padding:40px;">
+          <div style="font-size:48px;margin-bottom:15px;">🤍</div>
+          <p style="color:var(--text-dim);font-size:14px;">لم تحفظ أي كورس بعد</p>
+          <button class="submit-btn" style="margin-top:15px;" onclick="window.location.href='courses.html'">استعرض الكورسات</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../js/shared.js"></script>
+<script>
+  const favIds = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+  const allCourses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+  const favCourses = allCourses.filter(c => favIds.includes(c.id));
+  const grid = document.getElementById('favGrid');
+  const empty = document.getElementById('favEmpty');
+
+  if (favCourses.length === 0) {
+    empty.style.display = 'block';
+  } else {
+    const thumbClasses = ['t1','t2','t3','t4','t5','t6'];
+    grid.innerHTML = favCourses.map((c, i) => `
+      <div class="course-card">
+        <button class="fav-btn active" onclick="removeFav(this,'${c.id}')">❤️</button>
+        <div class="course-thumb ${thumbClasses[i%6]}">${c.emoji||'📚'}</div>
+        <div class="course-info">
+          <h4>${c.title}</h4>
+          <p class="cdesc">${c.desc||''}</p>
+          <div class="course-foot" style="margin-top:10px;">
+            ${c.price==0 ? '<span class="badge badge-free">مجاني</span>' : `<span class="badge badge-paid">${c.price} ج.م</span>`}
+            <button class="course-btn btn-enroll" onclick="window.location.href='course-detail.html?id=${c.id}'">فتح</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function removeFav(btn, id) {
+    let favs = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    favs = favs.filter(f => f !== id);
+    localStorage.setItem('alshhab_favs', JSON.stringify(favs));
+    btn.closest('.course-card').remove();
+    showToast('تم الحذف من المفضلة');
+    if (document.querySelectorAll('.course-card').length === 0) {
+      document.getElementById('favEmpty').style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>

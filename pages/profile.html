@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — حسابي</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
+      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4></div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item active"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item active"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">👤 حسابي</div>
+
+      <div class="profile-hero">
+        <div class="profile-av" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
+        <div class="profile-info">
+          <h3>طالب ALSHHAB</h3>
+          <p>student@alshhab.com</p>
+          <div class="level-badge">⭐ مبتدئ — 0 / 500 XP</div>
+          <div class="xp-bar-wrap" style="width:220px;">
+            <div class="xp-info"><span>0 XP</span><span>500 XP</span></div>
+            <div class="prog-track"><div class="prog-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-stats-grid">
+        <div class="pstat"><div class="pn">0</div><div class="pl">كورسات مسجل</div></div>
+        <div class="pstat"><div class="pn">0</div><div class="pl">كورسات مكتملة</div></div>
+        <div class="pstat"><div class="pn">0</div><div class="pl">ساعات دراسة</div></div>
+      </div>
+
+      <div class="panel" style="max-width:500px;">
+        <h3>تعديل البيانات</h3>
+        <div class="inp-group">
+          <label>الاسم الكامل</label>
+          <input class="inp" type="text" id="profileName" placeholder="اكتب اسمك" value="طالب ALSHHAB">
+        </div>
+        <div class="inp-group">
+          <label>البريد الإلكتروني</label>
+          <input class="inp" type="email" id="profileEmail" value="student@alshhab.com">
+        </div>
+        <div class="inp-group">
+          <label>كلمة السر الجديدة</label>
+          <input class="inp" type="password" placeholder="اتركها فارغة إذا لم تريد التغيير">
+        </div>
+        <button class="submit-btn" onclick="saveProfile()">حفظ التغييرات</button>
+      </div>
+
+      <div class="panel" style="max-width:500px;margin-top:18px;">
+        <h3>🔐 الأمان والخصوصية</h3>
+        <div class="tfa-toggle">
+          <div>
+            <div style="font-size:13px;font-weight:700;">التحقق بخطوتين (2FA)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">حماية إضافية لحسابك</div>
+          </div>
+          <div class="toggle-sw" id="tfaToggle" onclick="toggleTFA()"></div>
+        </div>
+        <div class="tfa-toggle">
+          <div>
+            <div style="font-size:13px;font-weight:700;">إشعارات البريد</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">استقبال تحديثات الكورسات</div>
+          </div>
+          <div class="toggle-sw on" id="emailToggle" onclick="toggleSwitch('emailToggle')"></div>
+        </div>
+        <div class="tfa-toggle">
+          <div>
+            <div style="font-size:13px;font-weight:700;">Push Notifications</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:3px;">إشعارات فورية</div>
+          </div>
+          <div class="toggle-sw on" id="pushToggle" onclick="toggleSwitch('pushToggle')"></div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">ربط الحسابات الاجتماعية</div>
+          <div style="display:flex;gap:8px;">
+            <button class="google-btn" style="flex:1;" onclick="showToast('تم الربط بـ Google ✅')">🌐 Google</button>
+            <button class="google-btn" style="flex:1;" onclick="showToast('تم الربط بـ Facebook ✅')">📘 Facebook</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>requireAuth();</script>
+<script>
+  // Load real user data
+  const userData = JSON.parse(localStorage.getItem('alshhab_user') || '{}');
+  const xp = parseInt(localStorage.getItem('alshhab_xp') || '0');
+  const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
+  const completed = JSON.parse(localStorage.getItem('alshhab_completed') || '[]');
+  const studyLog = JSON.parse(localStorage.getItem('alshhab_studylog') || '{}');
+
+  // Fill name & email
+  if (userData.name) {
+    document.querySelector('.profile-av').textContent = userData.name.charAt(0).toUpperCase();
+    document.querySelector('.profile-info h3').textContent = userData.name;
+    document.getElementById('profileName').value = userData.name;
+    document.querySelector('.avatar-btn').textContent = userData.name.charAt(0).toUpperCase();
+  }
+  if (userData.email) {
+    document.querySelector('.profile-info p').textContent = userData.email;
+    document.getElementById('profileEmail').value = userData.email;
+  }
+
+  // XP + Level
+  const level = xp < 500 ? 'مبتدئ' : xp < 1500 ? 'متوسط' : xp < 3000 ? 'متقدم' : 'خبير';
+  const nextLevel = xp < 500 ? 500 : xp < 1500 ? 1500 : xp < 3000 ? 3000 : 5000;
+  const pct = Math.min(100, Math.round((xp / nextLevel) * 100));
+  document.querySelector('.level-badge').textContent = `⭐ ${level} — ${xp} / ${nextLevel} XP`;
+  document.querySelector('.xp-info span:first-child').textContent = xp + ' XP';
+  document.querySelector('.xp-info span:last-child').textContent = nextLevel + ' XP';
+  document.querySelector('.xp-bar-wrap .prog-fill').style.width = pct + '%';
+
+  // Stats
+  const totalHours = Object.values(studyLog).reduce((a,b) => a + b, 0);
+  document.querySelectorAll('.pstat .pn')[0].textContent = enrolled.length;
+  document.querySelectorAll('.pstat .pn')[1].textContent = completed.length;
+  document.querySelectorAll('.pstat .pn')[2].textContent = Math.round(totalHours / 60);
+
+  // Save profile
+  function saveProfile() {
+    const name = document.getElementById('profileName').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+    if (!name) { showToast('اكتب اسمك ⚠️'); return; }
+    localStorage.setItem('alshhab_user', JSON.stringify({ ...userData, name, email }));
+    showToast('تم حفظ التغييرات ✅');
+    setTimeout(() => location.reload(), 800);
+  }
+</script>
+</body>
+</html>

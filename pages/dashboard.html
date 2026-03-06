@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHHAB — الرئيسية</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<!-- SETTINGS -->
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">A L S H H A B</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()" id="notifBtn">🔔<span class="notif-dot" id="notifDot" style="display:none;"></span></button>
+      <div class="notif-dropdown" id="notifDrop">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="margin:0;">الإشعارات</h4>
+          <span style="font-size:11px;color:var(--accent);cursor:pointer;" onclick="readAllNotifs()">قراءة الكل</span>
+        </div>
+        <div id="notifList"><div style="text-align:center;color:var(--text-dim);font-size:12px;padding:10px;">جاري التحميل...</div></div>
+      </div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-item active"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item active"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="signOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">أهلاً بك، <span style="color:var(--accent)">طالب ALSHHAB</span> 👋</div>
+      <div class="page-sub">متابع رحلتك التعليمية من هنا</div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" id="real-stats">
+        <div class="stat-card"><div class="snum" id="sv1">0</div><div class="slbl">📹 فيديوهات مشاهدة</div></div>
+        <div class="stat-card"><div class="snum" id="sv2">0</div><div class="slbl">📚 كورسات مسجّل</div></div>
+        <div class="stat-card"><div class="snum" id="sv3">0</div><div class="slbl">✅ كورسات مكتملة</div></div>
+        <div class="stat-card"><div class="snum" id="sv4">0</div><div class="slbl">⚡ نقاط XP</div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <h3>📊 تقدمك الكلي</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:var(--text-dim)">المستوى الحالي</span>
+            <span style="font-size:22px;font-weight:900;color:var(--accent)">0%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+          <div class="welcome-box">
+            <p>جاهز تبدأ رحلتك؟ 🚀</p>
+            <button class="start-btn" onclick="window.location.href='courses.html'">استعرض الكورسات</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>📋 آخر النشاطات</h3>
+          <div class="activity-row"><div class="ico"><span>📘</span> آخر كورس</div><strong id="lastCourse">لم تبدأ بعد</strong></div>
+          <div class="activity-row"><div class="ico"><span>⏱</span> وقت الدراسة اليوم</div><strong id="studyTime">0 دقيقة</strong></div>
+          <div class="activity-row"><div class="ico"><span>⚡</span> نقاط XP المكتسبة</div><strong id="xpToday">0 XP</strong></div>
+          <button class="continue-btn" onclick="window.location.href='courses.html'">ابدأ التعلم الآن ←</button>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:18px;margin-top:18px;">
+        <div class="panel">
+          <h3>🔥 Streak اليومي</h3>
+          <div style="text-align:center;padding:10px 0;">
+            <div class="streak-fire">🔥</div>
+            <div class="streak-num" id="streakCount">0</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">أيام متواصلة</div>
+          </div>
+          <div class="streak-days" id="streakDays"></div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-dim);text-align:center;" id="streakMsg">ابدأ تعلم النهارده! 💪</div>
+        </div>
+
+        <div class="panel">
+          <h3>📈 نشاطك الأسبوعي (دقائق)</h3>
+          <div class="chart-wrap" id="weekChart"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--text-dim);">
+            <span>إجمالي الأسبوع: <strong style="color:var(--accent)" id="weekTotal">0 دقيقة</strong></span>
+            <span id="bestDay"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+  requireAuth();
+  function signOut() { sb.signOut(); }
+  const user = getCurrentUser();
+
+  // Set avatar initial
+  const profile_name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'A';
+  document.getElementById('avatarBtn').textContent = profile_name.charAt(0).toUpperCase();
+
+  // ===== LOAD REAL NOTIFICATIONS =====
+  async function loadNotifications() {
+    if (!user) return;
+    const notifs = await getNotifications(user.id);
+    const list = document.getElementById('notifList');
+    const dot = document.getElementById('notifDot');
+    const unread = notifs.filter(n => !n.is_read);
+    dot.style.display = unread.length > 0 ? 'block' : 'none';
+    if (notifs.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:12px;padding:10px;">لا توجد إشعارات</div>';
+      return;
+    }
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item" style="${!n.is_read ? 'border-right:3px solid var(--accent);' : ''}" onclick="markRead('${n.id}',this)">
+        <div style="font-size:18px;">${n.is_read ? '🔔' : '🔴'}</div>
+        <div>
+          <strong>${n.title}</strong>
+          ${n.body ? `<br><span style="color:var(--text-dim);font-size:11px;">${n.body}</span>` : ''}
+          <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${timeAgo(n.created_at)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function markRead(id, el) {
+    await markNotifRead(id);
+    el.style.borderRight = 'none';
+    el.querySelector('div:first-child').textContent = '🔔';
+    await loadNotifications();
+  }
+
+  async function readAllNotifs() {
+    if (!user) return;
+    await markAllNotifsRead(user.id);
+    await loadNotifications();
+    showToast('تم تحديد الكل كمقروء ✅');
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60) return 'الآن';
+    if (diff < 3600) return `منذ ${Math.floor(diff/60)} دقيقة`;
+    if (diff < 86400) return `منذ ${Math.floor(diff/3600)} ساعة`;
+    return `منذ ${Math.floor(diff/86400)} يوم`;
+  }
+
+  loadNotifications();
+
+  // ===== LOAD REAL PROFILE DATA =====
+  async function loadDashboard() {
+    if (!user) return;
+    const profile = await getProfile(user.id);
+    const enrollments = await getEnrollments(user.id);
+    const completed = enrollments.filter(e => e.completed).length;
+
+    document.getElementById('sv1').textContent = enrollments.reduce((a,e) => a + (e.progress||0), 0);
+    document.getElementById('sv2').textContent = enrollments.length;
+    document.getElementById('sv3').textContent = completed;
+    document.getElementById('sv4').textContent = profile?.xp || 0;
+
+    const lastEnroll = enrollments[enrollments.length - 1];
+    if (lastEnroll) {
+      document.getElementById('lastCourse').textContent = lastEnroll.course_id;
+    }
+
+    // XP progress bar
+    const xp = profile?.xp || 0;
+    const pct = Math.min(100, Math.round((xp / 500) * 100));
+    document.getElementById('progFill').style.width = pct + '%';
+
+    // Streak from localStorage (still local)
+    const studyLog = JSON.parse(localStorage.getItem('alshhab_studylog') || '{}');
+    let streak = 0;
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      if ((studyLog[key] || 0) > 0) streak++;
+      else if (i > 0) break;
+    }
+    document.getElementById('streakCount').textContent = streak;
+    if (streak > 0) document.getElementById('streakMsg').textContent = `${streak} ${streak===1?'يوم':'أيام'} متواصلة 🔥`;
+
+    // Weekly chart
+    const dayNames = ['س','أ','ث','ر','خ','ج','س'];
+    const chartWrap = document.getElementById('weekChart');
+    chartWrap.innerHTML = '';
+    let weekTotal = 0, bestDay = {name:'',mins:0};
+    dayNames.forEach((name, i) => {
+      const d = new Date();
+      const diff = i - d.getDay();
+      d.setDate(d.getDate() + diff);
+      const key = d.toISOString().slice(0,10);
+      const mins = studyLog[key] || 0;
+      weekTotal += mins;
+      if (mins > bestDay.mins) bestDay = {name, mins};
+      const h = mins > 0 ? Math.max(5, Math.min(100, Math.round((mins/120)*100))) : 3;
+      const isToday = i === new Date().getDay();
+      chartWrap.innerHTML += `<div class="chart-bar-wrap">
+        <div class="chart-bar" style="height:${h}%;${isToday?'background:linear-gradient(180deg,#f97316,rgba(249,115,22,0.3))':''}"></div>
+        <div class="chart-lbl" style="${isToday?'color:#f97316;font-weight:700;':''}">${name}</div>
+      </div>`;
+    });
+    document.getElementById('weekTotal').textContent = weekTotal + ' دقيقة';
+    if (bestDay.mins > 0) document.getElementById('bestDay').innerHTML = `أفضل يوم: <strong style="color:#f97316;">${bestDay.name}</strong>`;
+
+    // Streak days UI
+    const streakWrap = document.getElementById('streakDays');
+    streakWrap.innerHTML = '';
+    const todayIdx = new Date().getDay();
+    dayNames.forEach((name, i) => {
+      const d = new Date(); const diff = i - todayIdx; d.setDate(d.getDate() + diff);
+      const key = d.toISOString().slice(0,10);
+      const isToday = i === todayIdx;
+      const done = (studyLog[key]||0) > 0;
+      streakWrap.innerHTML += `<div class="streak-day ${isToday?'today':done?'done':''}"><span>${name}</span></div>`;
+    });
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>
