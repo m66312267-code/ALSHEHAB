@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> ALSHEHAB — لوحة التحكم</title>
+  <title>ALSHEHAB — لوحة التحكم</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -32,7 +32,7 @@
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 
 <header class="topbar">
-  <div class="logo"> ALSHEHAB</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
@@ -63,6 +63,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item active"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
@@ -156,10 +157,10 @@
   })();
 
   function loadStats() {
-    const courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
-    const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
-    const completed = JSON.parse(localStorage.getItem('alshhab_completed') || '[]');
-    const favs = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
+    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
+    const completed = JSON.parse(localStorage.getItem('alshehab_completed') || '[]');
+    const favs = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
     document.getElementById('asCourses').textContent = courses.length;
     document.getElementById('asEnrolled').textContent = enrolled.length;
     document.getElementById('asCompleted').textContent = completed.length;
@@ -189,7 +190,7 @@
   function addCourse() {
     const title = document.getElementById('cTitle').value.trim();
     if (!title) { showToast('اكتب اسم الكورس أولاً ⚠️'); return; }
-    const courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
     const newCourse = {
       id: 'c_' + Date.now(),
       title,
@@ -206,7 +207,7 @@
       students: 0,
     };
     courses.push(newCourse);
-    localStorage.setItem('alshhab_courses', JSON.stringify(courses));
+    localStorage.setItem('alshehab_courses', JSON.stringify(courses));
     // Reset form
     ['cTitle','cEmoji','cDesc','cPrice','cLessons','cHours'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('cIsNew').checked = false;
@@ -216,16 +217,16 @@
   }
 
   function deleteCourse(id) {
-    let courses = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    let courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
     courses = courses.filter(c => c.id !== id);
-    localStorage.setItem('alshhab_courses', JSON.stringify(courses));
+    localStorage.setItem('alshehab_courses', JSON.stringify(courses));
     showToast('تم حذف الكورس 🗑');
     loadStats();
   }
 
   function clearAllCourses() {
     if (!confirm('مؤكد تمسح كل الكورسات؟')) return;
-    localStorage.setItem('alshhab_courses', '[]');
+    localStorage.setItem('alshehab_courses', '[]');
     showToast('تم مسح كل الكورسات');
     loadStats();
   }
