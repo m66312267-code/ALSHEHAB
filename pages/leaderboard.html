@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHHAB — المتصدرون</title>
+  <title>ALSHEHAB — المتصدرون</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
@@ -26,7 +26,7 @@
 </div>
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
 <header class="topbar">
-  <div class="logo">A L S H H A B</div>
+  <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
     <button class="icon-btn" onclick="toggleTheme()">🌙</button>
     <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
@@ -51,6 +51,7 @@
     <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
     <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
     <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
     <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
     <div class="sidebar-footer">
       <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
@@ -75,16 +76,16 @@
 <script>
   // Leaderboard بيتحمل من localStorage
   // كل مستخدم بيتسجل بنفسه، والـ XP بيتحفظ locally
-  const board = JSON.parse(localStorage.getItem('alshhab_leaderboard') || '[]');
-  const myName = JSON.parse(localStorage.getItem('alshhab_user') || '{}').name || 'أنت';
-  const myXP = parseInt(localStorage.getItem('alshhab_xp') || '0');
+  const board = JSON.parse(localStorage.getItem('alshehab_leaderboard') || '[]');
+  const myName = JSON.parse(localStorage.getItem('alshehab_user') || '{}').name || 'أنت';
+  const myXP = parseInt(localStorage.getItem('alshehab_xp') || '0');
 
   // Add current user to board if has XP
   if (myXP > 0) {
     const existing = board.findIndex(u => u.isMe);
     if (existing !== -1) board[existing].xp = myXP;
     else board.push({ name: myName, xp: myXP, isMe: true });
-    localStorage.setItem('alshhab_leaderboard', JSON.stringify(board));
+    localStorage.setItem('alshehab_leaderboard', JSON.stringify(board));
   }
 
   // Sort by XP
