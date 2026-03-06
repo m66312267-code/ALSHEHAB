@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHEHAB — من نحن</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .about-hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(135deg, rgba(0,212,170,0.08), rgba(99,102,241,0.08));
+      border-radius: 20px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+    .founder-avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 30px rgba(0,212,170,0.3);
+    }
+    .founder-name {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .founder-title {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .contact-chips {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .chip {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .chip:hover { background: rgba(0,212,170,0.1); border-color: var(--accent); color: var(--accent); }
+    .about-section { margin-bottom: 24px; }
+    .about-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .vision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .vision-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .vision-icon { font-size: 32px; margin-bottom: 10px; }
+    .vision-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .vision-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+    .timeline { position: relative; padding-right: 20px; }
+    .timeline::before { content: ''; position: absolute; right: 7px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .tl-item { position: relative; margin-bottom: 20px; padding-right: 24px; }
+    .tl-dot { position: absolute; right: -7px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+    .tl-year { font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+    .tl-text { font-size: 13px; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">A L S H E H A B</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="window.location.href='leaderboard.html'"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='certificates.html'"><span>🎓</span> الشهادات</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item active"><span>💡</span> من نحن</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="sb && sb.signOut ? sb.signOut() : window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+
+      <!-- HERO -->
+      <div class="about-hero">
+        <div class="founder-avatar">م</div>
+        <div class="founder-name">محمد فهمي المحص</div>
+        <div class="founder-title">🎓 مؤسس ومطوّر منصة ALSHEHAB التعليمية</div>
+        <p style="font-size:14px;color:var(--text-dim);max-width:500px;margin:0 auto;line-height:1.8;">
+          بنيت هذه المنصة من الصفر بشغف حقيقي للتعليم، هدفي إنك تلاقي كل اللي محتاجه في مكان واحد وبأسلوب سهل وممتع 🚀
+        </p>
+        <div class="contact-chips">
+          <a class="chip" onclick="copyPhone()">📱 01063786533</a>
+          <a class="chip" href="https://wa.me/201063786533" target="_blank">💬 واتساب</a>
+        </div>
+      </div>
+
+      <!-- VISION -->
+      <div class="about-section">
+        <h3>🎯 رؤيتنا وهدفنا</h3>
+        <div class="vision-grid">
+          <div class="vision-card">
+            <div class="vision-icon">🌍</div>
+            <div class="vision-title">تعليم للجميع</div>
+            <div class="vision-desc">نؤمن إن التعليم حق للكل، كورسات مجانية ومدفوعة بجودة عالية</div>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">⚡</div>
+            <div class="vision-title">تعلم ذكي</div>
+            <div class="vision-desc">نقاط XP وشهادات وتتبع تقدم حقيقي يخليك متحمس دايماً</div>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">🏆</div>
+            <div class="vision-title">منافسة صحية</div>
+            <div class="vision-desc">ليدربورد وتحديات تخليك تنافس زمايلك وتوصل للقمة</div>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">🎓</div>
+            <div class="vision-title">شهادات معتمدة</div>
+            <div class="vision-desc">كل كورس بتخلصه بتاخد شهادة PDF تقدر تشاركها وتفخر بيها</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT PLATFORM -->
+      <div class="panel about-section">
+        <h3>🏗️ عن المنصة</h3>
+        <p style="font-size:14px;color:var(--text-dim);line-height:2;">
+          منصة <strong style="color:var(--text);">ALSHEHAB</strong> هي منصة تعليمية متكاملة تم بناؤها بالكامل بواسطة
+          <strong style="color:var(--accent);">محمد فهمي المحص</strong>. المنصة بتوفر كورسات فيديو تعليمية، نظام نقاط XP،
+          شهادات إتمام، ولوحة متصدرين — كل ده في تجربة مستخدم سلسة وجميلة.
+        </p>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <span style="background:rgba(0,212,170,0.1);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;">⚡ HTML / CSS / JS</span>
+          <span style="background:rgba(99,102,241,0.1);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;">🗄️ Supabase</span>
+          <span style="background:rgba(251,191,36,0.1);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;">🎬 YouTube API</span>
+          <span style="background:rgba(239,68,68,0.1);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;">📱 Responsive Design</span>
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="panel about-section">
+        <h3>📞 تواصل مع المؤسس</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+          <div style="background:var(--bg3);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;">
+            <span style="font-size:24px;">📱</span>
+            <div>
+              <div style="font-size:11px;color:var(--text-dim);">رقم الهاتف</div>
+              <div style="font-size:14px;font-weight:700;cursor:pointer;" onclick="copyPhone()">01063786533</div>
+            </div>
+          </div>
+          <div style="background:var(--bg3);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="window.open('https://wa.me/201063786533','_blank')">
+            <span style="font-size:24px;">💬</span>
+            <div>
+              <div style="font-size:11px;color:var(--text-dim);">واتساب</div>
+              <div style="font-size:14px;font-weight:700;color:#25d366;">تواصل معنا</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER SIGNATURE -->
+      <div style="text-align:center;padding:30px;color:var(--text-dim);font-size:12px;border-top:1px solid var(--border);margin-top:10px;">
+        صُنعت بـ ❤️ بواسطة <strong style="color:var(--accent);">محمد فهمي المحص</strong><br>
+        <span style="font-size:11px;margin-top:6px;display:block;">© 2025 ALSHEHAB — جميع الحقوق محفوظة</span>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+  function copyPhone() {
+    navigator.clipboard?.writeText('01063786533');
+    showToast('تم نسخ الرقم 📋');
+  }
+</script>
+</body>
+</html>
