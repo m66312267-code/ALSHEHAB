@@ -10,8 +10,6 @@
 </head>
 <body>
 
-
-
 <div id="toast"></div>
 <div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
 
@@ -75,11 +73,12 @@
       <div class="page-title">⚙️ لوحة التحكم</div>
       <div class="page-sub">إدارة المنصة والكورسات والطلاب</div>
 
+      <!-- Stats -->
       <div class="admin-grid" id="adminStats">
-        <div class="admin-stat"><div class="an" id="asCourses">0</div><div class="al">📚 كورسات</div></div>
-        <div class="admin-stat"><div class="an" id="asEnrolled">0</div><div class="al">👥 تسجيلات</div></div>
-        <div class="admin-stat"><div class="an" id="asCompleted">0</div><div class="al">✅ مكتملة</div></div>
-        <div class="admin-stat"><div class="an" id="asFavs">0</div><div class="al">❤️ مفضلة</div></div>
+        <div class="admin-stat"><div class="an" id="asCourses">—</div><div class="al">📚 كورسات</div></div>
+        <div class="admin-stat"><div class="an" id="asEnrolled">—</div><div class="al">👥 تسجيلات</div></div>
+        <div class="admin-stat"><div class="an" id="asCompleted">—</div><div class="al">✅ مكتملة</div></div>
+        <div class="admin-stat"><div class="an" id="asFavs">—</div><div class="al">❤️ مفضلة</div></div>
       </div>
 
       <!-- Add Course Form -->
@@ -87,7 +86,7 @@
         <h3>➕ إضافة كورس جديد</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="inp-group"><label>اسم الكورس *</label><input class="inp" id="cTitle" placeholder="مثل: كورس الرياضيات"></div>
-          <div class="inp-group"><label>الإيموجي</label><input class="inp" id="cEmoji" placeholder="مثل: 📐" maxlength="2"></div>
+          <div class="inp-group"><label>الإيموجي</label><input class="inp" id="cEmoji" placeholder="📐" maxlength="2"></div>
           <div class="inp-group" style="grid-column:1/-1;"><label>وصف الكورس</label><input class="inp" id="cDesc" placeholder="وصف مختصر للكورس"></div>
           <div class="inp-group"><label>الفئة</label>
             <select class="inp" id="cCat" style="cursor:pointer;">
@@ -130,10 +129,12 @@
           + إضافة درس جديد
         </button>
 
-        <button class="submit-btn" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="addCourse()">✅ حفظ الكورس ونشره</button>
+        <button class="submit-btn" style="width:100%;margin-top:16px;padding:14px;font-size:15px;" onclick="addCourse()" id="saveCourseBtn">
+          ✅ حفظ الكورس ونشره
+        </button>
       </div>
 
-      <!-- قسم طلبات الدفع -->
+      <!-- طلبات الدفع -->
       <div class="panel" style="margin-bottom:18px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <h3 style="margin:0;">💳 طلبات الدفع المعلقة
@@ -152,10 +153,10 @@
         </div>
         <div style="overflow-x:auto;">
           <table class="admin-table" id="coursesTable">
-            <thead><tr><th>الكورس</th><th>الفئة</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <thead><tr><th>الكورس</th><th>الفئة</th><th>الدروس</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr></thead>
             <tbody id="coursesTableBody"></tbody>
           </table>
-          <div id="noCoursesMsg" style="text-align:center;padding:30px;color:var(--text-dim);font-size:13px;">لم تتم إضافة أي كورس بعد</div>
+          <div id="noCoursesMsg" style="text-align:center;padding:30px;color:var(--text-dim);font-size:13px;">⏳ جاري تحميل الكورسات...</div>
         </div>
       </div>
     </div>
@@ -165,151 +166,174 @@
 <script src="../js/shared.js"></script>
 <script src="../js/supabase.js"></script>
 <script>
-  // ===== ADMIN GUARD =====
-  (async function checkAdmin() {
-    // أولاً: لازم يكون مسجل دخول
-    if (!sb.isLoggedIn()) {
-      window.location.href = 'index.html';
-      return;
-    }
-    // تانياً: لازم يكون role = 'admin'
-    const user = sb.getUser();
-    const profile = await getProfile(user.id);
-    if (!profile || profile.role !== 'admin') {
-      showToast('⛔ مش مسموحلك تدخل هنا');
-      setTimeout(() => window.location.href = 'dashboard.html', 1200);
-    }
-  })();
-
-  function loadStats() {
-    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
-    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
-    const completed = JSON.parse(localStorage.getItem('alshehab_completed') || '[]');
-    const favs = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
-    document.getElementById('asCourses').textContent = courses.length;
-    document.getElementById('asEnrolled').textContent = enrolled.length;
-    document.getElementById('asCompleted').textContent = completed.length;
-    document.getElementById('asFavs').textContent = favs.length;
-    renderTable(courses);
+// ===== ADMIN GUARD =====
+(async function checkAdmin() {
+  if (!sb.isLoggedIn()) { window.location.href = 'index.html'; return; }
+  const user = sb.getUser();
+  const profile = await getProfile(user.id);
+  if (!profile || profile.role !== 'admin') {
+    showToast('⛔ مش مسموحلك تدخل هنا');
+    setTimeout(() => window.location.href = 'dashboard.html', 1200);
+    return;
   }
+  loadStats();
+  loadPaymentRequests();
+})();
 
-  function renderTable(courses) {
-    const tbody = document.getElementById('coursesTableBody');
-    const noMsg = document.getElementById('noCoursesMsg');
-    if (courses.length === 0) {
-      tbody.innerHTML = '';
-      noMsg.style.display = 'block';
-      return;
-    }
-    noMsg.style.display = 'none';
-    tbody.innerHTML = courses.map(c => `
-      <tr>
-        <td>${c.emoji||'📚'} ${c.title}</td>
-        <td>${c.category||'—'}</td>
-        <td>${c.price == 0 ? '<span class="badge badge-free">مجاني</span>' : c.price + ' ج.م'}</td>
-        <td>${c.status === 'soon' ? '<span class="badge badge-soon">قريباً</span>' : '<span class="badge badge-free">منشور</span>'}</td>
-        <td><button class="course-btn btn-enroll" style="font-size:11px;padding:5px 10px;background:#ef4444;" onclick="deleteCourse('${c.id}')">🗑 حذف</button></td>
-      </tr>`).join('');
+// ===== STATS من Supabase =====
+async function loadStats() {
+  try {
+    const courses     = await sb.select('courses', 'select=id');
+    const enrollments = await sb.select('enrollments', 'select=id,completed');
+    const favs        = await sb.select('favorites', 'select=id');
+
+    const coursesArr   = Array.isArray(courses) ? courses : [];
+    const enrollArr    = Array.isArray(enrollments) ? enrollments : [];
+    const favsArr      = Array.isArray(favs) ? favs : [];
+    const completedArr = enrollArr.filter(e => e.completed);
+
+    document.getElementById('asCourses').textContent  = coursesArr.length;
+    document.getElementById('asEnrolled').textContent = enrollArr.length;
+    document.getElementById('asCompleted').textContent= completedArr.length;
+    document.getElementById('asFavs').textContent     = favsArr.length;
+
+    // جيب الكورسات كاملة عشان تعرض الجدول
+    await loadCoursesTable();
+  } catch(e) {
+    console.error('loadStats error:', e);
   }
+}
 
-  let lessonRows = [];
+async function loadCoursesTable() {
+  const courses = await sb.select('courses', 'order=created_at.desc');
+  renderTable(Array.isArray(courses) ? courses : []);
+}
 
-  function getYouTubeID(url) {
-    const r = url.match(/(?:youtu\.be\/|v=|\/embed\/)([a-zA-Z0-9_-]{11})/);
-    return r ? r[1] : null;
+function renderTable(courses) {
+  const tbody = document.getElementById('coursesTableBody');
+  const noMsg = document.getElementById('noCoursesMsg');
+  if (!courses || courses.length === 0) {
+    tbody.innerHTML = '';
+    noMsg.textContent = 'لم تتم إضافة أي كورس بعد';
+    noMsg.style.display = 'block';
+    return;
   }
+  noMsg.style.display = 'none';
+  tbody.innerHTML = courses.map(c => `
+    <tr>
+      <td>${c.emoji||'📚'} ${c.title}</td>
+      <td>${c.category||'—'}</td>
+      <td>${c.lessons_count||0} درس</td>
+      <td>${c.price == 0 ? '<span class="badge badge-free">مجاني</span>' : (c.price + ' ج.م')}</td>
+      <td>${c.status === 'soon' ? '<span class="badge badge-soon">قريباً</span>' : '<span class="badge badge-free">منشور</span>'}</td>
+      <td><button class="course-btn btn-enroll" style="font-size:11px;padding:5px 10px;background:#ef4444;" onclick="deleteCourse('${c.id}')">🗑 حذف</button></td>
+    </tr>`).join('');
+}
 
-  function addLessonRow() {
-    const id = 'lesson_' + Date.now();
-    lessonRows.push(id);
-    updateLessonCount();
-    const container = document.getElementById('lessonsContainer');
-    const div = document.createElement('div');
-    div.id = id;
-    div.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
-    div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <span style="font-size:13px;font-weight:700;color:var(--accent);">درس ${lessonRows.length}</span>
-        <button onclick="removeLessonRow('${id}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;">✕ حذف</button>
+// ===== LESSON ROWS =====
+let lessonRows = [];
+
+function getYouTubeID(url) {
+  const r = (url||'').match(/(?:youtu\.be\/|v=|\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return r ? r[1] : null;
+}
+
+function addLessonRow() {
+  const id = 'lesson_' + Date.now();
+  lessonRows.push(id);
+  updateLessonCount();
+  const container = document.getElementById('lessonsContainer');
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:13px;font-weight:700;color:var(--accent);">درس ${lessonRows.length}</span>
+      <button onclick="removeLessonRow('${id}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;">✕ حذف</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="inp-group" style="margin:0;"><label>عنوان الدرس *</label><input class="inp" id="${id}_title" placeholder="مثل: مقدمة الكورس" oninput="updateLessonCount()"></div>
+      <div class="inp-group" style="margin:0;"><label>رابط YouTube</label>
+        <input class="inp" id="${id}_url" placeholder="https://youtu.be/..." oninput="previewLesson('${id}')">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="inp-group" style="margin:0;"><label>عنوان الدرس *</label><input class="inp" id="${id}_title" placeholder="مثل: مقدمة الكورس" oninput="updateLessonCount()"></div>
-        <div class="inp-group" style="margin:0;"><label>رابط YouTube</label>
-          <input class="inp" id="${id}_url" placeholder="https://youtu.be/..." oninput="previewLesson('${id}')">
-        </div>
-      </div>
-      <div id="${id}_preview" style="margin-top:10px;display:none;">
-        <div style="font-size:11px;color:var(--accent);margin-bottom:6px;">✅ معاينة الفيديو:</div>
-        <iframe id="${id}_iframe" width="100%" height="180" style="border-radius:8px;border:none;" allowfullscreen></iframe>
-      </div>`;
-    container.appendChild(div);
-  }
+    </div>
+    <div id="${id}_preview" style="margin-top:10px;display:none;">
+      <div style="font-size:11px;color:var(--accent);margin-bottom:6px;">✅ معاينة الفيديو:</div>
+      <iframe id="${id}_iframe" width="100%" height="180" style="border-radius:8px;border:none;" allowfullscreen></iframe>
+    </div>`;
+  container.appendChild(div);
+}
 
-  function removeLessonRow(id) {
-    document.getElementById(id)?.remove();
-    lessonRows = lessonRows.filter(r => r !== id);
-    updateLessonCount();
-  }
+function removeLessonRow(id) {
+  document.getElementById(id)?.remove();
+  lessonRows = lessonRows.filter(r => r !== id);
+  updateLessonCount();
+}
 
-  function previewLesson(id) {
+function previewLesson(id) {
+  const url = document.getElementById(id + '_url')?.value.trim();
+  const vid = getYouTubeID(url);
+  const preview = document.getElementById(id + '_preview');
+  const iframe  = document.getElementById(id + '_iframe');
+  if (vid && preview && iframe) {
+    iframe.src = `https://www.youtube.com/embed/${vid}`;
+    preview.style.display = 'block';
+  } else if (preview) {
+    preview.style.display = 'none';
+  }
+}
+
+function updateLessonCount() {
+  const filled = lessonRows.filter(id => document.getElementById(id + '_title')?.value.trim()).length;
+  document.getElementById('lessonCount').textContent = lessonRows.length + ' درس' + (filled > 0 ? ` (${filled} مكتمل)` : '');
+}
+
+// ===== ADD COURSE → Supabase =====
+async function addCourse() {
+  const title = document.getElementById('cTitle').value.trim();
+  if (!title) { showToast('اكتب اسم الكورس أولاً ⚠️'); return; }
+
+  // جمع الدروس
+  const lessons = [];
+  lessonRows.forEach((id, i) => {
+    const t   = document.getElementById(id + '_title')?.value.trim();
     const url = document.getElementById(id + '_url')?.value.trim();
-    const vid = getYouTubeID(url);
-    const preview = document.getElementById(id + '_preview');
-    const iframe = document.getElementById(id + '_iframe');
-    if (vid && preview && iframe) {
-      iframe.src = `https://www.youtube.com/embed/${vid}`;
-      preview.style.display = 'block';
-    } else if (preview) {
-      preview.style.display = 'none';
+    if (t) {
+      lessons.push({
+        id:        'l_' + Date.now() + '_' + i,
+        title:     t,
+        youtubeUrl: url || '',
+        youtubeId:  getYouTubeID(url || '') || '',
+        order:     i + 1,
+      });
     }
-  }
+  });
 
-  function updateLessonCount() {
-    const filled = lessonRows.filter(id => document.getElementById(id + '_title')?.value.trim()).length;
-    document.getElementById('lessonCount').textContent = lessonRows.length + ' درس' + (filled > 0 ? ` (${filled} مكتمل)` : '');
-  }
+  const btn = document.getElementById('saveCourseBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الحفظ...';
 
-  function addCourse() {
-    const title = document.getElementById('cTitle').value.trim();
-    if (!title) { showToast('اكتب اسم الكورس أولاً ⚠️'); return; }
+  const newCourse = {
+    title,
+    emoji:        document.getElementById('cEmoji').value.trim() || '📚',
+    description:  document.getElementById('cDesc').value.trim(),
+    category:     document.getElementById('cCat').value,
+    price:        parseFloat(document.getElementById('cPrice').value) || 0,
+    status:       document.getElementById('cStatus').value,
+    instructor:   document.getElementById('cInstructor').value.trim(),
+    is_new:       document.getElementById('cIsNew').checked,
+    is_hot:       document.getElementById('cIsHot').checked,
+    lessons:      lessons,          // jsonb
+    lessons_count: lessons.length,
+    rating:       5,
+    students:     0,
+  };
 
-    // جمع الدروس
-    const lessons = [];
-    lessonRows.forEach((id, i) => {
-      const t = document.getElementById(id + '_title')?.value.trim();
-      const url = document.getElementById(id + '_url')?.value.trim();
-      if (t) {
-        lessons.push({
-          id: 'l_' + Date.now() + '_' + i,
-          title: t,
-          youtubeUrl: url || '',
-          youtubeId: getYouTubeID(url || '') || '',
-          order: i + 1
-        });
-      }
-    });
+  try {
+    const result = await sb.insert('courses', newCourse);
+    if (result && result.error) throw new Error(result.error.message || 'خطأ في الحفظ');
 
-    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
-    const newCourse = {
-      id: 'c_' + Date.now(),
-      title,
-      emoji: document.getElementById('cEmoji').value.trim() || '📚',
-      desc: document.getElementById('cDesc').value.trim(),
-      category: document.getElementById('cCat').value,
-      price: parseInt(document.getElementById('cPrice').value) || 0,
-      status: document.getElementById('cStatus').value,
-      instructor: document.getElementById('cInstructor').value.trim(),
-      isNew: document.getElementById('cIsNew').checked,
-      isHot: document.getElementById('cIsHot').checked,
-      lessons,
-      lessonCount: lessons.length,
-      rating: 5,
-      students: 0,
-    };
-    courses.push(newCourse);
-    localStorage.setItem('alshehab_courses', JSON.stringify(courses));
-
-    // Reset
+    // Reset form
     ['cTitle','cEmoji','cDesc','cPrice','cInstructor'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('cIsNew').checked = false;
     document.getElementById('cIsHot').checked = false;
@@ -317,163 +341,157 @@
     lessonRows = [];
     updateLessonCount();
 
-    showToast(`تم نشر الكورس بـ ${lessons.length} درس ✅`);
+    showToast(`✅ تم نشر الكورس في Supabase بـ ${lessons.length} درس`);
     loadStats();
+  } catch(e) {
+    showToast('⚠️ خطأ: ' + (e.message || 'حاول تاني'));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ حفظ الكورس ونشره';
   }
+}
 
-  function deleteCourse(id) {
-    let courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
-    courses = courses.filter(c => c.id !== id);
-    localStorage.setItem('alshehab_courses', JSON.stringify(courses));
+// ===== DELETE COURSE =====
+async function deleteCourse(id) {
+  if (!confirm('مؤكد تحذف الكورس ده؟')) return;
+  try {
+    await fetch(`${sb.url}/rest/v1/courses?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: sb.headers(),
+    });
     showToast('تم حذف الكورس 🗑');
     loadStats();
+  } catch(e) {
+    showToast('⚠️ فشل الحذف: ' + e.message);
   }
+}
 
-  function clearAllCourses() {
-    if (!confirm('مؤكد تمسح كل الكورسات؟')) return;
-    localStorage.setItem('alshehab_courses', '[]');
+// ===== CLEAR ALL =====
+async function clearAllCourses() {
+  if (!confirm('مؤكد تمسح كل الكورسات؟ ⚠️')) return;
+  try {
+    await fetch(`${sb.url}/rest/v1/courses?id=neq.00000000-0000-0000-0000-000000000000`, {
+      method: 'DELETE',
+      headers: sb.headers(),
+    });
     showToast('تم مسح كل الكورسات');
     loadStats();
+  } catch(e) {
+    showToast('⚠️ فشل المسح');
   }
+}
 
-  // ===== طلبات الدفع =====
-  async function loadPaymentRequests() {
-    const wrap = document.getElementById('payReqWrap');
-    if (!wrap) return;
-    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px;">⏳ جاري التحميل...</div>';
-    try {
-      // جيب كل الطلبات المعلقة
-      const reqs = await sb.select('payment_requests', 'status=eq.pending&order=created_at.desc');
-      if (!Array.isArray(reqs) || reqs.length === 0) {
-        wrap.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:13px;">✅ مفيش طلبات معلقة دلوقتي</div>';
-        document.getElementById('payReqBadge').style.display = 'none';
-        return;
-      }
-      document.getElementById('payReqBadge').textContent = reqs.length;
-      document.getElementById('payReqBadge').style.display = 'inline-block';
-
-      // جيب بيانات المستخدمين والكورسات
-      const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
-
-      wrap.innerHTML = reqs.map(r => {
-        const course = courses.find(c => c.id === r.course_id);
-        const date   = new Date(r.created_at).toLocaleString('ar-EG');
-        const methodIcon = r.method === 'vodafone' ? '📱' : '💸';
-        return `
-        <div id="req_${r.id}" style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-            <div>
-              <div style="font-weight:700;font-size:14px;">${course?.title || 'كورس غير معروف'} ${course?.emoji || '📚'}</div>
-              <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">${methodIcon} ${r.method} · 📞 ${r.phone} · ${date}</div>
-            </div>
-            <div style="font-size:20px;font-weight:900;color:var(--accent);">${r.amount} ج.م</div>
-          </div>
-
-          <!-- صورة الإيصال -->
-          ${r.receipt_url ? `
-          <div style="margin-bottom:12px;">
-            <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">📎 صورة الإيصال:</div>
-            <img src="${r.receipt_url}" 
-              style="width:100%;max-height:250px;object-fit:contain;border-radius:10px;border:1px solid var(--border);cursor:pointer;background:var(--bg);" 
-              onclick="window.open('${r.receipt_url}','_blank')"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-            <div style="display:none;font-size:12px;color:#ef4444;">⚠️ تعذّر تحميل الصورة — <a href="${r.receipt_url}" target="_blank" style="color:var(--accent);">افتحها هنا</a></div>
-            <div style="margin-top:6px;">
-              <a href="${r.receipt_url}" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;">🔗 فتح الصورة في تاب جديد</a>
-            </div>
-          </div>` : '<div style="font-size:12px;color:#ef4444;margin-bottom:12px;">⚠️ لم يرفع صورة إيصال</div>'}
-
-          <!-- ملاحظة الرفض -->
-          <div style="margin-bottom:10px;">
-            <input class="inp" type="text" id="note_${r.id}" placeholder="ملاحظة للطالب (اختياري عند الرفض)" style="font-size:12px;padding:8px 12px;">
-          </div>
-
-          <!-- أزرار -->
-          <div style="display:flex;gap:8px;">
-            <button onclick="approveReq('${r.id}','${r.user_id}')" 
-              style="flex:1;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#22c55e;border-radius:10px;padding:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">
-              ✅ تأكيد الدفع
-            </button>
-            <button onclick="rejectReq('${r.id}','${r.user_id}')"
-              style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:10px;padding:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">
-              ❌ رفض
-            </button>
-          </div>
-        </div>`;
-      }).join('');
-    } catch(e) {
-      wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px;">⚠️ خطأ في تحميل الطلبات</div>';
+// ===== طلبات الدفع =====
+async function loadPaymentRequests() {
+  const wrap = document.getElementById('payReqWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px;">⏳ جاري التحميل...</div>';
+  try {
+    const reqs = await sb.select('payment_requests', 'status=eq.pending&order=created_at.desc');
+    if (!Array.isArray(reqs) || reqs.length === 0) {
+      wrap.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:13px;">✅ مفيش طلبات معلقة دلوقتي</div>';
+      document.getElementById('payReqBadge').style.display = 'none';
+      return;
     }
+    document.getElementById('payReqBadge').textContent = reqs.length;
+    document.getElementById('payReqBadge').style.display = 'inline-block';
+
+    wrap.innerHTML = reqs.map(r => {
+      const date       = new Date(r.created_at).toLocaleString('ar-EG');
+      const methodIcon = r.method === 'vodafone' ? '📱' : '💸';
+      return `
+      <div id="req_${r.id}" style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;">${r.course_title || 'كورس'}</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">${methodIcon} ${r.method} · 📞 ${r.phone} · ${date}</div>
+          </div>
+          <div style="font-size:20px;font-weight:900;color:var(--accent);">${r.amount} ج.م</div>
+        </div>
+
+        ${r.receipt_url ? `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">📎 صورة الإيصال:</div>
+          <img src="${r.receipt_url}"
+            style="width:100%;max-height:250px;object-fit:contain;border-radius:10px;border:1px solid var(--border);cursor:pointer;background:var(--bg);"
+            onclick="window.open('${r.receipt_url}','_blank')"
+            onerror="this.style.display='none'">
+          <div style="margin-top:6px;">
+            <a href="${r.receipt_url}" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;">🔗 فتح في تاب جديد</a>
+          </div>
+        </div>` : '<div style="font-size:12px;color:#ef4444;margin-bottom:12px;">⚠️ لم يرفع صورة إيصال</div>'}
+
+        <div style="margin-bottom:10px;">
+          <input class="inp" type="text" id="note_${r.id}" placeholder="ملاحظة للطالب (اختياري)" style="font-size:12px;padding:8px 12px;">
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="approveReq('${r.id}','${r.user_id}','${r.course_id}')"
+            style="flex:1;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#22c55e;border-radius:10px;padding:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">
+            ✅ تأكيد الدفع
+          </button>
+          <button onclick="rejectReq('${r.id}','${r.user_id}')"
+            style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:10px;padding:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">
+            ❌ رفض
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px;">⚠️ خطأ في تحميل الطلبات</div>';
   }
+}
 
-  async function approveReq(reqId, userId) {
-    const note = document.getElementById('note_' + reqId)?.value || '';
-    const btn  = document.querySelector(`#req_${reqId} button`);
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ جاري...'; }
+async function approveReq(reqId, userId, courseId) {
+  const note = document.getElementById('note_' + reqId)?.value || '';
+  const btns = document.querySelectorAll(`#req_${reqId} button`);
+  btns.forEach(b => { b.disabled = true; });
+  btns[0].textContent = '⏳ جاري...';
 
-    try {
-      // 1) جيب بيانات الطلب عشان تعرف الـ course_id
-      const reqs = await sb.select('payment_requests', `id=eq.${reqId}`);
-      const req  = Array.isArray(reqs) && reqs[0];
-      if (!req) throw new Error('الطلب مش موجود');
-
-      // 2) حدّث حالة الطلب
-      await sb.update('payment_requests', { status: 'approved', admin_note: note }, `id=eq.${reqId}`);
-
-      // 3) سجّل الطالب في الكورس
-      await sb.upsert('enrollments', {
-        user_id:   userId,
-        course_id: req.course_id,
-        progress:  0,
-        completed: false,
-      });
-
-      // 4) ابعت إشعار للطالب
-      const courseName = req.course_title || 'الكورس';
-      await sb.insert('notifications', {
-        user_id: userId,
-        title:   '✅ تم تأكيد دفعك!',
-        body:    `تم قبول إيصالك وفُتح لك الكورس "${courseName}" — ابدأ التعلم الآن 🎓`,
-        is_read: false,
-      });
-
-      document.getElementById('req_' + reqId)?.remove();
-      showToast('✅ تم تأكيد الدفع وفُتح الكورس للطالب');
-      loadPaymentRequests();
-      loadStats();
-    } catch(e) {
-      showToast('⚠️ حدث خطأ: ' + (e.message || 'حاول تاني'));
-      if (btn) { btn.disabled = false; btn.textContent = '✅ تأكيد الدفع'; }
-    }
+  try {
+    await sb.update('payment_requests', { status: 'approved', admin_note: note }, `id=eq.${reqId}`);
+    await sb.upsert('enrollments', { user_id: userId, course_id: courseId, progress: 0, completed: false });
+    await sb.insert('notifications', {
+      user_id: userId,
+      title:   '✅ تم تأكيد دفعك!',
+      body:    'تم قبول إيصالك وفُتح لك الكورس — ابدأ التعلم الآن 🎓',
+      is_read: false,
+    });
+    document.getElementById('req_' + reqId)?.remove();
+    showToast('✅ تم تأكيد الدفع وفُتح الكورس للطالب');
+    loadPaymentRequests();
+    loadStats();
+  } catch(e) {
+    showToast('⚠️ حدث خطأ: ' + (e.message || 'حاول تاني'));
+    btns.forEach(b => { b.disabled = false; });
+    btns[0].textContent = '✅ تأكيد الدفع';
   }
+}
 
-  async function rejectReq(reqId, userId) {
-    const note = document.getElementById('note_' + reqId)?.value || 'تم رفض الطلب';
-    const btn  = document.querySelectorAll(`#req_${reqId} button`)[1];
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ جاري...'; }
+async function rejectReq(reqId, userId) {
+  const note = document.getElementById('note_' + reqId)?.value || 'تم رفض الطلب';
+  const btns = document.querySelectorAll(`#req_${reqId} button`);
+  btns.forEach(b => { b.disabled = true; });
+  btns[1].textContent = '⏳ جاري...';
 
-    try {
-      // 1) حدّث حالة الطلب
-      await sb.update('payment_requests', { status: 'rejected', admin_note: note }, `id=eq.${reqId}`);
-
-      // 2) ابعت إشعار للطالب بسبب الرفض
-      await sb.insert('notifications', {
-        user_id: userId,
-        title:   '❌ تم رفض طلب الدفع',
-        body:    note !== 'تم رفض الطلب' ? `السبب: ${note}` : 'تواصل معنا على واتساب للمساعدة 💬',
-        is_read: false,
-      });
-
-      document.getElementById('req_' + reqId)?.remove();
-      showToast('تم رفض الطلب وإشعار الطالب ❌');
-      loadPaymentRequests();
-    } catch(e) {
-      showToast('⚠️ حدث خطأ: ' + (e.message || 'حاول تاني'));
-      if (btn) { btn.disabled = false; btn.textContent = '❌ رفض'; }
-    }
+  try {
+    await sb.update('payment_requests', { status: 'rejected', admin_note: note }, `id=eq.${reqId}`);
+    await sb.insert('notifications', {
+      user_id: userId,
+      title:   '❌ تم رفض طلب الدفع',
+      body:    note !== 'تم رفض الطلب' ? `السبب: ${note}` : 'تواصل معنا على واتساب للمساعدة 💬',
+      is_read: false,
+    });
+    document.getElementById('req_' + reqId)?.remove();
+    showToast('تم رفض الطلب وإشعار الطالب ❌');
+    loadPaymentRequests();
+  } catch(e) {
+    showToast('⚠️ حدث خطأ: ' + (e.message || 'حاول تاني'));
+    btns.forEach(b => { b.disabled = false; });
+    btns[1].textContent = '❌ رفض';
   }
-
-  loadStats();
-  loadPaymentRequests();
+}
 </script>
 
+</body>
+</html>
