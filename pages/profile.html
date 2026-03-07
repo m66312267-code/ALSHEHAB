@@ -10,8 +10,6 @@
 </head>
 <body>
 
-
-
 <div id="toast"></div>
 <div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
 
@@ -36,10 +34,13 @@
   <div class="topbar-right">
     <div style="position:relative;">
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
-      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4></div>
+      <div class="notif-dropdown" id="notifDrop">
+        <h4>الإشعارات</h4>
+        <div id="notifList"></div>
+      </div>
     </div>
     <button class="icon-btn" onclick="toggleTheme()">🌙</button>
-    <div class="avatar-btn">A</div>
+    <div class="avatar-btn" id="avatarBtn">A</div>
     <button class="menu-btn" id="menuBtn">☰</button>
   </div>
 </header>
@@ -74,42 +75,45 @@
     <div class="page active">
       <div class="page-title">👤 حسابي</div>
 
+      <!-- Profile Hero -->
       <div class="profile-hero">
-        <div class="profile-av" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
+        <div class="profile-av" id="profileAv" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
         <div class="profile-info">
-          <h3>طالب ALSHEHAB</h3>
-          <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2556515041404b51654449564d4d44470b464a48">[email&#160;protected]</a></p>
-          <div class="level-badge">⭐ مبتدئ — 0 / 500 XP</div>
-          <div class="xp-bar-wrap" style="width:220px;">
-            <div class="xp-info"><span>0 XP</span><span>500 XP</span></div>
-            <div class="prog-track"><div class="prog-fill" style="width:0%"></div></div>
+          <h3 id="profileNameDisplay">جاري التحميل...</h3>
+          <p id="profileEmailDisplay" style="color:var(--text-dim);font-size:12px;margin-top:4px;"></p>
+          <div class="level-badge" id="levelBadge">⭐ مبتدئ — 0 / 500 XP</div>
+          <div class="xp-bar-wrap" style="width:240px;">
+            <div class="xp-info">
+              <span id="xpCurrent">0 XP</span>
+              <span id="xpTarget">500 XP</span>
+            </div>
+            <div class="prog-track"><div class="prog-fill" id="xpFill" style="width:0%"></div></div>
           </div>
         </div>
       </div>
 
+      <!-- Stats -->
       <div class="profile-stats-grid">
-        <div class="pstat"><div class="pn">0</div><div class="pl">كورسات مسجل</div></div>
-        <div class="pstat"><div class="pn">0</div><div class="pl">كورسات مكتملة</div></div>
-        <div class="pstat"><div class="pn">0</div><div class="pl">ساعات دراسة</div></div>
+        <div class="pstat"><div class="pn" id="pEnrolled">—</div><div class="pl">كورسات مسجّل</div></div>
+        <div class="pstat"><div class="pn" id="pCompleted">—</div><div class="pl">كورسات مكتملة</div></div>
+        <div class="pstat"><div class="pn" id="pHours">—</div><div class="pl">ساعات دراسة</div></div>
       </div>
 
+      <!-- Edit Form -->
       <div class="panel" style="max-width:500px;">
-        <h3>تعديل البيانات</h3>
+        <h3>✏️ تعديل البيانات</h3>
         <div class="inp-group">
           <label>الاسم الكامل</label>
-          <input class="inp" type="text" id="profileName" placeholder="اكتب اسمك" value="طالب ALSHEHAB">
+          <input class="inp" type="text" id="profileName" placeholder="اكتب اسمك">
         </div>
         <div class="inp-group">
           <label>البريد الإلكتروني</label>
-          <input class="inp" type="email" id="profileEmail" value="student@alshehab.com">
+          <input class="inp" type="email" id="profileEmail" readonly style="opacity:0.6;cursor:not-allowed;">
         </div>
-        <div class="inp-group">
-          <label>كلمة السر الجديدة</label>
-          <input class="inp" type="password" placeholder="اتركها فارغة إذا لم تريد التغيير">
-        </div>
-        <button class="submit-btn" onclick="saveProfile()">حفظ التغييرات</button>
+        <button class="submit-btn" id="saveBtn" onclick="saveProfile()">حفظ التغييرات</button>
       </div>
 
+      <!-- Security -->
       <div class="panel" style="max-width:500px;margin-top:18px;">
         <h3>🔐 الأمان والخصوصية</h3>
         <div class="tfa-toggle">
@@ -136,78 +140,101 @@
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
           <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">ربط الحسابات الاجتماعية</div>
           <div style="display:flex;gap:8px;">
-            <button class="google-btn" style="flex:1;" onclick="showToast('تم الربط بـ Google ✅')">🌐 Google</button>
-            <button class="google-btn" style="flex:1;" onclick="showToast('تم الربط بـ Facebook ✅')">📘 Facebook</button>
+            <button class="google-btn" style="flex:1;" onclick="showToast('قريباً 🔗')">🌐 Google</button>
+            <button class="google-btn" style="flex:1;" onclick="showToast('قريباً 🔗')">📘 Facebook</button>
           </div>
         </div>
       </div>
+
     </div>
   </main>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../js/shared.js"></script>
+<script src="../js/shared.js"></script>
 <script src="../js/supabase.js"></script>
-<script>requireAuth();</script>
 <script>
-  // Load real user data
-  const userData = JSON.parse(localStorage.getItem('alshehab_user') || '{}');
-  const xp = parseInt(localStorage.getItem('alshehab_xp') || '0');
-  const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
-  const completed = JSON.parse(localStorage.getItem('alshehab_completed') || '[]');
-  const studyLog = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
+  requireAuth();
+  const user = sb.getUser();
 
-  // Fill name & email
-  if (userData.name) {
-    document.querySelector('.profile-av').textContent = userData.name.charAt(0).toUpperCase();
-    document.querySelector('.profile-info h3').textContent = userData.name;
-    document.getElementById('profileName').value = userData.name;
-    document.querySelector('.avatar-btn').textContent = userData.name.charAt(0).toUpperCase();
+  async function loadProfile() {
+    // بيانات من Supabase
+    const profile     = await getProfile(user.id);
+    const enrollments = await getEnrollments(user.id);
+    const completed   = enrollments.filter(e => e.completed);
+
+    // بيانات من localStorage (fallback)
+    const userData = JSON.parse(localStorage.getItem('alshehab_user') || '{}');
+    const name     = profile?.name || userData.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'طالب';
+    const email    = user?.email || userData.email || '';
+
+    // عرض البيانات
+    document.getElementById('profileAv').textContent          = name.charAt(0).toUpperCase();
+    document.getElementById('avatarBtn').textContent          = name.charAt(0).toUpperCase();
+    document.getElementById('profileNameDisplay').textContent = name;
+    document.getElementById('profileEmailDisplay').textContent= email;
+    document.getElementById('profileName').value              = name;
+    document.getElementById('profileEmail').value             = email;
+
+    // XP + Level
+    const xp      = profile?.xp || parseInt(localStorage.getItem('alshehab_xp') || '0');
+    const levels  = [
+      { label: 'مبتدئ',  min: 0,    max: 500  },
+      { label: 'متوسط',  min: 500,  max: 1500 },
+      { label: 'متقدم',  min: 1500, max: 3000 },
+      { label: 'خبير',   min: 3000, max: 5000 },
+    ];
+    const lvl = levels.find(l => xp < l.max) || levels[levels.length - 1];
+    const pct = Math.min(100, Math.round(((xp - lvl.min) / (lvl.max - lvl.min)) * 100));
+
+    document.getElementById('levelBadge').textContent   = `⭐ ${lvl.label} — ${xp.toLocaleString()} / ${lvl.max.toLocaleString()} XP`;
+    document.getElementById('xpCurrent').textContent    = xp.toLocaleString() + ' XP';
+    document.getElementById('xpTarget').textContent     = lvl.max.toLocaleString() + ' XP';
+    document.getElementById('xpFill').style.width       = pct + '%';
+
+    // Stats
+    document.getElementById('pEnrolled').textContent  = enrollments.length;
+    document.getElementById('pCompleted').textContent = completed.length;
+
+    const studyLog   = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
+    const totalMins  = Object.values(studyLog).reduce((a, b) => a + b, 0);
+    document.getElementById('pHours').textContent = Math.round(totalMins / 60);
+
+    // localStorage sync
+    localStorage.setItem('alshehab_xp', xp);
+    localStorage.setItem('alshehab_user', JSON.stringify({ ...userData, name, email }));
   }
-  if (userData.email) {
-    document.querySelector('.profile-info p').textContent = userData.email;
-    document.getElementById('profileEmail').value = userData.email;
-  }
-
-  // XP + Level
-  const level = xp < 500 ? 'مبتدئ' : xp < 1500 ? 'متوسط' : xp < 3000 ? 'متقدم' : 'خبير';
-  const nextLevel = xp < 500 ? 500 : xp < 1500 ? 1500 : xp < 3000 ? 3000 : 5000;
-  const pct = Math.min(100, Math.round((xp / nextLevel) * 100));
-  document.querySelector('.level-badge').textContent = `⭐ ${level} — ${xp} / ${nextLevel} XP`;
-  document.querySelector('.xp-info span:first-child').textContent = xp + ' XP';
-  document.querySelector('.xp-info span:last-child').textContent = nextLevel + ' XP';
-  document.querySelector('.xp-bar-wrap .prog-fill').style.width = pct + '%';
-
-  // Stats
-  const totalHours = Object.values(studyLog).reduce((a,b) => a + b, 0);
-  document.querySelectorAll('.pstat .pn')[0].textContent = enrolled.length;
-  document.querySelectorAll('.pstat .pn')[1].textContent = completed.length;
-  document.querySelectorAll('.pstat .pn')[2].textContent = Math.round(totalHours / 60);
 
   async function saveProfile() {
     const name = document.getElementById('profileName').value.trim();
-    const email = document.getElementById('profileEmail').value.trim();
     if (!name) { showToast('اكتب اسمك ⚠️'); return; }
-    if (!email) { showToast('اكتب بريدك الإلكتروني ⚠️'); return; }
 
-    // حفظ في localStorage
-    const user = sb.getUser();
-    const updatedUser = { ...userData, name, email };
-    localStorage.setItem('alshehab_user', JSON.stringify(updatedUser));
+    const btn = document.getElementById('saveBtn');
+    btn.disabled    = true;
+    btn.textContent = '⏳ جاري الحفظ...';
 
-    // تحديث الـ UI
-    document.querySelector('.profile-av').textContent = name.charAt(0).toUpperCase();
-    document.querySelector('.profile-info h3').textContent = name;
-    document.querySelector('.avatar-btn').textContent = name.charAt(0).toUpperCase();
+    try {
+      // Supabase
+      await sb.upsert('profiles', { id: user.id, name });
 
-    // حفظ في Supabase
-    if (user) {
-      try {
-        await sb.upsert('profiles', { id: user.id, name });
-      } catch(e) {}
+      // localStorage
+      const userData = JSON.parse(localStorage.getItem('alshehab_user') || '{}');
+      localStorage.setItem('alshehab_user', JSON.stringify({ ...userData, name }));
+
+      // UI
+      document.getElementById('profileAv').textContent          = name.charAt(0).toUpperCase();
+      document.getElementById('avatarBtn').textContent          = name.charAt(0).toUpperCase();
+      document.getElementById('profileNameDisplay').textContent = name;
+
+      showToast('تم حفظ التغييرات ✅');
+    } catch(e) {
+      showToast('⚠️ فشل الحفظ: ' + e.message);
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'حفظ التغييرات';
     }
-
-    showToast('تم حفظ التغييرات ✅');
   }
+
+  loadProfile();
 </script>
 </body>
 </html>
