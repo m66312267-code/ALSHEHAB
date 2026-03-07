@@ -1,4 +1,4 @@
-/* supabase.js — ALSHHAB Platform — Supabase Auth + Notifications */
+/* supabase.js — ALSHEHAB Platform — Supabase Auth + DB + Helpers */
 
 const SUPABASE_URL = 'https://iijjapqvjdvagzmeaweq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3dP43cl1nBPMCJXHyZcVbw_yPQkZVKq';
@@ -7,16 +7,17 @@ const sb = {
   url: SUPABASE_URL,
   key: SUPABASE_KEY,
 
-  headers() {
+  headers(extra = {}) {
     const session = JSON.parse(localStorage.getItem('sb_session') || 'null');
     return {
       'Content-Type': 'application/json',
       'apikey': this.key,
       'Authorization': `Bearer ${session?.access_token || this.key}`,
+      ...extra,
     };
   },
 
-  // AUTH
+  // ===== AUTH =====
   async signUp(email, password, name) {
     const res = await fetch(`${this.url}/auth/v1/signup`, {
       method: 'POST',
@@ -85,7 +86,8 @@ const sb = {
   getUser() {
     const session = JSON.parse(localStorage.getItem('sb_session') || 'null');
     if (!session) return null;
-    if (session.expires_at && Date.now() / 1000 > session.expires_at) {
+    // refresh لو قرب الانتهاء (أقل من 5 دقايق)
+    if (session.expires_at && Date.now() / 1000 > session.expires_at - 300) {
       this.refreshSession().catch(() => {});
     }
     return session.user || null;
@@ -95,58 +97,81 @@ const sb = {
     return !!this.getUser();
   },
 
-  // DATABASE REST
+  // ===== DATABASE REST =====
   async insert(table, data) {
     const res = await fetch(`${this.url}/rest/v1/${table}`, {
       method: 'POST',
-      headers: { ...this.headers(), 'Prefer': 'return=representation' },
+      headers: this.headers({ 'Prefer': 'return=representation' }),
       body: JSON.stringify(data),
     });
-    return res.json();
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.message || json?.error || 'insert failed');
+    return json;
   },
 
   async select(table, filter = '') {
-    const res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, {
+    const res = await fetch(`${this.url}/rest/v1/${table}${filter ? '?' + filter : ''}`, {
       headers: this.headers(),
     });
-    return res.json();
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.message || 'select failed');
+    return json;
   },
 
   async update(table, data, filter) {
     const res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, {
       method: 'PATCH',
-      headers: { ...this.headers(), 'Prefer': 'return=representation' },
+      headers: this.headers({ 'Prefer': 'return=representation' }),
       body: JSON.stringify(data),
     });
-    return res.json();
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.message || 'update failed');
+    return json;
   },
 
   async upsert(table, data) {
     const res = await fetch(`${this.url}/rest/v1/${table}`, {
       method: 'POST',
-      headers: { ...this.headers(), 'Prefer': 'return=representation,resolution=merge-duplicates' },
+      headers: this.headers({ 'Prefer': 'return=representation,resolution=merge-duplicates' }),
       body: JSON.stringify(data),
     });
-    return res.json();
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.message || 'upsert failed');
+    return json;
   },
 
-  // STORAGE — رفع صورة الايصال
+  async delete(table, filter) {
+    const res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, {
+      method: 'DELETE',
+      headers: this.headers({ 'Prefer': 'return=representation' }),
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json?.message || 'delete failed');
+    }
+    return true;
+  },
+
+  // ===== STORAGE — رفع صورة الإيصال =====
   async uploadReceipt(file, userId) {
-    const ext     = (file.name || "receipt.jpg").split(".").pop() || "jpg";
-    const path    = userId + "/" + Date.now() + "." + ext;
-    const session = JSON.parse(localStorage.getItem("sb_session") || "null");
+    const ext  = (file.name || 'receipt.jpg').split('.').pop() || 'jpg';
+    const path = `${userId}/${Date.now()}.${ext}`;
+    const session = JSON.parse(localStorage.getItem('sb_session') || 'null');
     const token   = session?.access_token || this.key;
-    const res = await fetch(this.url + "/storage/v1/object/receipts/" + path, {
-      method:  "POST",
-      headers: { "apikey": this.key, "Authorization": "Bearer " + token, "Content-Type": file.type || "image/jpeg" },
+    const res = await fetch(`${this.url}/storage/v1/object/receipts/${path}`, {
+      method: 'POST',
+      headers: { 'apikey': this.key, 'Authorization': `Bearer ${token}`, 'Content-Type': file.type || 'image/jpeg' },
       body: file,
     });
-    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || "فشل رفع الصورة"); }
-    return this.url + "/storage/v1/object/public/receipts/" + path;
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.message || 'فشل رفع الصورة');
+    }
+    return `${this.url}/storage/v1/object/public/receipts/${path}`;
   },
 };
 
-// AUTH GUARD
+// ===== AUTH GUARD =====
 function requireAuth() {
   if (!sb.isLoggedIn()) {
     window.location.href = 'index.html';
@@ -155,11 +180,7 @@ function requireAuth() {
   return true;
 }
 
-// ===== HELPER ALIASES (لإصلاح الدوال الناقصة) =====
-function getCurrentUser() {
-  return sb.getUser();
-}
-
+// ===== HELPER: getProfile =====
 async function getProfile(userId) {
   try {
     const data = await sb.select('profiles', `id=eq.${userId}`);
@@ -169,15 +190,21 @@ async function getProfile(userId) {
   }
 }
 
+// ===== HELPER: getEnrollments =====
 async function getEnrollments(userId) {
   try {
-    const data = await sb.select('enrollments', `user_id=eq.${userId}&order=enrolled_at.desc`);
+    // جيب التسجيلات مع بيانات الكورس
+    const data = await sb.select(
+      'enrollments',
+      `user_id=eq.${userId}&order=enrolled_at.desc&select=*,courses(id,title,emoji)`
+    );
     return Array.isArray(data) ? data : [];
   } catch {
     return JSON.parse(localStorage.getItem('alshehab_enrolled_full') || '[]');
   }
 }
 
+// ===== HELPER: getNotifications =====
 async function getNotifications(userId) {
   try {
     const data = await sb.select('notifications', `user_id=eq.${userId}&order=created_at.desc&limit=20`);
@@ -207,7 +234,7 @@ async function markAllNotifsRead(userId) {
   }
 }
 
-// ===== COURSES (Supabase + localStorage fallback) =====
+// ===== COURSES =====
 const Courses = {
   async getAll() {
     try {
@@ -216,7 +243,7 @@ const Courses = {
         localStorage.setItem('alshehab_courses', JSON.stringify(data));
         return data;
       }
-    } catch {}
+    } catch(e) { console.warn('Courses.getAll Supabase error:', e); }
     return JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
   },
 
@@ -224,7 +251,7 @@ const Courses = {
     try {
       const data = await sb.select('courses', `id=eq.${id}`);
       if (Array.isArray(data) && data.length > 0) return data[0];
-    } catch {}
+    } catch(e) { console.warn('Courses.getById error:', e); }
     const all = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
     return all.find(c => c.id === id) || null;
   },
@@ -232,17 +259,16 @@ const Courses = {
   async enroll(courseId) {
     const user = sb.getUser();
     if (!user) return;
-    const enrollment = { user_id: user.id, course_id: courseId, progress: 0, completed: false };
     try {
-      await sb.upsert('enrollments', enrollment);
-    } catch {}
-    // fallback localStorage
+      await sb.upsert('enrollments', { user_id: user.id, course_id: courseId, progress: 0, completed: false });
+    } catch(e) { console.warn('enroll error:', e); }
+    // localStorage sync
     const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
     if (!enrolled.includes(courseId)) {
       enrolled.push(courseId);
       localStorage.setItem('alshehab_enrolled', JSON.stringify(enrolled));
     }
-    await XP.add(10, 'تسجيل في كورس جديد 📚');
+    await XP.add(10, 'تسجيل في كورس جديد 📚').catch(() => {});
   },
 
   async isEnrolled(courseId) {
@@ -262,8 +288,8 @@ const Courses = {
     const completed = progress >= 100;
     try {
       await sb.update('enrollments', { progress, completed }, `user_id=eq.${user.id}&course_id=eq.${courseId}`);
-    } catch {}
-    if (completed) await XP.add(50, 'أكملت كورس بالكامل 🎓');
+    } catch(e) { console.warn('updateProgress error:', e); }
+    if (completed) await XP.add(50, 'أكملت كورس بالكامل 🎓').catch(() => {});
   },
 
   async getFavorites() {
@@ -278,33 +304,28 @@ const Courses = {
 
   async toggleFavorite(courseId) {
     const user = sb.getUser();
-    const favs = await this.getFavorites();
+    const favs  = await this.getFavorites();
     const isFav = favs.includes(courseId);
     if (user) {
       try {
-        if (isFav) {
-          await fetch(`${sb.url}/rest/v1/favorites?user_id=eq.${user.id}&course_id=eq.${courseId}`, {
-            method: 'DELETE', headers: sb.headers(),
-          });
-        } else {
-          await sb.insert('favorites', { user_id: user.id, course_id: courseId });
-        }
-      } catch {}
+        if (isFav) await sb.delete('favorites', `user_id=eq.${user.id}&course_id=eq.${courseId}`);
+        else       await sb.insert('favorites', { user_id: user.id, course_id: courseId });
+      } catch(e) { console.warn('toggleFavorite error:', e); }
     }
     // localStorage sync
-    const localFavs = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
+    const local = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
     if (isFav) {
-      const idx = localFavs.indexOf(courseId);
-      if (idx !== -1) localFavs.splice(idx, 1);
+      const idx = local.indexOf(courseId);
+      if (idx !== -1) local.splice(idx, 1);
     } else {
-      localFavs.push(courseId);
+      local.push(courseId);
     }
-    localStorage.setItem('alshehab_favs', JSON.stringify(localFavs));
+    localStorage.setItem('alshehab_favs', JSON.stringify(local));
     return !isFav;
   },
 };
 
-// NOTIFICATIONS
+// ===== NOTIFICATIONS =====
 const Notifs = {
   async getAll() {
     const user = sb.getUser();
@@ -345,12 +366,11 @@ const Notifs = {
   },
 
   async updateBadge() {
-    const notifs = await this.getAll();
-    const unread = notifs.filter(n => !n.is_read).length;
-    const dot = document.querySelector('.notif-dot');
-    if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
-    const badge = document.getElementById('notifCount');
-    if (badge) badge.textContent = unread > 0 ? unread : '';
+    try {
+      const notifs = await this.getAll();
+      const unread = notifs.filter(n => !n.is_read).length;
+      document.querySelectorAll('.notif-dot').forEach(d => d.style.display = unread > 0 ? 'block' : 'none');
+    } catch {}
   },
 
   async renderDropdown() {
@@ -375,23 +395,23 @@ const Notifs = {
   },
 };
 
-// XP SYSTEM
+// ===== XP SYSTEM =====
 const XP = {
   async add(amount, reason = '') {
     const user = sb.getUser();
     if (!user) return;
     const current = parseInt(localStorage.getItem('alshehab_xp') || '0');
-    const newXP = current + amount;
+    const newXP   = current + amount;
     localStorage.setItem('alshehab_xp', newXP);
-    await Notifs.add(`حصلت على ${amount} XP ⚡`, reason);
     try {
       await sb.upsert('profiles', { id: user.id, xp: newXP });
     } catch {}
+    await Notifs.add(`حصلت على ${amount} XP ⚡`, reason).catch(() => {});
     return newXP;
   },
 };
 
-// STUDY TRACKER
+// ===== STUDY TRACKER =====
 const Study = {
   startTime: null,
   start() { this.startTime = Date.now(); },
@@ -400,11 +420,11 @@ const Study = {
     const mins = Math.round((Date.now() - this.startTime) / 60000);
     if (mins < 1) { this.startTime = null; return; }
     const today = new Date().toISOString().slice(0, 10);
-    const log = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
-    log[today] = (log[today] || 0) + mins;
+    const log   = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
+    log[today]  = (log[today] || 0) + mins;
     localStorage.setItem('alshehab_studylog', JSON.stringify(log));
     this.startTime = null;
-    if (mins >= 5) XP.add(Math.floor(mins / 5) * 2, `درست ${mins} دقيقة 📚`);
+    if (mins >= 5) XP.add(Math.floor(mins / 5) * 2, `درست ${mins} دقيقة 📚`).catch(() => {});
   },
 };
 
