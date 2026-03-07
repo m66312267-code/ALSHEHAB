@@ -10,8 +10,6 @@
 </head>
 <body>
 
-
-
 <div id="toast"></div>
 <div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
 
@@ -45,7 +43,7 @@
     <p style="color:var(--text-dim);font-size:13px;margin-bottom:20px;">شهادتك جاهزة للتحميل الآن</p>
     <div style="background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(99,102,241,0.1));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;">
       <div style="font-size:13px;color:var(--text-dim);">شهادة إتمام</div>
-      <div style="font-size:18px;font-weight:900;margin:6px 0;">كورس الرياضيات</div>
+      <div style="font-size:18px;font-weight:900;margin:6px 0;" id="certCourseName">جاري التحميل...</div>
       <div style="font-size:12px;color:var(--text-dim);">طالب ALSHEHAB</div>
     </div>
     <div style="display:flex;gap:10px;">
@@ -78,7 +76,7 @@
       <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
       <div class="notif-dropdown" id="notifDrop">
         <h4>الإشعارات</h4>
-        <div class="notif-item">🏆 <div><strong>أكملت أول خطوة!</strong></div></div>
+        <div id="notifList"></div>
       </div>
     </div>
     <button class="icon-btn" onclick="toggleTheme()">🌙</button>
@@ -115,101 +113,109 @@
 
   <main class="main">
     <div class="page active">
-      <div style="margin-bottom:16px;"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;" onclick="window.location.href='courses.html'">← رجوع للكورسات</button></div>
-
-      <div class="course-detail-hero">
-        <div><div class="course-thumb t2 cdh-thumb">📝</div></div>
-        <div class="cdh-info panel">
-          <h2>كورس الرياضيات</h2>
-          <p></p>
-          <div class="cdh-stats">
-            <div class="cdh-stat"><strong>48</strong> درس</div>
-            <div class="cdh-stat"><strong>18</strong> ساعة</div>
-            <div class="cdh-stat"><strong>5100+</strong> طالب</div>
-            <div class="cdh-stat"><strong>5.0</strong> ⭐</div>
-          </div>
-          <div class="stars" style="font-size:16px;">★★★★★</div>
-          <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <span class="badge badge-free" style="font-size:13px;padding:5px 14px;">مجاني</span>
-            <button class="submit-btn" onclick="showToast('تم التسجيل في الكورس! ✅')">سجّل الآن</button>
-            <button class="submit-btn" style="background:var(--bg3);color:var(--text);" onclick="shareURL()">🔗 مشاركة</button>
-            <button class="submit-btn" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);" onclick="document.getElementById('ratingModal').classList.add('show')">⭐ قيّم</button>
-            <button class="submit-btn" style="background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid var(--border);" onclick="showCertModal()">🎓 شهادتي</button>
-          </div>
-        </div>
+      <div style="margin-bottom:16px;">
+        <button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;" onclick="window.location.href='courses.html'">← رجوع للكورسات</button>
       </div>
 
-      <div class="video-section">
-        <div>
-          <!-- YouTube Player -->
-          <div style="margin-bottom:16px;">
-            <div id="videoTitle" style="font-size:15px;font-weight:700;margin-bottom:10px;"></div>
-            <div id="videoWrapper" style="background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;">
-              <div id="noVideoMsg" style="color:#666;font-size:13px;text-align:center;padding:20px;">اختار درس من القائمة لتشغيله ▶️</div>
-              <iframe id="ytIframe" width="100%" height="100%" style="border:none;display:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+      <!-- Loading state -->
+      <div id="courseLoading" style="text-align:center;padding:60px;color:var(--text-dim);">
+        <div style="font-size:36px;margin-bottom:12px;">⏳</div>
+        <div>جاري تحميل الكورس...</div>
+      </div>
+
+      <!-- Course content (hidden until loaded) -->
+      <div id="courseContent" style="display:none;">
+
+        <div class="course-detail-hero">
+          <div><div class="course-thumb t2 cdh-thumb" id="cdThumb">📚</div></div>
+          <div class="cdh-info panel">
+            <h2 id="cdTitle">...</h2>
+            <p id="cdDesc" style="color:var(--text-dim);font-size:13px;line-height:1.8;margin-bottom:15px;"></p>
+            <div class="cdh-stats" id="cdStats"></div>
+            <div class="stars" style="font-size:16px;" id="cdStars">★★★★★</div>
+            <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <span class="badge badge-free" id="cdPriceBadge">مجاني</span>
+              <button class="submit-btn" id="cdEnrollBtn">سجّل الآن</button>
+              <button class="submit-btn" style="background:var(--bg3);color:var(--text);" onclick="shareURL()">🔗 مشاركة</button>
+              <button class="submit-btn" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);" onclick="document.getElementById('ratingModal').classList.add('show')">⭐ قيّم</button>
+              <button class="submit-btn" style="background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid var(--border);" onclick="showCertModal()">🎓 شهادتي</button>
             </div>
-            <div style="display:flex;gap:8px;margin-top:10px;">
-              <button id="btnPrev" onclick="prevLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">→ السابق</button>
-              <button id="btnMark" onclick="markDone()" style="flex:1;background:rgba(0,212,170,0.1);border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">✅ تمييز كمكتمل</button>
-              <button id="btnNext" onclick="nextLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">← التالي</button>
+          </div>
+        </div>
+
+        <div class="video-section">
+          <div>
+            <!-- YouTube Player -->
+            <div style="margin-bottom:16px;">
+              <div id="videoTitle" style="font-size:15px;font-weight:700;margin-bottom:10px;"></div>
+              <div id="videoWrapper" style="background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;">
+                <div id="noVideoMsg" style="color:#666;font-size:13px;text-align:center;padding:20px;">اختر درس من القائمة لتشغيله ▶️</div>
+                <iframe id="ytIframe" width="100%" height="100%" style="border:none;display:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <button onclick="prevLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">→ السابق</button>
+                <button onclick="markDone()" style="flex:1;background:rgba(0,212,170,0.1);border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">✅ مكتمل</button>
+                <button onclick="nextLesson()" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">← التالي</button>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-bottom:16px;">
+              <h3>📝 ملاحظاتك</h3>
+              <textarea class="notes-area" id="courseNotes" oninput="autoSaveNotes()" placeholder="اكتب ملاحظاتك أثناء المشاهدة..."></textarea>
+              <div class="autosave-ind" id="autosaveInd">✅ تم الحفظ تلقائياً</div>
+              <button class="submit-btn" onclick="showToast('تم حفظ الملاحظات ✅')">حفظ الملاحظات</button>
+            </div>
+
+            <div class="panel" style="margin-bottom:16px;">
+              <h3>🧠 اختبر نفسك</h3>
+              <div class="quiz-box">
+                <div class="quiz-question">ما هو جمع كلمة "كتاب"؟</div>
+                <div class="quiz-options">
+                  <div class="quiz-opt" onclick="answerQuiz(this,false)">أ) كتابات</div>
+                  <div class="quiz-opt" onclick="answerQuiz(this,true)">ب) كتب</div>
+                  <div class="quiz-opt" onclick="answerQuiz(this,false)">ج) كاتب</div>
+                  <div class="quiz-opt" onclick="answerQuiz(this,false)">د) مكتبة</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>💬 تعليقات الطلاب</h3>
+              <div class="comment-item">
+                <div class="comment-avatar">م</div>
+                <div class="comment-body">
+                  <strong style="font-size:13px;">محمد أحمد</strong>
+                  <div class="stars">★★★★★</div>
+                  <p>كورس ممتاز جداً، الشرح واضح ومفيد</p>
+                  <div class="comment-meta">منذ 3 أيام</div>
+                </div>
+              </div>
+              <div class="inp-group" style="margin-top:14px;">
+                <input class="inp" type="text" placeholder="اكتب تعليقك...">
+              </div>
+              <button class="submit-btn" onclick="showToast('تم نشر تعليقك ✅')">نشر التعليق</button>
             </div>
           </div>
 
-          <div class="panel" style="margin-bottom:16px;">
-            <h3>📝 ملاحظاتك</h3>
-            <textarea class="notes-area" id="courseNotes" oninput="autoSaveNotes()" placeholder="اكتب ملاحظاتك أثناء المشاهدة هنا..."></textarea>
-            <div class="autosave-ind" id="autosaveInd">✅ تم الحفظ تلقائياً</div>
-            <button class="submit-btn" onclick="showToast('تم حفظ الملاحظات ✅')">حفظ الملاحظات</button>
-          </div>
-
-          <div class="panel" style="margin-bottom:16px;">
-            <h3>🧠 اختبر نفسك</h3>
-            <div class="quiz-box">
-              <div class="quiz-question">ما هو جمع كلمة "كتاب"؟</div>
-              <div class="quiz-options">
-                <div class="quiz-opt" onclick="answerQuiz(this,false)">أ) كتابات</div>
-                <div class="quiz-opt" onclick="answerQuiz(this,true)">ب) كتب</div>
-                <div class="quiz-opt" onclick="answerQuiz(this,false)">ج) كاتب</div>
-                <div class="quiz-opt" onclick="answerQuiz(this,false)">د) مكتبة</div>
+          <!-- Playlist -->
+          <div class="playlist">
+            <div class="playlist-header" id="playlistHeader">📋 محتوى الكورس</div>
+            <div style="max-height:600px;overflow-y:auto;" id="playlistContainer">
+              <div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">جاري تحميل الدروس...</div>
+            </div>
+            <div style="padding:12px;border-top:1px solid var(--border);">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                <span>تقدمك</span>
+                <span id="progressText">0%</span>
+              </div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+                <div id="progressFill" style="height:100%;background:linear-gradient(90deg,var(--accent),#6366f1);width:0%;transition:width 0.4s;border-radius:3px;"></div>
               </div>
             </div>
           </div>
-
-          <div class="panel">
-            <h3>💬 تعليقات الطلاب</h3>
-            <div class="comment-item">
-              <div class="comment-avatar">م</div>
-              <div class="comment-body">
-                <strong style="font-size:13px;">محمد أحمد</strong>
-                <div class="stars">★★★★★</div>
-                <p>كورس ممتاز جداً، الشرح واضح ومفيد</p>
-                <div class="comment-meta">منذ 3 أيام</div>
-              </div>
-            </div>
-            <div class="inp-group" style="margin-top:14px;">
-              <input class="inp" type="text" placeholder="اكتب تعليقك...">
-            </div>
-            <button class="submit-btn" onclick="showToast('تم نشر تعليقك ✅')">نشر التعليق</button>
-          </div>
         </div>
 
-        <div class="playlist">
-          <div class="playlist-header" id="playlistHeader">📋 محتوى الكورس</div>
-          <div style="max-height:600px;overflow-y:auto;" id="playlistContainer">
-            <div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">جاري تحميل الدروس...</div>
-          </div>
-          <!-- Progress Bar -->
-          <div style="padding:12px;border-top:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
-              <span>تقدمك</span>
-              <span id="progressText">0%</span>
-            </div>
-            <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
-              <div id="progressFill" style="height:100%;background:linear-gradient(90deg,var(--accent),#6366f1);width:0%;transition:width 0.4s;border-radius:3px;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </div><!-- /courseContent -->
     </div>
   </main>
 </div>
@@ -219,54 +225,113 @@
 <script>
   requireAuth();
 
-  // ===== Load Course =====
-  const params = new URLSearchParams(location.search);
+  const params   = new URLSearchParams(location.search);
   const courseId = params.get('id');
-  let course = null;
-  let currentLesson = 0;
-  let doneLessons = [];
+  let course       = null;
+  let currentLesson= 0;
+  let doneLessons  = [];
+  const user       = sb.getUser();
 
-  function loadCourse() {
-    const courses = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
-    course = courses.find(c => c.id === courseId) || courses[0] || null;
-    if (!course) {
-      showToast('الكورس مش موجود ⚠️');
-      return;
+  // ===== Load Course from Supabase =====
+  async function loadCourse() {
+    if (!courseId) { showError('لم يتم تحديد الكورس'); return; }
+
+    // جرب Supabase أولاً
+    try {
+      const res = await sb.select('courses', `id=eq.${courseId}`);
+      course = Array.isArray(res) && res.length > 0 ? res[0] : null;
+    } catch(e) {
+      course = null;
     }
+
+    // Fallback: localStorage
+    if (!course) {
+      const local = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
+      course = local.find(c => c.id === courseId) || local[0] || null;
+    }
+
+    if (!course) { showError('الكورس مش موجود ⚠️'); return; }
+
+    // الدروس: في Supabase بتكون في عمود lessons (jsonb)
+    // في localStorage بتكون في خاصية lessons
+    const lessons = course.lessons || [];
+
+    // حمّل التقدم من localStorage
     doneLessons = JSON.parse(localStorage.getItem('alshehab_done_' + course.id) || '[]');
 
-    // Update hero info
-    document.querySelector('.cdh-thumb').textContent = course.emoji || '📚';
-    document.querySelector('.cdh-info h2').textContent = course.title;
-    document.querySelector('.cdh-info p').textContent = course.desc || '';
-    document.querySelector('[id="cdLessons"]') && (document.getElementById('cdLessons').textContent = (course.lessons?.length || 0) + ' درس');
+    // اعرض المحتوى
+    document.getElementById('courseLoading').style.display = 'none';
+    document.getElementById('courseContent').style.display = 'block';
+
+    // Hero info
+    document.getElementById('cdThumb').textContent = course.emoji || '📚';
+    document.getElementById('cdTitle').textContent  = course.title;
+    document.getElementById('cdDesc').textContent   = course.description || course.desc || '';
+    document.getElementById('certCourseName').textContent = course.title;
 
     // Stats
-    const stats = document.querySelector('.cdh-stats');
-    if (stats) stats.innerHTML = `
-      <div class="cdh-stat"><strong>${course.lessons?.length || 0}</strong> درس</div>
+    document.getElementById('cdStats').innerHTML = `
+      <div class="cdh-stat"><strong>${lessons.length}</strong> درس</div>
       <div class="cdh-stat"><strong>${course.instructor || 'المدرّس'}</strong></div>
       <div class="cdh-stat"><strong>${course.students || 0}+</strong> طالب</div>
       <div class="cdh-stat"><strong>${course.rating || 5}</strong> ⭐</div>`;
 
-    // Price badge
-    const priceBadge = document.querySelector('.badge.badge-free');
-    if (priceBadge) priceBadge.textContent = course.price == 0 ? 'مجاني' : course.price + ' ج.م';
+    // Stars
+    const r = Math.round(course.rating || 5);
+    document.getElementById('cdStars').textContent = '★'.repeat(r) + '☆'.repeat(5 - r);
 
-    renderPlaylist();
-    if (course.lessons?.length > 0) playLesson(0);
+    // Price badge
+    const priceBadge = document.getElementById('cdPriceBadge');
+    if (course.price && course.price > 0) {
+      priceBadge.textContent = course.price + ' ج.م';
+      priceBadge.className = 'badge badge-paid';
+    } else {
+      priceBadge.textContent = 'مجاني';
+      priceBadge.className   = 'badge badge-free';
+    }
+
+    // Enroll button logic
+    const enrollBtn = document.getElementById('cdEnrollBtn');
+    const isEnrolled = await Courses.isEnrolled(course.id);
+    if (isEnrolled) {
+      enrollBtn.textContent = '✅ مسجّل';
+      enrollBtn.style.background = 'var(--bg3)';
+      enrollBtn.style.color = 'var(--text-dim)';
+      enrollBtn.disabled = true;
+    } else if (course.price && course.price > 0) {
+      enrollBtn.textContent = '💳 اشترك';
+      enrollBtn.onclick = () => window.location.href = 'payment.html?id=' + course.id;
+    } else {
+      enrollBtn.textContent = 'سجّل مجاناً';
+      enrollBtn.onclick = async () => {
+        await Courses.enroll(course.id);
+        showToast('تم التسجيل في الكورس ✅');
+        enrollBtn.textContent = '✅ مسجّل';
+        enrollBtn.disabled = true;
+      };
+    }
+
+    renderPlaylist(lessons);
+    if (lessons.length > 0) playLesson(0);
   }
 
-  function renderPlaylist() {
-    const lessons = course?.lessons || [];
-    const header = document.getElementById('playlistHeader');
+  function showError(msg) {
+    document.getElementById('courseLoading').innerHTML = `
+      <div style="font-size:48px;margin-bottom:15px;">⚠️</div>
+      <p style="color:var(--text-dim);">${msg}</p>
+      <button class="submit-btn" style="margin-top:15px;" onclick="window.location.href='courses.html'">رجوع للكورسات</button>`;
+  }
+
+  function renderPlaylist(lessons) {
+    const header    = document.getElementById('playlistHeader');
     const container = document.getElementById('playlistContainer');
-    if (!container) return;
     header.textContent = `📋 محتوى الكورس (${lessons.length} درس)`;
+
     if (lessons.length === 0) {
       container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">لا توجد دروس بعد</div>';
       return;
     }
+
     container.innerHTML = lessons.map((l, i) => {
       const done = doneLessons.includes(l.id);
       return `<div class="playlist-item${i === currentLesson ? ' active' : ''}" onclick="playLesson(${i})" id="pitem_${i}">
@@ -275,7 +340,8 @@
         <span class="${done ? 'pdone' : 'pdur'}">${done ? '✅' : (l.youtubeId ? '▶️' : '—')}</span>
       </div>`;
     }).join('');
-    updateProgress();
+
+    updateProgress(lessons);
   }
 
   function playLesson(index) {
@@ -284,20 +350,19 @@
     currentLesson = index;
     const l = lessons[index];
 
-    // Update active
     document.querySelectorAll('.playlist-item').forEach((el, i) => el.classList.toggle('active', i === index));
     document.getElementById('videoTitle').textContent = `${index + 1}. ${l.title}`;
 
     const iframe = document.getElementById('ytIframe');
-    const noMsg = document.getElementById('noVideoMsg');
+    const noMsg  = document.getElementById('noVideoMsg');
     if (l.youtubeId) {
       iframe.src = `https://www.youtube.com/embed/${l.youtubeId}?autoplay=1&rel=0`;
       iframe.style.display = 'block';
-      noMsg.style.display = 'none';
+      noMsg.style.display  = 'none';
     } else {
       iframe.style.display = 'none';
-      noMsg.style.display = 'flex';
-      noMsg.textContent = 'هذا الدرس ليس له فيديو بعد 🎬';
+      noMsg.style.display  = 'flex';
+      noMsg.textContent    = 'هذا الدرس ليس له فيديو بعد 🎬';
     }
   }
 
@@ -309,13 +374,15 @@
       doneLessons.push(l.id);
       localStorage.setItem('alshehab_done_' + course.id, JSON.stringify(doneLessons));
       showToast('تم تمييز الدرس كمكتمل ✅ +10 XP');
-      // Add XP
-      const xp = parseInt(localStorage.getItem('alshehab_xp') || '0') + 10;
-      localStorage.setItem('alshehab_xp', xp);
+      XP.add(10, 'أكملت درس 📚').catch(()=>{});
+
+      // تحديث التقدم في Supabase
+      const pct = Math.round((doneLessons.length / lessons.length) * 100);
+      Courses.updateProgress(course.id, pct).catch(()=>{});
     } else {
       showToast('الدرس مكتمل بالفعل ✅');
     }
-    renderPlaylist();
+    renderPlaylist(course.lessons || []);
   }
 
   function nextLesson() {
@@ -329,13 +396,11 @@
     else showToast('هذا أول درس في الكورس');
   }
 
-  function updateProgress() {
-    const lessons = course?.lessons || [];
-    const pct = lessons.length > 0 ? Math.round((doneLessons.length / lessons.length) * 100) : 0;
-    const fill = document.getElementById('progressFill');
-    const text = document.getElementById('progressText');
-    if (fill) fill.style.width = pct + '%';
-    if (text) text.textContent = pct + '%';
+  function updateProgress(lessons) {
+    const total = (lessons || []).length;
+    const pct   = total > 0 ? Math.round((doneLessons.length / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '%';
   }
 
   function answerQuiz(el, correct) {
@@ -350,7 +415,7 @@
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(() => {
       const notes = document.getElementById('courseNotes')?.value;
-      if (notes !== undefined) {
+      if (notes !== undefined && courseId) {
         localStorage.setItem('alshehab_notes_' + courseId, notes);
         const ind = document.getElementById('autosaveInd');
         if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 2000); }
@@ -358,47 +423,47 @@
     }, 800);
   }
 
-  // Load saved notes
   window.addEventListener('load', () => {
     const saved = localStorage.getItem('alshehab_notes_' + courseId);
     if (saved) { const n = document.getElementById('courseNotes'); if (n) n.value = saved; }
   });
 
-  loadCourse();
-
+  // Rating
   let currentRating = 0;
-  function setRating(n){
+  function setRating(n) {
     currentRating = n;
-    document.querySelectorAll('.rating-star').forEach((s,i)=>{
-      s.classList.toggle('active', i < n);
-    });
+    document.querySelectorAll('.rating-star').forEach((s, i) => s.classList.toggle('active', i < n));
   }
-  function submitRating(){
-    if(currentRating === 0) { showToast('اختر عدد النجوم أولاً ⭐'); return; }
+  function submitRating() {
+    if (!currentRating) { showToast('اختر عدد النجوم أولاً ⭐'); return; }
     closeModal('ratingModal');
     showToast(`شكراً على تقييمك ${currentRating} نجوم! 🌟`);
   }
 
-  function showCertModal(){
+  // Certificate
+  function showCertModal() {
     spawnConfetti();
     document.getElementById('certModal').classList.add('show');
   }
-  function downloadCert(){
+  function downloadCert() {
     closeModal('certModal');
     showToast('جاري تحميل شهادتك 📄');
-    setTimeout(()=>{ document.getElementById('ratingModal').classList.add('show'); }, 1500);
+    setTimeout(() => document.getElementById('ratingModal').classList.add('show'), 1500);
   }
-  function spawnConfetti(){
-    const wrap = document.getElementById('confettiWrap');
+  function spawnConfetti() {
+    const wrap   = document.getElementById('confettiWrap');
     wrap.innerHTML = '';
     const colors = ['#00d4aa','#f97316','#6366f1','#fbbf24','#ec4899'];
-    for(let i=0;i<30;i++){
+    for (let i = 0; i < 30; i++) {
       const c = document.createElement('div');
       c.className = 'conf';
-      c.style.cssText = `left:${Math.random()*100}%;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*1}s;animation-duration:${1.5+Math.random()}s;`;
+      c.style.cssText = `left:${Math.random()*100}%;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()}s;animation-duration:${1.5+Math.random()}s;`;
       wrap.appendChild(c);
     }
   }
+
+  // Start!
+  loadCourse();
 </script>
 </body>
 </html>
