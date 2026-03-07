@@ -183,8 +183,31 @@
   document.querySelectorAll('.pstat .pn')[1].textContent = completed.length;
   document.querySelectorAll('.pstat .pn')[2].textContent = Math.round(totalHours / 60);
 
-  // Save profile
-  function saveProfile() {
+  async function saveProfile() {
     const name = document.getElementById('profileName').value.trim();
     const email = document.getElementById('profileEmail').value.trim();
-    if (!name) { showToast('اكتب اسمك ⚠️'); retur
+    if (!name) { showToast('اكتب اسمك ⚠️'); return; }
+    if (!email) { showToast('اكتب بريدك الإلكتروني ⚠️'); return; }
+
+    // حفظ في localStorage
+    const user = sb.getUser();
+    const updatedUser = { ...userData, name, email };
+    localStorage.setItem('alshehab_user', JSON.stringify(updatedUser));
+
+    // تحديث الـ UI
+    document.querySelector('.profile-av').textContent = name.charAt(0).toUpperCase();
+    document.querySelector('.profile-info h3').textContent = name;
+    document.querySelector('.avatar-btn').textContent = name.charAt(0).toUpperCase();
+
+    // حفظ في Supabase
+    if (user) {
+      try {
+        await sb.upsert('profiles', { id: user.id, name });
+      } catch(e) {}
+    }
+
+    showToast('تم حفظ التغييرات ✅');
+  }
+</script>
+</body>
+</html>
