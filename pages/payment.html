@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALSHEHAB — الدفع</title>
+  <title>ALSHEHAB — الاشتراك</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 
-
 <div id="toast"></div>
 <div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
 <div class="settings-panel" id="settingsPanel">
   <h4>🎨 لون المنصة</h4>
   <div class="theme-dots">
@@ -28,6 +28,7 @@
   </div>
 </div>
 <button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
 <header class="topbar">
   <div class="logo">A L S H E H A B</div>
   <div class="topbar-right">
@@ -36,6 +37,7 @@
     <button class="menu-btn" id="menuBtn">☰</button>
   </div>
 </header>
+
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div class="nav-label">القائمة الرئيسية</div>
@@ -53,51 +55,302 @@
       <div class="nav-item" style="color:#ef4444;" onclick="window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
     </div>
   </aside>
+
   <main class="main">
     <div class="page active">
-      <div style="margin-bottom:16px;"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;" onclick="window.location.href='courses.html'">← رجوع</button></div>
-      <div class="page-title">💳 الدفع</div>
-      <div class="page-sub">أتم عملية الدفع للاشتراك في الكورس</div>
-      <div class="panel" style="max-width:440px;">
-        <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
-          <div><div style="font-weight:700;font-size:14px;">كورس الكيمياء</div><div style="font-size:12px;color:var(--text-dim);">وصول مدى الحياة + شهادة</div></div>
-          <div style="font-size:20px;font-weight:900;color:var(--accent);">79 ج.م</div>
-        </div>
-        <div class="inp-group"><label>رقم البطاقة</label><input class="inp" type="text" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="inp-group"><label>تاريخ الانتهاء</label><input class="inp" type="text" placeholder="MM/YY"></div>
-          <div class="inp-group"><label>CVV</label><input class="inp" type="text" placeholder="123" maxlength="3"></div>
-        </div>
-        <button class="btn-full" onclick="showToast('تم الدفع بنجاح! 🎉 مرحباً في الكورس')">ادفع 79 ج.م 🔒</button>
-        <div class="coupon-row">
-          <input class="coupon-inp" type="text" placeholder="كود الخصم (مثل: ALSHEHAB20)" id="couponInp">
-          <button class="coupon-btn" onclick="applyCoupon()">تطبيق</button>
-        </div>
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;text-align:center;">أو ادفع بـ</div>
-          <div style="display:flex;gap:8px;">
-            <button class="google-btn" style="flex:1;" onclick="showToast('ادفع بفودافون كاش 📱')">📱 فودافون كاش</button>
-            <button class="google-btn" style="flex:1;" onclick="showToast('ادفع بإنستاباي 💳')">💸 إنستاباي</button>
+      <div style="margin-bottom:16px;">
+        <button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;" onclick="window.location.href='courses.html'">← رجوع للكورسات</button>
+      </div>
+      <div class="page-title">💳 الاشتراك في الكورس</div>
+      <div class="page-sub">ادفع بأمان عبر Paymob</div>
+
+      <div id="loadingState" style="text-align:center;padding:40px;color:var(--text-dim);">
+        <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+        <div>جاري تحميل بيانات الكورس...</div>
+      </div>
+
+      <div id="errorState" style="display:none;text-align:center;padding:40px;">
+        <div style="font-size:48px;margin-bottom:15px;">⚠️</div>
+        <p style="color:var(--text-dim);font-size:14px;">لم يتم العثور على الكورس</p>
+        <button class="submit-btn" style="margin-top:15px;" onclick="window.location.href='courses.html'">رجوع للكورسات</button>
+      </div>
+
+      <div id="successState" style="display:none;max-width:460px;">
+        <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:16px;padding:30px;text-align:center;">
+          <div style="font-size:56px;margin-bottom:12px;">🎉</div>
+          <h2 style="font-size:20px;font-weight:900;margin-bottom:8px;">تم الدفع بنجاح!</h2>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:20px;">
+            تم تفعيل الكورس على حسابك ✅<br>يمكنك البدء في التعلم الآن فوراً 🚀
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <button class="submit-btn" id="goToCourseBtn">📚 ابدأ الكورس الآن</button>
+            <button class="submit-btn" style="background:var(--bg3);color:var(--text);" onclick="window.location.href='dashboard.html'">🏠 الرئيسية</button>
           </div>
         </div>
-        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-dim);">🔒 دفع آمن ومشفر بـ SSL</div>
       </div>
+
+      <div id="failedState" style="display:none;max-width:460px;">
+        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:16px;padding:30px;text-align:center;">
+          <div style="font-size:56px;margin-bottom:12px;">❌</div>
+          <h2 style="font-size:20px;font-weight:900;margin-bottom:8px;">لم يتم الدفع</h2>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:20px;">
+            حدث خطأ أثناء عملية الدفع.<br>حاول مرة تانية أو تواصل معنا.
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <button class="submit-btn" onclick="location.reload()">🔄 حاول مرة تانية</button>
+            <button class="submit-btn" style="background:var(--bg3);color:var(--text);" onclick="window.location.href='courses.html'">رجوع</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="paymentPanel" style="display:none;max-width:480px;">
+
+        <div style="background:linear-gradient(135deg,rgba(0,212,170,0.08),rgba(99,102,241,0.08));border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div id="courseEmoji" style="font-size:32px;">📚</div>
+              <div>
+                <div id="courseName" style="font-weight:700;font-size:15px;"></div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:3px;">وصول مدى الحياة + شهادة إتمام</div>
+                <div id="courseMeta" style="font-size:11px;color:var(--text-dim);margin-top:2px;"></div>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <div id="originalPrice" style="font-size:12px;color:var(--text-dim);text-decoration:line-through;display:none;"></div>
+              <div id="coursePrice" style="font-size:24px;font-weight:900;color:var(--accent);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:16px;">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;">🏷️ كود الخصم (اختياري)</h3>
+          <div class="coupon-row">
+            <input class="coupon-inp" type="text" placeholder="مثل: IBDA320" id="couponInp" oninput="this.value=this.value.toUpperCase()">
+            <button class="coupon-btn" onclick="applyCoupon()">تطبيق</button>
+          </div>
+          <div id="couponMsg" style="font-size:12px;margin-top:8px;display:none;"></div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="color:var(--text-dim);">سعر الكورس</span>
+            <span id="summaryOriginal"></span>
+          </div>
+          <div id="discountRow" style="display:none;justify-content:space-between;margin-bottom:6px;">
+            <span style="color:#22c55e;">خصم</span>
+            <span id="discountAmt" style="color:#22c55e;"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+            <span>الإجمالي</span>
+            <span id="summaryTotal" style="color:var(--accent);"></span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:20px;">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;font-weight:700;">طرق الدفع المتاحة عبر Paymob</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;">💳 فيزا / ماستر</span>
+            <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;">📱 فودافون كاش</span>
+            <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;">🏦 تحويل بنكي</span>
+          </div>
+        </div>
+
+        <button class="btn-full" id="payBtn" onclick="startPayment()" style="font-size:16px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;">
+          🔒 ادفع دلوقتي عبر Paymob
+        </button>
+        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-dim);">
+          🔒 مدفوعات آمنة ومشفرة — powered by Paymob
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
+
 <script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
 <script>
-  function applyCoupon(){
-    const val = document.getElementById('couponInp').value.trim().toUpperCase();
-    const coupons = { 'ALSHEHAB20': 20, 'SAVE50': 50, 'FREE100': 100 };
-    if(coupons[val]){
-      showToast(`🎉 تم تطبيق كود الخصم! خصم ${coupons[val]}%`);
-      document.getElementById('couponInp').style.borderColor = 'var(--accent)';
+  requireAuth();
+
+  // ===== PAYMOB CONFIG =====
+  const PAYMOB_API_KEY        = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJjbGFzcyI6Ik1lcmNoYW50IiwicHJvZmlsZV9wayI6MTEzODEyMCwibmFtZSI6ImluaXRpYWwifQ.rSpAxChdZ6zhC3G5uBndUb5sIKtx54Wq6FkeSAv8VSyVtWCYOyoLOfWG8mFJaP7ai27htCXOYoRycPOUzxppsQ';
+  const PAYMOB_INTEGRATION_ID = 5567449;
+  const PAYMOB_IFRAME_ID      = 1012647;
+  // =========================
+
+  const params   = new URLSearchParams(location.search);
+  const courseId = params.get('id');
+  let course     = null;
+  let finalPrice = 0;
+  let discount   = 0;
+
+  const coupons = { 'IBDA320': 20, 'IBDA350': 50, 'IBDA3FREE': 100, 'ALSHEHAB20': 20, 'SAVE50': 50 };
+
+  async function checkPaymobCallback() {
+    const p       = new URLSearchParams(location.search);
+    const success = p.get('success');
+    const txnId   = p.get('id');
+    const cId     = localStorage.getItem('paymob_course_id');
+
+    if (success === null) return false;
+
+    document.getElementById('loadingState').style.display = 'none';
+
+    if (success === 'true' && txnId) {
+      await activateCourse(cId, txnId);
     } else {
-      showToast('❌ كود الخصم غير صحيح');
-      document.getElementById('couponInp').style.borderColor = '#ef4444';
+      document.getElementById('failedState').style.display = 'block';
+    }
+    return true;
+  }
+
+  async function activateCourse(cId, txnId) {
+    const user = sb.getUser();
+    if (!user || !cId) { document.getElementById('successState').style.display = 'block'; return; }
+    try {
+      await sb.upsert('enrollments', { user_id: user.id, course_id: cId, progress: 0, completed: false });
+      await XP.add(10, 'اشتركت في كورس جديد 🎉').catch(()=>{});
+      await Notifs.add('🎉 تم تفعيل الكورس!', 'يمكنك البدء في التعلم الآن').catch(()=>{});
+      const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
+      if (!enrolled.includes(cId)) { enrolled.push(cId); localStorage.setItem('alshehab_enrolled', JSON.stringify(enrolled)); }
+    } catch(e) {}
+    document.getElementById('goToCourseBtn').onclick = () => window.location.href = 'course-detail.html?id=' + cId;
+    document.getElementById('successState').style.display = 'block';
+    localStorage.removeItem('paymob_course_id');
+  }
+
+  async function loadCourse() {
+    const isCallback = await checkPaymobCallback();
+    if (isCallback) return;
+
+    if (!courseId) { showErr(); return; }
+    try { course = await Courses.getById(courseId); } catch(e) { course = null; }
+    if (!course) { showErr(); return; }
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('paymentPanel').style.display = 'block';
+
+    finalPrice = parseFloat(course.price) || 0;
+    document.getElementById('courseEmoji').textContent = course.emoji || '📚';
+    document.getElementById('courseName').textContent  = course.title;
+    document.getElementById('courseMeta').textContent  =
+      [course.lessons ? course.lessons+' درس':'', course.hours ? course.hours+' ساعة':''].filter(Boolean).join(' · ');
+    updatePrice();
+  }
+
+  function showErr() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display   = 'block';
+  }
+
+  function updatePrice() {
+    const discounted = Math.round(finalPrice * (1 - discount/100));
+    document.getElementById('coursePrice').textContent     = discounted + ' ج.م';
+    document.getElementById('summaryOriginal').textContent = finalPrice + ' ج.م';
+    document.getElementById('summaryTotal').textContent    = discounted + ' ج.م';
+    const origEl = document.getElementById('originalPrice');
+    if (discount > 0) {
+      origEl.textContent = finalPrice+' ج.م'; origEl.style.display='block';
+      document.getElementById('discountRow').style.display='flex';
+      document.getElementById('discountAmt').textContent='- '+(finalPrice-discounted)+' ج.م';
+    } else { origEl.style.display='none'; document.getElementById('discountRow').style.display='none'; }
+  }
+
+  function applyCoupon() {
+    const val = document.getElementById('couponInp').value.trim().toUpperCase();
+    const msg = document.getElementById('couponMsg');
+    const inp = document.getElementById('couponInp');
+    if (!val) return;
+    if (coupons[val] !== undefined) {
+      discount = coupons[val];
+      inp.style.borderColor = 'var(--accent)';
+      msg.style.display='block'; msg.style.color='#22c55e';
+      msg.textContent = discount===100 ? '🎉 الكورس أصبح مجاناً!' : `🎉 خصم ${discount}% تم تطبيقه`;
+      if (discount===100) {
+        document.getElementById('payBtn').textContent = '✅ احصل على الكورس مجاناً';
+        document.getElementById('payBtn').onclick = enrollFree;
+      }
+      updatePrice();
+    } else {
+      discount=0; inp.style.borderColor='#ef4444';
+      msg.style.display='block'; msg.style.color='#ef4444';
+      msg.textContent='❌ كود الخصم غير صحيح';
+      updatePrice();
     }
   }
+
+  async function enrollFree() {
+    const user = sb.getUser(); if (!user) return;
+    await sb.upsert('enrollments', {user_id:user.id, course_id:courseId, progress:0, completed:false});
+    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled')||'[]');
+    if (!enrolled.includes(courseId)) { enrolled.push(courseId); localStorage.setItem('alshehab_enrolled', JSON.stringify(enrolled)); }
+    showToast('تم تفعيل الكورس مجاناً 🎉');
+    setTimeout(() => window.location.href='course-detail.html?id='+courseId, 1000);
+  }
+
+  async function startPayment() {
+    const user = sb.getUser();
+    if (!user) { showToast('سجّل دخولك أولاً'); return; }
+
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري تجهيز الدفع...';
+
+    const amountCents = Math.round(finalPrice * (1 - discount/100)) * 100;
+
+    try {
+      const authRes  = await fetch('https://accept.paymob.com/api/auth/tokens', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ api_key: PAYMOB_API_KEY }),
+      });
+      const { token: authToken } = await authRes.json();
+      if (!authToken) throw new Error('فشل الاتصال بـ Paymob');
+
+      const userData = JSON.parse(localStorage.getItem('alshehab_user') || '{}');
+      const orderRes = await fetch('https://accept.paymob.com/api/ecommerce/orders', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          auth_token: authToken, delivery_needed: false,
+          amount_cents: amountCents, currency: 'EGP',
+          merchant_order_id: `ALSHEHAB_${user.id}_${courseId}_${Date.now()}`,
+          items: [{ name: course.title, amount_cents: amountCents, description: course.description||'', quantity: 1 }],
+        }),
+      });
+      const { id: orderId } = await orderRes.json();
+      if (!orderId) throw new Error('فشل إنشاء الطلب');
+
+      const nameParts = (userData.name||'طالب ALSHEHAB').split(' ');
+      const pkRes = await fetch('https://accept.paymob.com/api/acceptance/payment_keys', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          auth_token: authToken, amount_cents: amountCents,
+          expiration: 3600, order_id: orderId,
+          billing_data: {
+            apartment:'NA', email: userData.email||'student@alshehab.com',
+            floor:'NA', first_name: nameParts[0]||'طالب',
+            last_name: nameParts[1]||'ALSHEHAB', street:'NA',
+            building:'NA', phone_number:'+201000000000',
+            shipping_method:'NA', postal_code:'NA',
+            city:'Cairo', country:'EG', state:'Cairo',
+          },
+          currency: 'EGP',
+          integration_id: PAYMOB_INTEGRATION_ID,
+        }),
+      });
+      const { token: paymentKey } = await pkRes.json();
+      if (!paymentKey) throw new Error('فشل الحصول على مفتاح الدفع');
+
+      localStorage.setItem('paymob_course_id', courseId);
+      window.location.href = `https://accept.paymob.com/api/acceptance/iframes/${PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
+
+    } catch(e) {
+      showToast('حدث خطأ: ' + (e.message||'حاول تاني') + ' ⚠️');
+      btn.disabled = false;
+      btn.textContent = '🔒 ادفع دلوقتي عبر Paymob';
+    }
+  }
+
+  loadCourse();
 </script>
 </body>
 </html>
