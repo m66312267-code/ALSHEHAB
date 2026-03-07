@@ -313,24 +313,41 @@ async function addCourse() {
   btn.disabled = true;
   btn.textContent = '⏳ جاري الحفظ...';
 
+  // الحقول الأساسية المضمونة دايماً
   const newCourse = {
     title,
-    emoji:        document.getElementById('cEmoji').value.trim() || '📚',
-    description:  document.getElementById('cDesc').value.trim(),
-    category:     document.getElementById('cCat').value,
-    price:        parseFloat(document.getElementById('cPrice').value) || 0,
-    status:       document.getElementById('cStatus').value,
-    instructor:   document.getElementById('cInstructor').value.trim(),
-    is_new:       document.getElementById('cIsNew').checked,
-    is_hot:       document.getElementById('cIsHot').checked,
-    lessons:      lessons,          // jsonb
+    emoji:         document.getElementById('cEmoji').value.trim() || '📚',
+    description:   document.getElementById('cDesc').value.trim(),
+    category:      document.getElementById('cCat').value,
+    price:         parseFloat(document.getElementById('cPrice').value) || 0,
+    status:        document.getElementById('cStatus').value,
+    is_new:        document.getElementById('cIsNew').checked,
+    is_hot:        document.getElementById('cIsHot').checked,
+    lessons:       lessons,
     lessons_count: lessons.length,
-    rating:       5,
-    students:     0,
+  };
+
+  // أضف الحقول الاختيارية بس لو موجودة في الـ schema
+  const optionalFields = {
+    instructor: document.getElementById('cInstructor').value.trim(),
+    rating:     5,
+    students:   0,
+    hours:      0,
   };
 
   try {
-    const result = await sb.insert('courses', newCourse);
+    // جرّب تضيف الحقول الاختيارية الأول
+    let result = null;
+    try {
+      result = await sb.insert('courses', { ...newCourse, ...optionalFields });
+    } catch(schemaErr) {
+      // لو فشل بسبب عمود مش موجود، ابعت الأساسيات بس
+      if (schemaErr.message && schemaErr.message.includes('column')) {
+        result = await sb.insert('courses', newCourse);
+      } else {
+        throw schemaErr;
+      }
+    }
     if (result && result.error) throw new Error(result.error.message || 'خطأ في الحفظ');
 
     // Reset form
@@ -342,6 +359,7 @@ async function addCourse() {
     updateLessonCount();
 
     showToast(`✅ تم نشر الكورس في Supabase بـ ${lessons.length} درس`);
+    localStorage.removeItem('alshehab_courses');
     loadStats();
   } catch(e) {
     showToast('⚠️ خطأ: ' + (e.message || 'حاول تاني'));
@@ -355,10 +373,9 @@ async function addCourse() {
 async function deleteCourse(id) {
   if (!confirm('مؤكد تحذف الكورس ده؟')) return;
   try {
-    await fetch(`${sb.url}/rest/v1/courses?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: sb.headers(),
-    });
+    await sb.delete('courses', `id=eq.${id}`);
+    const cached = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
+    localStorage.setItem('alshehab_courses', JSON.stringify(cached.filter(c => c.id !== id)));
     showToast('تم حذف الكورس 🗑');
     loadStats();
   } catch(e) {
@@ -370,14 +387,17 @@ async function deleteCourse(id) {
 async function clearAllCourses() {
   if (!confirm('مؤكد تمسح كل الكورسات؟ ⚠️')) return;
   try {
-    await fetch(`${sb.url}/rest/v1/courses?id=neq.00000000-0000-0000-0000-000000000000`, {
-      method: 'DELETE',
-      headers: sb.headers(),
-    });
-    showToast('تم مسح كل الكورسات');
+    const all = await sb.select('courses', 'select=id');
+    if (Array.isArray(all) && all.length > 0) {
+      for (const c of all) {
+        await sb.delete('courses', `id=eq.${c.id}`);
+      }
+    }
+    localStorage.removeItem('alshehab_courses');
+    showToast('تم مسح كل الكورسات ✅');
     loadStats();
   } catch(e) {
-    showToast('⚠️ فشل المسح');
+    showToast('⚠️ فشل المسح: ' + e.message);
   }
 }
 
