@@ -27,7 +27,7 @@ const sb = {
     if (data.error || data.code) throw new Error(data.msg || data.error_description || 'خطأ في التسجيل');
     if (data.access_token) {
       localStorage.setItem('sb_session', JSON.stringify(data));
-      localStorage.setItem('alshhab_user', JSON.stringify({
+      localStorage.setItem('alshehab_user', JSON.stringify({
         id: data.user?.id,
         email: data.user?.email,
         name: name || email.split('@')[0],
@@ -45,7 +45,7 @@ const sb = {
     const data = await res.json();
     if (data.error || data.error_code) throw new Error(data.error_description || 'بيانات الدخول غلط');
     localStorage.setItem('sb_session', JSON.stringify(data));
-    localStorage.setItem('alshhab_user', JSON.stringify({
+    localStorage.setItem('alshehab_user', JSON.stringify({
       id: data.user?.id,
       email: data.user?.email,
       name: data.user?.user_metadata?.name || email.split('@')[0],
@@ -62,7 +62,7 @@ const sb = {
       }).catch(() => {});
     }
     localStorage.removeItem('sb_session');
-    localStorage.removeItem('alshhab_user');
+    localStorage.removeItem('alshehab_user');
     window.location.href = 'index.html';
   },
 
@@ -129,6 +129,21 @@ const sb = {
     });
     return res.json();
   },
+
+  // STORAGE — رفع صورة الايصال
+  async uploadReceipt(file, userId) {
+    const ext     = (file.name || "receipt.jpg").split(".").pop() || "jpg";
+    const path    = userId + "/" + Date.now() + "." + ext;
+    const session = JSON.parse(localStorage.getItem("sb_session") || "null");
+    const token   = session?.access_token || this.key;
+    const res = await fetch(this.url + "/storage/v1/object/receipts/" + path, {
+      method:  "POST",
+      headers: { "apikey": this.key, "Authorization": "Bearer " + token, "Content-Type": file.type || "image/jpeg" },
+      body: file,
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || "فشل رفع الصورة"); }
+    return this.url + "/storage/v1/object/public/receipts/" + path;
+  },
 };
 
 // AUTH GUARD
@@ -159,7 +174,7 @@ async function getEnrollments(userId) {
     const data = await sb.select('enrollments', `user_id=eq.${userId}&order=enrolled_at.desc`);
     return Array.isArray(data) ? data : [];
   } catch {
-    return JSON.parse(localStorage.getItem('alshhab_enrolled_full') || '[]');
+    return JSON.parse(localStorage.getItem('alshehab_enrolled_full') || '[]');
   }
 }
 
@@ -168,7 +183,7 @@ async function getNotifications(userId) {
     const data = await sb.select('notifications', `user_id=eq.${userId}&order=created_at.desc&limit=20`);
     return Array.isArray(data) ? data : [];
   } catch {
-    return JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+    return JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
   }
 }
 
@@ -176,9 +191,9 @@ async function markNotifRead(notifId) {
   try {
     await sb.update('notifications', { is_read: true }, `id=eq.${notifId}`);
   } catch {
-    const notifs = JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+    const notifs = JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
     const n = notifs.find(n => n.id == notifId);
-    if (n) { n.is_read = true; localStorage.setItem('alshhab_notifs', JSON.stringify(notifs)); }
+    if (n) { n.is_read = true; localStorage.setItem('alshehab_notifs', JSON.stringify(notifs)); }
   }
 }
 
@@ -186,9 +201,9 @@ async function markAllNotifsRead(userId) {
   try {
     await sb.update('notifications', { is_read: true }, `user_id=eq.${userId}&is_read=eq.false`);
   } catch {
-    const notifs = JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+    const notifs = JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
     notifs.forEach(n => n.is_read = true);
-    localStorage.setItem('alshhab_notifs', JSON.stringify(notifs));
+    localStorage.setItem('alshehab_notifs', JSON.stringify(notifs));
   }
 }
 
@@ -198,11 +213,11 @@ const Courses = {
     try {
       const data = await sb.select('courses', 'order=created_at.desc');
       if (Array.isArray(data) && data.length > 0) {
-        localStorage.setItem('alshhab_courses', JSON.stringify(data));
+        localStorage.setItem('alshehab_courses', JSON.stringify(data));
         return data;
       }
     } catch {}
-    return JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    return JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
   },
 
   async getById(id) {
@@ -210,7 +225,7 @@ const Courses = {
       const data = await sb.select('courses', `id=eq.${id}`);
       if (Array.isArray(data) && data.length > 0) return data[0];
     } catch {}
-    const all = JSON.parse(localStorage.getItem('alshhab_courses') || '[]');
+    const all = JSON.parse(localStorage.getItem('alshehab_courses') || '[]');
     return all.find(c => c.id === id) || null;
   },
 
@@ -222,10 +237,10 @@ const Courses = {
       await sb.upsert('enrollments', enrollment);
     } catch {}
     // fallback localStorage
-    const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
+    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
     if (!enrolled.includes(courseId)) {
       enrolled.push(courseId);
-      localStorage.setItem('alshhab_enrolled', JSON.stringify(enrolled));
+      localStorage.setItem('alshehab_enrolled', JSON.stringify(enrolled));
     }
     await XP.add(10, 'تسجيل في كورس جديد 📚');
   },
@@ -237,7 +252,7 @@ const Courses = {
       const data = await sb.select('enrollments', `user_id=eq.${user.id}&course_id=eq.${courseId}`);
       if (Array.isArray(data) && data.length > 0) return true;
     } catch {}
-    const enrolled = JSON.parse(localStorage.getItem('alshhab_enrolled') || '[]');
+    const enrolled = JSON.parse(localStorage.getItem('alshehab_enrolled') || '[]');
     return enrolled.includes(courseId);
   },
 
@@ -253,12 +268,12 @@ const Courses = {
 
   async getFavorites() {
     const user = sb.getUser();
-    if (!user) return JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    if (!user) return JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
     try {
       const data = await sb.select('favorites', `user_id=eq.${user.id}`);
       if (Array.isArray(data)) return data.map(f => f.course_id);
     } catch {}
-    return JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    return JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
   },
 
   async toggleFavorite(courseId) {
@@ -277,14 +292,14 @@ const Courses = {
       } catch {}
     }
     // localStorage sync
-    const localFavs = JSON.parse(localStorage.getItem('alshhab_favs') || '[]');
+    const localFavs = JSON.parse(localStorage.getItem('alshehab_favs') || '[]');
     if (isFav) {
       const idx = localFavs.indexOf(courseId);
       if (idx !== -1) localFavs.splice(idx, 1);
     } else {
       localFavs.push(courseId);
     }
-    localStorage.setItem('alshhab_favs', JSON.stringify(localFavs));
+    localStorage.setItem('alshehab_favs', JSON.stringify(localFavs));
     return !isFav;
   },
 };
@@ -298,7 +313,7 @@ const Notifs = {
       const data = await sb.select('notifications', `user_id=eq.${user.id}&order=created_at.desc&limit=20`);
       return Array.isArray(data) ? data : [];
     } catch {
-      return JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+      return JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
     }
   },
 
@@ -309,9 +324,9 @@ const Notifs = {
     try {
       await sb.insert('notifications', notif);
     } catch {
-      const notifs = JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+      const notifs = JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
       notifs.unshift({ ...notif, id: Date.now(), created_at: new Date().toISOString() });
-      localStorage.setItem('alshhab_notifs', JSON.stringify(notifs.slice(0, 20)));
+      localStorage.setItem('alshehab_notifs', JSON.stringify(notifs.slice(0, 20)));
     }
     this.updateBadge();
   },
@@ -322,9 +337,9 @@ const Notifs = {
     try {
       await sb.update('notifications', { is_read: true }, `user_id=eq.${user.id}&is_read=eq.false`);
     } catch {
-      const notifs = JSON.parse(localStorage.getItem('alshhab_notifs') || '[]');
+      const notifs = JSON.parse(localStorage.getItem('alshehab_notifs') || '[]');
       notifs.forEach(n => n.is_read = true);
-      localStorage.setItem('alshhab_notifs', JSON.stringify(notifs));
+      localStorage.setItem('alshehab_notifs', JSON.stringify(notifs));
     }
     this.updateBadge();
   },
@@ -365,9 +380,9 @@ const XP = {
   async add(amount, reason = '') {
     const user = sb.getUser();
     if (!user) return;
-    const current = parseInt(localStorage.getItem('alshhab_xp') || '0');
+    const current = parseInt(localStorage.getItem('alshehab_xp') || '0');
     const newXP = current + amount;
-    localStorage.setItem('alshhab_xp', newXP);
+    localStorage.setItem('alshehab_xp', newXP);
     await Notifs.add(`حصلت على ${amount} XP ⚡`, reason);
     try {
       await sb.upsert('profiles', { id: user.id, xp: newXP });
@@ -385,9 +400,9 @@ const Study = {
     const mins = Math.round((Date.now() - this.startTime) / 60000);
     if (mins < 1) { this.startTime = null; return; }
     const today = new Date().toISOString().slice(0, 10);
-    const log = JSON.parse(localStorage.getItem('alshhab_studylog') || '{}');
+    const log = JSON.parse(localStorage.getItem('alshehab_studylog') || '{}');
     log[today] = (log[today] || 0) + mins;
-    localStorage.setItem('alshhab_studylog', JSON.stringify(log));
+    localStorage.setItem('alshehab_studylog', JSON.stringify(log));
     this.startTime = null;
     if (mins >= 5) XP.add(Math.floor(mins / 5) * 2, `درست ${mins} دقيقة 📚`);
   },
