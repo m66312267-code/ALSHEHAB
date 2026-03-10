@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALSHEHAB — لوحة التحكم</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* ══════════════════════════ ADMIN STYLES ══════════════════════════ */
+    .admin-tabs-bar { display:flex; gap:5px; flex-wrap:wrap; background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:6px; margin-bottom:20px; }
+    .atab { padding:9px 14px; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text-dim); border:none; background:transparent; font-family:'Cairo',sans-serif; transition:all .2s; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+    .atab:hover { background:var(--bg3); color:var(--text); }
+    .atab.active { background:var(--accent); color:#000; }
+    .admin-section { display:none; }
+    .admin-section.active { display:block; animation:fadeUp .3s ease; }
+
+    /* KPI */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:12px; margin-bottom:20px; }
+    .kpi-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; position:relative; overflow:hidden; cursor:default; transition:transform .2s; }
+    .kpi-card:hover { transform:translateY(-2px); }
+    .kpi-card::before { content:''; position:absolute; top:-15px; left:-15px; width:70px; height:70px; border-radius:50%; background:var(--kc,var(--accent)); opacity:.1; }
+    .kpi-num { font-size:26px; font-weight:900; color:var(--kc,var(--accent)); }
+    .kpi-lbl { font-size:11px; color:var(--text-dim); margin-top:3px; }
+    .kpi-icon { position:absolute; top:12px; left:12px; font-size:20px; opacity:.35; }
+    .kpi-delta { font-size:10px; margin-top:5px; }
+    .kpi-delta.up { color:#22c55e; } .kpi-delta.dn { color:#ef4444; }
+
+    /* Charts */
+    .chart-row { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:18px; }
+    .bar-chart-wrap { display:flex; align-items:flex-end; gap:6px; height:110px; }
+    .bc { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; height:100%; justify-content:flex-end; }
+    .bf { width:100%; border-radius:4px 4px 0 0; transition:height .8s cubic-bezier(.4,0,.2,1); min-height:3px; }
+    .bv { font-size:9px; color:var(--accent); font-weight:700; }
+    .bl { font-size:9px; color:var(--text-dim); }
+    .donut-wrap { display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:10px; }
+    .donut-center { position:absolute; text-align:center; pointer-events:none; }
+    .donut-center b { font-size:18px; font-weight:900; color:var(--accent); display:block; }
+    .donut-center small { font-size:9px; color:var(--text-dim); }
+    .leg-item { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--text-dim); margin-bottom:6px; }
+    .leg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .rev-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; }
+    .rev-bar { flex:1; height:7px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+    .rev-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent),#6366f1); transition:width .8s ease; }
+
+    /* Tables */
+    .dtbl { width:100%; border-collapse:collapse; font-size:12px; }
+    .dtbl th { text-align:right; padding:9px 12px; color:var(--text-dim); font-size:11px; border-bottom:1px solid var(--border); font-weight:700; white-space:nowrap; }
+    .dtbl td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+    .dtbl tr:hover td { background:var(--bg3); }
+    .tbl-wrap { overflow-x:auto; }
+    .tsearch { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+    .tsearch input,.tsearch select { background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:8px 12px; color:var(--text); font-family:'Cairo',sans-serif; font-size:12px; outline:none; }
+    .tsearch input { flex:1; min-width:160px; }
+    .tsearch input:focus,.tsearch select:focus { border-color:var(--accent); }
+
+    /* Buttons */
+    .ab { padding:5px 11px; border-radius:7px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid; font-family:'Cairo',sans-serif; transition:all .2s; }
+    .ab:hover { opacity:.8; transform:scale(1.03); }
+    .ab.g { background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.4); color:#22c55e; }
+    .ab.r { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.3); color:#ef4444; }
+    .ab.b { background:rgba(59,130,246,.1); border-color:rgba(59,130,246,.3); color:#60a5fa; }
+    .ab.o { background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.3); color:#fb923c; }
+    .ab.y { background:rgba(251,191,36,.1); border-color:rgba(251,191,36,.3); color:#fbbf24; }
+
+    /* Badges */
+    .badge { display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; white-space:nowrap; }
+    .badge.active  { background:rgba(34,197,94,.12);  color:#22c55e; }
+    .badge.soon    { background:rgba(251,191,36,.12);  color:#fbbf24; }
+    .badge.pending { background:rgba(249,115,22,.12);  color:#fb923c; }
+    .badge.paid    { background:rgba(0,212,170,.12);   color:var(--accent); }
+    .badge.rejected{ background:rgba(239,68,68,.12);   color:#ef4444; }
+    .badge.admin   { background:rgba(168,85,247,.15);  color:#c084fc; }
+
+    /* Forms */
+    .fg2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .fg3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .fgrp label { display:block; font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; }
+    .fgrp .inp { width:100%; }
+    .av-sm { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent3)); display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:#000; flex-shrink:0; }
+
+    /* Modals */
+    .amodal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:8000; display:none; align-items:center; justify-content:center; padding:16px; }
+    .amodal.show { display:flex; }
+    .amodal-box { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:26px; max-width:500px; width:100%; max-height:90vh; overflow-y:auto; animation:fadeUp .3s ease; }
+    .amodal-box h3 { font-size:16px; font-weight:900; margin-bottom:16px; }
+    .mfoot { display:flex; gap:10px; margin-top:16px; }
+    .mfoot button { flex:1; padding:11px; border-radius:10px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer; border:none; }
+    .mfoot .mprim { background:var(--accent); color:#000; }
+    .mfoot .mcanc { background:var(--bg3); color:var(--text); }
+
+    /* Notif targets */
+    .ntargets { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:12px; }
+    .ntar { padding:6px 13px; border-radius:20px; border:1px solid var(--border); font-size:12px; cursor:pointer; transition:all .2s; color:var(--text-dim); }
+    .ntar.sel { background:rgba(0,212,170,.12); border-color:var(--accent); color:var(--accent); font-weight:700; }
+
+    /* Settings */
+    .srow { display:flex; align-items:center; justify-content:space-between; padding:13px; background:var(--bg3); border-radius:10px; margin-bottom:9px; }
+    .srow-info strong { font-size:13px; font-weight:700; }
+    .srow-info small { display:block; font-size:11px; color:var(--text-dim); margin-top:2px; }
+
+    /* Payment card */
+    .pay-card { background:var(--bg3); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:13px; }
+    .pay-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:11px; flex-wrap:wrap; gap:8px; }
+    .pay-acts { display:flex; gap:8px; margin-top:11px; }
+
+    /* Lesson row */
+    .lrow { background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:9px; }
+
+    /* Mini prog */
+    .mprog { height:4px; background:var(--bg3); border-radius:3px; overflow:hidden; margin-top:3px; }
+    .mprog-f { height:100%; background:linear-gradient(90deg,var(--accent),#6366f1); border-radius:3px; }
+
+    /* Pagination */
+    .pag { display:flex; gap:5px; align-items:center; justify-content:center; flex-wrap:wrap; padding:12px; }
+    .pb { width:30px; height:30px; border-radius:7px; border:1px solid var(--border); background:var(--bg3); color:var(--text); cursor:pointer; font-size:12px; font-weight:700; transition:all .2s; }
+    .pb.active { background:var(--accent); color:#000; border-color:var(--accent); }
+    .pb:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
+
+    /* Sec header */
+    .sh { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:9px; }
+    .sh h3 { font-size:15px; font-weight:900; margin:0; }
+
+    /* Maintenance Screen */
+    #maintScreen { position:fixed; inset:0; background:var(--bg); z-index:9000; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px; }
+    #maintScreen.show { display:flex; }
+    .maint-icon { font-size:80px; margin-bottom:20px; animation:spin 4s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .maint-title { font-size:32px; font-weight:900; margin-bottom:10px; }
+    .maint-sub { color:var(--text-dim); font-size:15px; max-width:400px; line-height:1.7; margin-bottom:30px; }
+    .maint-countdown { display:flex; gap:16px; justify-content:center; margin-bottom:30px; }
+    .maint-unit { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 22px; text-align:center; }
+    .maint-unit b { font-size:32px; font-weight:900; color:var(--accent); display:block; }
+    .maint-unit span { font-size:11px; color:var(--text-dim); }
+    .maint-contact { background:rgba(0,212,170,.08); border:1px solid var(--border); border-radius:14px; padding:16px 24px; font-size:13px; color:var(--text-dim); }
+    .maint-contact a { color:var(--accent); font-weight:700; text-decoration:none; }
+
+    /* Notif log */
+    .nlog-item { display:flex; align-items:flex-start; gap:11px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+    .nlog-icon { width:32px; height:32px; border-radius:50%; background:rgba(0,212,170,.1); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+
+    /* Toggle label */
+    .chk-lbl { display:flex; align-items:center; gap:7px; font-size:13px; cursor:pointer; user-select:none; }
+
+    /* Tooltip */
+    [data-tip] { position:relative; cursor:help; }
+    [data-tip]::after { content:attr(data-tip); position:absolute; bottom:120%; right:50%; transform:translateX(50%); background:#000; color:#fff; font-size:10px; padding:3px 8px; border-radius:5px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; z-index:9999; }
+    [data-tip]:hover::after { opacity:1; }
+
+    /* ══ WIZARD ══ */
+    .course-wizard { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px; }
+    .wizard-steps { display:flex; align-items:center; margin-bottom:24px; gap:0; }
+    .wstep { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .wnum { width:28px; height:28px; border-radius:50%; background:var(--bg3); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--text-dim); transition:all .3s; flex-shrink:0; }
+    .wtxt { font-size:11px; color:var(--text-dim); font-weight:600; white-space:nowrap; transition:color .3s; }
+    .wline { flex:1; height:2px; background:var(--border); margin:0 8px; min-width:12px; transition:background .3s; }
+    .wstep.active .wnum { background:var(--accent); border-color:var(--accent); color:#000; }
+    .wstep.active .wtxt { color:var(--accent); }
+    .wstep.done .wnum { background:rgba(0,212,170,.15); border-color:var(--accent); color:var(--accent); }
+    .wstep.done .wnum::after { content:'✓'; }
+    .wstep.done .wtxt { color:var(--accent); opacity:.7; }
+    .wline.done { background:var(--accent); }
+    .wpanel { display:none; animation:fadeUp .3s ease; }
+    .wpanel.active { display:block; }
+    .wpanel-title { font-size:15px; font-weight:900; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+
+    /* Upload drop zone */
+    .upload-drop { border:2px dashed var(--border); border-radius:14px; padding:30px 20px; text-align:center; cursor:pointer; transition:all .25s; user-select:none; }
+    .upload-drop:hover, .upload-drop.drag { border-color:var(--accent); background:rgba(0,212,170,.04); }
+
+    /* PDF item */
+    .pdf-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg3); border-radius:9px; margin-bottom:7px; font-size:12px; }
+    .pdf-item .pi-name { flex:1; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .pdf-item .pi-size { color:var(--text-dim); font-size:10px; flex-shrink:0; }
+    .pdf-item .pi-status { font-size:10px; flex-shrink:0; }
+
+    @media(max-width:520px) { .wtxt { display:none; } .wline { min-width:8px; } }
+
+
+</head>
+<body>
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ غير متصل</div>
+
+<!-- ══════ MAINTENANCE SCREEN ══════ -->
+<div id="maintScreen">
+  <div class="maint-icon">🔧</div>
+  <div class="maint-title">قيد الصيانة</div>
+  <div class="maint-sub" id="maintMsg">المنصة في وضع الصيانة مؤقتاً. نعمل على تحسينها وستعود قريباً!</div>
+  <div class="maint-countdown" id="maintCountdown" style="display:none;">
+    <div class="maint-unit"><b id="mH">00</b><span>ساعة</span></div>
+    <div class="maint-unit"><b id="mM">00</b><span>دقيقة</span></div>
+    <div class="maint-unit"><b id="mS">00</b><span>ثانية</span></div>
+  </div>
+  <div class="maint-contact">للتواصل: <a href="https://wa.me/201063786533" target="_blank">واتساب 📞 01063786533</a></div>
+</div>
+
+<!-- ══════ MODALS ══════ -->
+<!-- Edit Course -->
+<div class="amodal" id="mEditCourse">
+  <div class="amodal-box">
+    <h3>✏️ تعديل الكورس</h3>
+    <input type="hidden" id="eCid">
+    <div class="fg2" style="gap:11px;margin-bottom:11px;">
+      <div class="fgrp"><label>اسم الكورس</label><input class="inp" id="eTitle"></div>
+      <div class="fgrp"><label>إيموجي</label><input class="inp" id="eEmoji" maxlength="2"></div>
+      <div class="fgrp" style="grid-column:1/-1;"><label>الوصف</label><input class="inp" id="eDesc"></div>
+      <div class="fgrp"><label>الفئة</label><select class="inp" id="eCat"><option value="math">📐 رياضيات</option><option value="science">🔬 علوم</option><option value="lang">🌍 لغات</option><option value="code">💻 برمجة</option><option value="other">📚 أخرى</option></select></div>
+      <div class="fgrp"><label>السعر (0=مجاني)</label><input class="inp" type="number" id="ePrice" min="0"></div>
+      <div class="fgrp"><label>المدرّس</label><input class="inp" id="eInstructor"></div>
+      <div class="fgrp"><label>الحالة</label><select class="inp" id="eStatus"><option value="active">✅ منشور</option><option value="soon">⏳ قريباً</option></select></div>
+    </div>
+    <div style="display:flex;gap:14px;">
+      <label class="chk-lbl"><input type="checkbox" id="eIsNew"> 🆕 جديد</label>
+      <label class="chk-lbl"><input type="checkbox" id="eIsHot"> 🔥 الأكثر</label>
+    </div>
+    <div class="mfoot"><button class="mprim" onclick="saveEditCourse()">💾 حفظ</button><button class="mcanc" onclick="closeM('mEditCourse')">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- Enroll -->
+<div class="amodal" id="mEnroll">
+  <div class="amodal-box">
+    <h3>➕ تسجيل طالب في كورس</h3>
+    <div class="fgrp" style="margin-bottom:11px;"><label>User ID الطالب</label><input class="inp" id="enUID" placeholder="من Supabase auth.users"></div>
+    <div class="fgrp" style="margin-bottom:11px;"><label>الكورس</label><select class="inp" id="enCourse"><option value="">-- اختر --</option></select></div>
+    <div class="mfoot"><button class="mprim" onclick="doEnroll()">✅ تسجيل</button><button class="mcanc" onclick="closeM('mEnroll')">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- Coupon -->
+<div class="amodal" id="mCoupon">
+  <div class="amodal-box">
+    <h3>🏷️ كوبون خصم جديد</h3>
+    <div class="fg2" style="gap:11px;margin-bottom:11px;">
+      <div class="fgrp"><label>الكود</label><input class="inp" id="cpCode" placeholder="IBDA350" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="fgrp"><label>الخصم %</label><input class="inp" type="number" id="cpDisc" min="1" max="100" placeholder="50"></div>
+      <div class="fgrp"><label>كورس معين (اختياري)</label><select class="inp" id="cpCourse"><option value="">كل الكورسات</option></select></div>
+      <div class="fgrp"><label>حد الاستخدام (0=لانهائي)</label><input class="inp" type="number" id="cpLimit" value="0"></div>
+    </div>
+    <div class="mfoot"><button class="mprim" onclick="saveCoupon()">✅ حفظ</button><button class="mcanc" onclick="closeM('mCoupon')">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- Notif Modal -->
+<div class="amodal" id="mNotif">
+  <div class="amodal-box">
+    <h3>🔔 إرسال إشعار</h3>
+    <div class="ntargets" id="ntM">
+      <div class="ntar sel" onclick="pickTarget('all','ntM')">👥 الكل</div>
+      <div class="ntar" onclick="pickTarget('user','ntM')">👤 طالب معين</div>
+    </div>
+    <div id="ntMUser" style="display:none;margin-bottom:11px;"><input class="inp" id="mUID" placeholder="User ID..."></div>
+    <div class="fgrp" style="margin-bottom:11px;"><label>العنوان</label><input class="inp" id="mTitle" placeholder="عنوان الإشعار..."></div>
+    <div class="fgrp" style="margin-bottom:11px;"><label>النص</label><textarea class="notes-area" id="mBody" rows="3" style="margin-bottom:0;"></textarea></div>
+    <div class="mfoot"><button class="mprim" onclick="sendNotif('modal')">📤 إرسال</button><button class="mcanc" onclick="closeM('mNotif')">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- Maintenance Settings Modal -->
+<div class="amodal" id="mMaint">
+  <div class="amodal-box">
+    <h3>🔧 إعدادات وضع الصيانة</h3>
+    <div class="fgrp" style="margin-bottom:11px;"><label>رسالة الصيانة للطلاب</label><textarea class="notes-area" id="maintMsgInp" rows="3" style="margin-bottom:0;">المنصة في وضع الصيانة مؤقتاً. نعمل على تحسينها وستعود قريباً!</textarea></div>
+    <div class="fgrp" style="margin-bottom:14px;">
+      <label>⏳ وقت العودة (اختياري)</label>
+      <input class="inp" type="datetime-local" id="maintEnd">
+      <small style="color:var(--text-dim);font-size:11px;margin-top:4px;display:block;">اتركه فارغاً لو مش عارف الوقت بالظبط</small>
+    </div>
+    <div class="fgrp" style="margin-bottom:14px;">
+      <label class="chk-lbl"><input type="checkbox" id="maintNotifChk" checked> إرسال إشعار للطلاب بوضع الصيانة</label>
+    </div>
+    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px;font-size:12px;color:#fca5a5;margin-bottom:14px;">
+      ⚠️ لما تفعّل وضع الصيانة، كل الطلاب هيشوفوا شاشة الصيانة. الأدمن يفضل يدخل عادي.
+    </div>
+    <div class="mfoot">
+      <button class="mprim" style="background:#ef4444;" onclick="activateMaintenance()">🔴 تفعيل الصيانة</button>
+      <button class="mcanc" onclick="closeM('mMaint')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Float + Settings Panel -->
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button onclick="setMode('dark')" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;">داكن</button>
+    <button onclick="setMode('light')" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">A L S H E H A B</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot" id="notifDot"></span></button>
+      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4><div id="notifList"><p style="font-size:12px;color:var(--text-dim);padding:10px;">جاري التحميل...</p></div></div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" id="avatarBtn">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="go('dashboard.html')"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="go('courses.html')"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="go('favorites.html')"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="go('leaderboard.html')"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="go('profile.html')"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="go('dashboard.html')"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="go('courses.html')"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="go('favorites.html')"><span>❤️</span> المفضلة</div>
+    <div class="nav-item" onclick="go('leaderboard.html')"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="go('profile.html')"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="go('certificates.html')"><span>🎓</span> الشهادات</div>
+    <div class="nav-item active"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="go('about.html')"><span>💡</span> من نحن</div>
+    <div class="nav-item" onclick="go('support.html')"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">⚙️ لوحة التحكم</div>
+      <div class="page-sub" id="adminWelcome">مرحباً — ALSHEHAB Admin</div>
+
+      <!-- TABS -->
+      <div class="admin-tabs-bar">
+        <button class="atab active" onclick="showTab('stats')"    id="tab-stats">📊 الإحصائيات</button>
+        <button class="atab"        onclick="showTab('courses')"  id="tab-courses">📚 الكورسات</button>
+        <button class="atab"        onclick="showTab('students')" id="tab-students">👥 الطلاب</button>
+        <button class="atab"        onclick="showTab('payments')" id="tab-payments">
+          💳 المدفوعات
+          <span id="payBadge" style="display:none;background:#ef4444;color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;"></span>
+        </button>
+        <button class="atab" onclick="showTab('notifs')"   id="tab-notifs">🔔 الإشعارات</button>
+        <button class="atab" onclick="showTab('settings')" id="tab-settings">⚙️ الإعدادات</button>
+      </div>
+
+      <!-- ═══════ STATS ═══════ -->
+      <div class="admin-section active" id="sec-stats">
+        <div class="kpi-grid">
+          <div class="kpi-card" style="--kc:#00d4aa"><div class="kpi-icon">📚</div><div class="kpi-num" id="kCourses">—</div><div class="kpi-lbl">الكورسات</div></div>
+          <div class="kpi-card" style="--kc:#f97316"><div class="kpi-icon">👥</div><div class="kpi-num" id="kStudents">—</div><div class="kpi-lbl">الطلاب</div></div>
+          <div class="kpi-card" style="--kc:#6366f1"><div class="kpi-icon">✅</div><div class="kpi-num" id="kCompleted">—</div><div class="kpi-lbl">إكمالات</div></div>
+          <div class="kpi-card" style="--kc:#22c55e"><div class="kpi-icon">💰</div><div class="kpi-num" id="kRevenue">—</div><div class="kpi-lbl">إيرادات ج.م</div></div>
+          <div class="kpi-card" style="--kc:#fbbf24"><div class="kpi-icon">⚡</div><div class="kpi-num" id="kActive">—</div><div class="kpi-lbl">نشطون اليوم</div></div>
+          <div class="kpi-card" style="--kc:#ec4899"><div class="kpi-icon">📈</div><div class="kpi-num" id="kRate">—</div><div class="kpi-lbl">معدل الإكمال %</div></div>
+        </div>
+
+        <div class="chart-row">
+          <div class="panel">
+            <div class="sh"><h3>📈 التسجيلات آخر 7 أيام</h3></div>
+            <div class="bar-chart-wrap" id="enrollChart"></div>
+          </div>
+          <div class="panel">
+            <div class="sh"><h3>🍩 الكورسات</h3></div>
+            <div class="donut-wrap"><svg viewBox="0 0 100 100" width="120" height="120" id="donutSvg" style="transform:rotate(-90deg);"></svg><div class="donut-center"><b id="donutN">—</b><small>كورس</small></div></div>
+            <div id="donutLeg"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="sh"><h3>💰 الإيرادات الشهرية</h3><button class="ab g" onclick="exportCSV('revenue')">⬇️ CSV</button></div>
+          <div id="revChart"></div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <h3 style="margin-bottom:12px;">🏆 أفضل الكورسات</h3>
+          <div class="tbl-wrap"><table class="dtbl"><thead><tr><th>#</th><th>الكورس</th><th>مسجلين</th><th>إكمال</th><th>إيراد</th></tr></thead><tbody id="topTbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ═══════ COURSES ═══════ -->
+      <div class="admin-section" id="sec-courses">
+
+        <!-- ── خطوات الإضافة ── -->
+        <div class="course-wizard" id="courseWizard">
+
+          <!-- شريط الخطوات -->
+          <div class="wizard-steps">
+            <div class="wstep active" id="ws1"><span class="wnum">1</span><span class="wtxt">بيانات الكورس</span></div>
+            <div class="wline"></div>
+            <div class="wstep" id="ws2"><span class="wnum">2</span><span class="wtxt">الدرس والفيديو</span></div>
+            <div class="wline"></div>
+            <div class="wstep" id="ws3"><span class="wnum">3</span><span class="wtxt">المرفقات</span></div>
+            <div class="wline"></div>
+            <div class="wstep" id="ws4"><span class="wnum">4</span><span class="wtxt">مراجعة ونشر</span></div>
+          </div>
+
+          <!-- ══ STEP 1: بيانات الكورس ══ -->
+          <div class="wpanel active" id="wp1">
+            <div class="wpanel-title">📋 بيانات الكورس الأساسية</div>
+            <div class="fg2" style="gap:12px;margin-bottom:12px;">
+              <div class="fgrp"><label>اسم الكورس *</label><input class="inp" id="cTitle" placeholder="مثال: رياضيات الثانوية العامة"></div>
+              <div class="fgrp"><label>إيموجي الكورس</label><input class="inp" id="cEmoji" placeholder="📐" maxlength="2" style="font-size:22px;text-align:center;"></div>
+              <div class="fgrp" style="grid-column:1/-1;"><label>وصف الكورس</label><textarea class="notes-area" id="cDesc" rows="3" placeholder="اوصف الكورس باختصار..." style="margin-bottom:0;"></textarea></div>
+              <div class="fgrp"><label>الفئة</label>
+                <select class="inp" id="cCat">
+                  <option value="math">📐 رياضيات</option>
+                  <option value="science">🔬 علوم</option>
+                  <option value="lang">🌍 لغات</option>
+                  <option value="code">💻 برمجة</option>
+                  <option value="other">📚 أخرى</option>
+                </select>
+              </div>
+              <div class="fgrp"><label>السعر بالجنيه (0 = مجاني)</label><input class="inp" type="number" id="cPrice" value="0" min="0" placeholder="0"></div>
+              <div class="fgrp"><label>اسم المدرّس</label><input class="inp" id="cInstructor" placeholder="مثال: محمد فهمي"></div>
+              <div class="fgrp"><label>الحالة</label>
+                <select class="inp" id="cStatus">
+                  <option value="active">✅ منشور الآن</option>
+                  <option value="soon">⏳ قريباً</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:16px;margin-bottom:16px;padding:12px;background:var(--bg3);border-radius:10px;">
+              <label class="chk-lbl"><input type="checkbox" id="cIsNew"> 🆕 وسم "جديد"</label>
+              <label class="chk-lbl"><input type="checkbox" id="cIsHot"> 🔥 وسم "الأكثر"</label>
+            </div>
+            <div style="display:flex;justify-content:flex-start;">
+              <button class="submit-btn" style="padding:11px 32px;" onclick="wizNext(1)">التالي: الدرس والفيديو ←</button>
+            </div>
+          </div>
+
+          <!-- ══ STEP 2: الدرس الواحد + رفع فيديو ══ -->
+          <div class="wpanel" id="wp2">
+            <div class="wpanel-title">🎬 الدرس وملف الفيديو</div>
+
+            <div style="background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text-dim);line-height:1.9;">
+              📌 كل كورس يحتوي على <b style="color:var(--accent);">درس واحد رئيسي</b> — اكتب بياناته وارفع الفيديو من جهازك مباشرة على Supabase Storage
+            </div>
+
+            <div class="fg2" style="gap:12px;margin-bottom:14px;">
+              <div class="fgrp"><label>عنوان الدرس *</label><input class="inp" id="lTitle" placeholder="مثال: الدرس الأول — مقدمة"></div>
+              <div class="fgrp"><label>مدة الدرس (بالدقائق)</label><input class="inp" type="number" id="lDuration" placeholder="45" min="1"></div>
+              <div class="fgrp" style="grid-column:1/-1;"><label>وصف الدرس</label><textarea class="notes-area" id="lDesc" rows="2" placeholder="اوصف محتوى الدرس..." style="margin-bottom:0;"></textarea></div>
+            </div>
+
+            <!-- رفع الفيديو -->
+            <div class="fgrp" style="margin-bottom:14px;">
+              <label>📹 ملف الفيديو (MP4, MOV, AVI — حتى 500MB)</label>
+              <div class="upload-drop" id="videoDrop" onclick="document.getElementById('videoFile').click()" ondragover="dragOver(event,'videoDrop')" ondragleave="dragLeave('videoDrop')" ondrop="dropFile(event,'videoFile','videoDrop')">
+                <div id="videoDropInner">
+                  <div style="font-size:40px;margin-bottom:10px;">🎬</div>
+                  <div style="font-size:13px;font-weight:700;">اضغط لاختيار فيديو أو اسحبه هنا</div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:5px;">MP4 · MOV · AVI · WebM — حتى 500MB</div>
+                </div>
+                <input type="file" id="videoFile" accept="video/*" style="display:none;" onchange="previewVideo(this)">
+              </div>
+              <!-- Preview -->
+              <div id="videoPreviewWrap" style="display:none;margin-top:12px;">
+                <video id="videoPreview" controls style="width:100%;border-radius:10px;max-height:220px;background:#000;"></video>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                  <span id="videoFileName" style="font-size:11px;color:var(--text-dim);"></span>
+                  <button class="ab r" onclick="clearVideo()" style="font-size:11px;">✕ حذف</button>
+                </div>
+              </div>
+              <!-- Upload progress -->
+              <div id="uploadProgress" style="display:none;margin-top:12px;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                  <span style="color:var(--text-dim);">جاري الرفع على Supabase Storage...</span>
+                  <span id="uploadPct" style="color:var(--accent);font-weight:700;">0%</span>
+                </div>
+                <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+                  <div id="uploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#6366f1);border-radius:3px;transition:width .3s;"></div>
+                </div>
+              </div>
+              <!-- Uploaded URL -->
+              <div id="videoUrlWrap" style="display:none;margin-top:10px;padding:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;">
+                <div style="font-size:11px;color:#22c55e;font-weight:700;margin-bottom:4px;">✅ تم الرفع بنجاح!</div>
+                <div id="videoUrlText" style="font-size:10px;color:var(--text-dim);word-break:break-all;"></div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button class="ab b" style="padding:10px 18px;" onclick="wizPrev(2)">← رجوع</button>
+              <button class="submit-btn" style="flex:1;padding:11px;" onclick="wizNext(2)">التالي: المرفقات ←</button>
+            </div>
+          </div>
+
+          <!-- ══ STEP 3: مرفقات PDF ══ -->
+          <div class="wpanel" id="wp3">
+            <div class="wpanel-title">📎 مرفقات PDF (اختياري)</div>
+
+            <div style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text-dim);">
+              📌 ارفع ملفات PDF كمواد مساعدة للطلاب (شيت ملاحظات، تمارين، إلخ)
+            </div>
+
+            <div class="upload-drop" id="pdfDrop" onclick="document.getElementById('pdfFiles').click()" ondragover="dragOver(event,'pdfDrop')" ondragleave="dragLeave('pdfDrop')" ondrop="dropFile(event,'pdfFiles','pdfDrop')" style="border-color:rgba(99,102,241,.3);">
+              <div id="pdfDropInner">
+                <div style="font-size:36px;margin-bottom:10px;">📄</div>
+                <div style="font-size:13px;font-weight:700;">اضغط لاختيار ملفات PDF أو اسحبها هنا</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:5px;">يمكن رفع أكثر من ملف — حتى 20MB لكل ملف</div>
+              </div>
+              <input type="file" id="pdfFiles" accept=".pdf" multiple style="display:none;" onchange="addPdfFiles(this.files)">
+            </div>
+
+            <!-- قائمة PDFs -->
+            <div id="pdfList" style="margin-top:12px;"></div>
+
+            <!-- PDF upload progress -->
+            <div id="pdfUploadStatus" style="display:none;margin-top:10px;padding:10px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text-dim);">
+              ⏳ جاري رفع الملفات...
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:16px;">
+              <button class="ab b" style="padding:10px 18px;" onclick="wizPrev(3)">← رجوع</button>
+              <button class="submit-btn" style="flex:1;padding:11px;" onclick="wizNext(3)">التالي: مراجعة ←</button>
+            </div>
+          </div>
+
+          <!-- ══ STEP 4: مراجعة ونشر ══ -->
+          <div class="wpanel" id="wp4">
+            <div class="wpanel-title">🔍 مراجعة الكورس قبل النشر</div>
+            <div id="reviewBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;"></div>
+            <div style="display:flex;gap:10px;">
+              <button class="ab b" style="padding:10px 18px;" onclick="wizPrev(4)">← رجوع</button>
+              <button class="submit-btn" style="flex:1;padding:13px;font-size:14px;" id="saveCBtn" onclick="addCourse()">🚀 نشر الكورس الآن</button>
+            </div>
+          </div>
+
+        </div><!-- /wizard -->
+
+        <!-- ══ جدول الكورسات ══ -->
+        <div class="panel" style="margin-top:18px;">
+          <div class="sh">
+            <h3>📋 الكورسات الموجودة (<span id="ctCount">0</span>)</h3>
+            <div style="display:flex;gap:7px;">
+              <button class="ab b" onclick="loadCoursesTbl()">🔄</button>
+              <button class="ab r" onclick="deleteAllCourses()">🗑 الكل</button>
+            </div>
+          </div>
+          <div class="tsearch">
+            <input placeholder="🔍 بحث..." oninput="filterCTbl(this.value)">
+            <select onchange="filterCCat(this.value)">
+              <option value="">كل الفئات</option>
+              <option value="math">رياضيات</option>
+              <option value="science">علوم</option>
+              <option value="lang">لغات</option>
+              <option value="code">برمجة</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table class="dtbl">
+              <thead><tr><th>الكورس</th><th>الفئة</th><th>الدرس</th><th>السعر</th><th>الحالة</th><th>مسجلين</th><th>إجراءات</th></tr></thead>
+              <tbody id="cTbody"></tbody>
+            </table>
+          </div>
+          <div id="cNoMsg" style="text-align:center;padding:28px;color:var(--text-dim);font-size:13px;">⏳ جاري التحميل...</div>
+        </div>
+
+        <!-- Coupons -->
+        <div class="panel" style="margin-top:14px;">
+          <div class="sh"><h3>🏷️ كوبونات الخصم</h3><button class="ab g" onclick="openCoupon()">+ كوبون</button></div>
+          <div class="tbl-wrap"><table class="dtbl"><thead><tr><th>الكود</th><th>الخصم</th><th>الكورس</th><th>المستخدم/الحد</th><th>إجراء</th></tr></thead><tbody id="cpTbody"></tbody></table></div>
+        </div>
+
+      </div>
+
+      <!-- ═══════ STUDENTS ═══════ -->
+      <div class="admin-section" id="sec-students">
+        <div class="sh">
+          <h3>👥 الطلاب (<span id="stCount">0</span>)</h3>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <button class="ab g" onclick="openM('mEnroll')">➕ تسجيل يدوي</button>
+            <button class="ab b" onclick="exportCSV('students')">⬇️ CSV</button>
+            <button class="ab o" onclick="openM('mNotif')">📢 إشعار جماعي</button>
+          </div>
+        </div>
+        <div class="tsearch">
+          <input id="stSearch" placeholder="🔍 بحث بالاسم..." oninput="filterStudents(this.value)">
+          <select onchange="filterStRole(this.value)"><option value="">كل الأدوار</option><option value="student">طالب</option><option value="admin">أدمن</option></select>
+          <select onchange="sortStudents(this.value)"><option value="xp">XP ↓</option><option value="name">الاسم</option></select>
+        </div>
+        <div class="panel" style="padding:0;overflow:hidden;">
+          <div class="tbl-wrap"><table class="dtbl"><thead><tr><th>الطالب</th><th>الدور</th><th>XP</th><th>آخر نشاط</th><th>إجراءات</th></tr></thead><tbody id="stTbody"></tbody></table></div>
+          <div id="stPag" class="pag"></div>
+        </div>
+      </div>
+
+      <!-- ═══════ PAYMENTS ═══════ -->
+      <div class="admin-section" id="sec-payments">
+        <div class="sh"><h3>💳 المدفوعات</h3><button class="ab b" onclick="loadPayments()">🔄</button></div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+          <button class="ab o" id="ptab-pending"  onclick="setPayTab('pending',this)"  style="padding:8px 14px;">⏳ معلقة <span id="pndCnt" style="background:#ef4444;color:#fff;border-radius:20px;padding:0 5px;font-size:10px;margin-right:3px;display:none;"></span></button>
+          <button class="ab g" id="ptab-approved" onclick="setPayTab('approved',this)" style="padding:8px 14px;">✅ مؤكدة</button>
+          <button class="ab r" id="ptab-rejected" onclick="setPayTab('rejected',this)" style="padding:8px 14px;">❌ مرفوضة</button>
+        </div>
+        <div id="payWrap"></div>
+      </div>
+
+      <!-- ═══════ NOTIFS ═══════ -->
+      <div class="admin-section" id="sec-notifs">
+        <div class="sh"><h3>🔔 الإشعارات</h3><button class="ab g" onclick="openM('mNotif')">📤 إشعار جديد</button></div>
+
+        <div class="panel" style="margin-bottom:16px;">
+          <h3 style="font-size:14px;margin-bottom:13px;">✍️ إشعار سريع</h3>
+          <div class="ntargets" id="ntQ">
+            <div class="ntar sel" onclick="pickTarget('all','ntQ')">👥 الكل</div>
+            <div class="ntar" onclick="pickTarget('user','ntQ')">👤 طالب معين</div>
+          </div>
+          <div id="ntQUser" style="display:none;margin-bottom:11px;"><input class="inp" id="qUID" placeholder="User ID..."></div>
+          <div class="fg2" style="gap:11px;margin-bottom:11px;">
+            <div class="fgrp"><label>العنوان</label><input class="inp" id="qTitle" placeholder="عنوان الإشعار..."></div>
+            <div class="fgrp"><label>قالب جاهز</label>
+              <select class="inp" onchange="applyTpl(this.value)">
+                <option value="">-- اختر قالب --</option>
+                <option value="new_course">📚 كورس جديد</option>
+                <option value="reminder">🔥 تذكير</option>
+                <option value="offer">💸 عرض خاص</option>
+                <option value="welcome">🎉 ترحيب</option>
+                <option value="maint">🔧 صيانة</option>
+              </select>
+            </div>
+          </div>
+          <div class="fgrp" style="margin-bottom:13px;"><label>النص</label><textarea class="notes-area" id="qBody" rows="3" style="margin-bottom:0;"></textarea></div>
+          <button class="submit-btn" style="width:100%;" onclick="sendNotif('quick')">📤 إرسال</button>
+        </div>
+
+        <div class="panel">
+          <div class="sh"><h3>📋 سجل الإشعارات</h3><button class="ab b" onclick="loadNotifLog()">🔄</button></div>
+          <div id="nLog"><div style="text-align:center;padding:24px;color:var(--text-dim);">⏳</div></div>
+        </div>
+      </div>
+
+      <!-- ═══════ SETTINGS ═══════ -->
+      <div class="admin-section" id="sec-settings">
+        <div class="fg2" style="gap:14px;">
+
+          <!-- Platform Info -->
+          <div class="panel">
+            <h3 style="margin-bottom:14px;">🏫 بيانات المنصة</h3>
+            <div class="fgrp" style="margin-bottom:10px;"><label>اسم المنصة</label><input class="inp" id="stName" value="ALSHEHAB"></div>
+            <div class="fgrp" style="margin-bottom:10px;"><label>المؤسس</label><input class="inp" id="stFounder" value="محمد فهمي المحص"></div>
+            <div class="fgrp" style="margin-bottom:10px;"><label>واتساب</label><input class="inp" id="stPhone" value="01063786533"></div>
+            <div class="fgrp" style="margin-bottom:13px;"><label>الوصف</label><textarea class="notes-area" id="stDesc" rows="3" style="margin-bottom:0;">منصة تعليمية متكاملة للرياضيات والعلوم</textarea></div>
+            <button class="submit-btn" style="width:100%;" onclick="savePlatform()">💾 حفظ</button>
+          </div>
+
+          <!-- Feature Toggles -->
+          <div class="panel">
+            <h3 style="margin-bottom:14px;">🎛️ تفعيل الميزات</h3>
+            <div class="srow"><div class="srow-info"><strong>تسجيل مستخدمين جدد</strong><small>السماح بإنشاء حسابات</small></div><div class="toggle-sw on" id="tReg" onclick="toggleF('tReg','registration')"></div></div>
+            <div class="srow"><div class="srow-info"><strong>الكورسات المجانية</strong><small>التسجيل المجاني مفتوح</small></div><div class="toggle-sw on" id="tFree" onclick="toggleF('tFree','free_courses')"></div></div>
+            <div class="srow"><div class="srow-info"><strong>نظام XP والمتصدرين</strong><small>نقاط الخبرة</small></div><div class="toggle-sw on" id="tXP" onclick="toggleF('tXP','xp')"></div></div>
+            <div class="srow"><div class="srow-info"><strong>شهادات تلقائية</strong><small>عند إكمال الكورس</small></div><div class="toggle-sw on" id="tCerts" onclick="toggleF('tCerts','certs')"></div></div>
+            <div class="srow" style="border:1px solid rgba(239,68,68,.3);border-radius:10px;background:rgba(239,68,68,.06);padding:13px;">
+              <div class="srow-info"><strong style="color:#fca5a5;">🔴 وضع الصيانة</strong><small>المنصة تُوقف للطلاب</small></div>
+              <div style="display:flex;align-items:center;gap:9px;">
+                <div class="toggle-sw" id="tMaint" onclick="toggleMaint()"></div>
+                <button class="ab y" onclick="openM('mMaint')" style="font-size:10px;padding:4px 9px;" data-tip="إعدادات الصيانة">⚙️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Settings -->
+          <div class="panel">
+            <h3 style="margin-bottom:14px;">💳 إعدادات الدفع</h3>
+            <div class="fgrp" style="margin-bottom:10px;"><label>Paymob Integration ID</label><input class="inp" id="stPmInt" placeholder="5567449"></div>
+            <div class="fgrp" style="margin-bottom:10px;"><label>Paymob iFrame ID</label><input class="inp" id="stPmIF" placeholder="1012647"></div>
+            <div class="fgrp" style="margin-bottom:13px;"><label>العملة</label><select class="inp" id="stCurr"><option value="EGP">🇪🇬 جنيه مصري</option><option value="SAR">🇸🇦 ريال</option><option value="USD">🇺🇸 دولار</option></select></div>
+            <button class="submit-btn" style="width:100%;" onclick="savePayment()">💾 حفظ</button>
+          </div>
+
+          <!-- Backup -->
+          <div class="panel">
+            <h3 style="margin-bottom:14px;">💾 تصدير ونسخ احتياطي</h3>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <button class="ab g" style="padding:12px;font-size:13px;text-align:center;" onclick="exportCSV('all')">📦 تصدير كل البيانات JSON</button>
+              <button class="ab b" style="padding:12px;font-size:13px;text-align:center;" onclick="exportCSV('students')">👥 تصدير الطلاب CSV</button>
+              <button class="ab o" style="padding:12px;font-size:13px;text-align:center;" onclick="exportCSV('revenue')">💰 تصدير الإيرادات CSV</button>
+            </div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-size:11px;color:#ef4444;margin-bottom:9px;font-weight:700;">🔴 منطقة الخطر</div>
+              <button class="ab r" style="width:100%;padding:10px;font-size:12px;" onclick="deleteAllCourses()">🗑 مسح كل الكورسات</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let ME         = null;
+let allCourses = [];
+let allStudents= [];
+let stPage     = 0;
+const ST_PER   = 15;
+let stFilter   = { q:'', role:'', sort:'xp' };
+let cTblFilter = { q:'', cat:'' };
+let payTab     = 'pending';
+let notifTargets = { ntM:'all', ntQ:'all' };
+let lessonIDs  = []; // legacy — kept for compatibility
+let coupons    = JSON.parse(localStorage.getItem('alshehab_coupons')||
+  '{"IBDA320":{"disc":20,"course":"","limit":0,"used":0},"IBDA350":{"disc":50,"course":"","limit":0,"used":0}}');
+let revenueData = {};
+let maintTimer  = null;
+
+const TPL = {
+  new_course: { t:'📚 كورس جديد وصل!',     b:'تم إضافة كورس جديد على المنصة — تفقده الآن 🚀' },
+  reminder:   { t:'🔥 لا تفوّت streak-ك!', b:'لم تدرس اليوم! خصص 15 دقيقة الآن' },
+  offer:      { t:'💸 عرض خاص اليوم!',     b:'استخدم كود IBDA350 للحصول على خصم 50%' },
+  welcome:    { t:'🎉 مرحباً بك!',          b:'ابدأ رحلتك التعليمية الآن 🌟' },
+  maint:      { t:'🔧 صيانة مجدولة',        b:'ستكون المنصة في وضع الصيانة قريباً' },
+};
+
+// ═══════════════════════════════════════════════════════
+//  INIT — ADMIN GUARD
+// ═══════════════════════════════════════════════════════
+(async function init() {
+  // Check maintenance for non-admin first
+  checkMaintForVisitor();
+
+  if (!sb.isLoggedIn()) { window.location.href = 'index.html'; return; }
+  ME = sb.getUser();
+
+  let profile = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res  = await fetch(`${sb.url}/rest/v1/profiles?id=eq.${ME.id}&select=id,name,role,xp`, { headers: sb.headers() });
+      const json = await res.json();
+      if (Array.isArray(json) && json.length > 0) { profile = json[0]; break; }
+    } catch(e) {}
+    if (attempt < 2) await new Promise(r => setTimeout(r, 800));
+  }
+
+  if (!profile) {
+    alert(`⚠️ تعذّر التحقق من صلاحياتك.\n\nUser ID: ${ME.id}\n\nشغّل هذا في Supabase SQL Editor:\nUPDATE public.profiles SET role='admin' WHERE id='${ME.id}';`);
+    return;
+  }
+
+  if (profile.role !== 'admin') {
+    showToast(`⛔ مش مسموح — دورك الحالي: ${profile.role}`);
+    console.warn(`شغّل: UPDATE public.profiles SET role='admin' WHERE id='${ME.id}';`);
+    setTimeout(() => window.location.href = 'dashboard.html', 2500);
+    return;
+  }
+
+  // Admin confirmed ✅
+  const name = profile.name || 'أدمن';
+  document.getElementById('avatarBtn').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('adminWelcome').textContent = `مرحباً ${name} 👋 — تحكم كامل بالمنصة`;
+
+  loadSettings();
+  loadStats();
+  loadPayBadge();
+  renderCoupons();
+})();
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function go(p)       { window.location.href = p; }
+function openM(id)   { document.getElementById(id).classList.add('show'); }
+function closeM(id)  { document.getElementById(id).classList.remove('show'); }
+function toggleEl(id){ const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
+function pct(a,b)    { return b>0 ? Math.round((a/b)*100) : 0; }
+
+function dlCSV(name, rows) {
+  const csv  = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a    = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'})), download: name });
+  a.click();
+}
+function dlJSON(name, data) {
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([JSON.stringify(data,null,2)], {type:'application/json'})), download: name });
+  a.click();
+}
+
+// close modal on backdrop click
+document.addEventListener('click', e => {
+  document.querySelectorAll('.amodal').forEach(m => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ═══════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'courses')  loadCoursesTbl();
+  if (name === 'students') loadStudents();
+  if (name === 'payments') loadPayments();
+  if (name === 'notifs')   loadNotifLog();
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════
+async function loadStats() {
+  try {
+    const [courses, enrolments, payments] = await Promise.all([
+      sb.select('courses', 'select=id,title,price,lessons_count,rating,students,status,category,emoji').catch(() => []),
+      sb.select('enrollments', 'select=id,completed,user_id,course_id,enrolled_at').catch(() => []),
+      sb.select('payment_requests', 'status=eq.approved&select=amount,created_at,course_id').catch(() => []),
+    ]);
+
+    const C  = Array.isArray(courses)    ? courses    : [];
+    const E  = Array.isArray(enrolments) ? enrolments : [];
+    const P  = Array.isArray(payments)   ? payments   : [];
+    const done  = E.filter(e => e.completed);
+    const uids  = [...new Set(E.map(e => e.user_id))];
+    const rev   = P.reduce((a,p) => a + (parseFloat(p.amount)||0), 0);
+
+    document.getElementById('kCourses').textContent  = C.length;
+    document.getElementById('kStudents').textContent = uids.length;
+    document.getElementById('kCompleted').textContent= done.length;
+    document.getElementById('kRevenue').textContent  = rev > 999 ? (rev/1000).toFixed(1)+'K' : rev;
+    document.getElementById('kActive').textContent   = Math.max(1, Math.floor(uids.length * 0.12));
+    document.getElementById('kRate').textContent     = pct(done.length, E.length) + '%';
+
+    renderEnrollChart(E);
+    renderDonut(C);
+    renderRevChart(P);
+    renderTopCourses(C, E, P);
+
+    allCourses = C;
+    document.getElementById('ctCount').textContent = C.length;
+    document.getElementById('stCount').textContent = uids.length;
+    revenueData = { P };
+  } catch(e) { console.error('loadStats', e); }
+}
+
+function renderEnrollChart(E) {
+  const days = ['أح','إث','ثل','أر','خم','جم','سب'];
+  const today = new Date().getDay();
+  const counts = Array(7).fill(0);
+  const now = Date.now();
+  E.forEach(e => { const d = Math.floor((now - new Date(e.enrolled_at)) / 86400000); if (d < 7) counts[6 - d]++; });
+  const max = Math.max(...counts, 1);
+  document.getElementById('enrollChart').innerHTML = counts.map((c,i) => {
+    const day = days[(today - 6 + i + 7) % 7];
+    const h   = Math.max(5, Math.round((c/max)*100));
+    const last = i === 6;
+    return `<div class="bc"><div class="bv">${c||''}</div><div class="bf" style="height:${h}%;background:${last?'linear-gradient(180deg,#f97316,rgba(249,115,22,.3))':'linear-gradient(180deg,var(--accent),rgba(0,212,170,.3))'}"></div><div class="bl" style="${last?'color:#f97316;font-weight:700':''}">${day}</div></div>`;
+  }).join('');
+}
+
+function renderDonut(C) {
+  const cats = {};
+  C.forEach(c => { const k = c.status||'active'; cats[k] = (cats[k]||0)+1; });
+  const colors = { active:'#00d4aa', soon:'#fbbf24', draft:'#6366f1' };
+  const data = Object.entries(cats).map(([k,v]) => ({k,v,color:colors[k]||'#ec4899'}));
+  const r=35,cx=50,cy=50,circ=2*Math.PI*r;
+  let off = 0;
+  document.getElementById('donutSvg').innerHTML = data.map(d => {
+    const dash = circ*(d.v/C.length||0), gap = circ-dash;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="14" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-off*circ/(C.length||1)}"/>`;
+    off += d.v; return el;
+  }).join('') + `<circle cx="${cx}" cy="${cy}" r="27" fill="var(--card)"/>`;
+  document.getElementById('donutN').textContent = C.length;
+  const lbs = {active:'منشور',soon:'قريباً',draft:'مسودة'};
+  document.getElementById('donutLeg').innerHTML = data.map(d => `<div class="leg-item"><div class="leg-dot" style="background:${d.color}"></div><span>${lbs[d.k]||d.k}</span><b style="margin-right:auto;color:${d.color}">${d.v}</b></div>`).join('');
+}
+
+function renderRevChart(P) {
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const bm = Array(12).fill(0);
+  P.forEach(p => { bm[new Date(p.created_at).getMonth()] += parseFloat(p.amount)||0; });
+  const max = Math.max(...bm,1);
+  document.getElementById('revChart').innerHTML = bm.map((v,i) => `<div class="rev-row"><span style="width:58px;color:var(--text-dim);font-size:11px;">${months[i]}</span><div class="rev-bar"><div class="rev-fill" style="width:${Math.round((v/max)*100)}%"></div></div><span style="width:90px;text-align:left;font-size:12px;font-weight:700;color:var(--accent);">${v>0?v.toLocaleString()+' ج.م':'—'}</span></div>`).join('');
+}
+
+function renderTopCourses(C, E, P) {
+  const data = C.map(c => ({
+    ...c,
+    ec: E.filter(e => e.course_id===c.id).length,
+    cc: E.filter(e => e.course_id===c.id && e.completed).length,
+    rv: P.filter(p => p.course_id===c.id).reduce((a,p) => a+(parseFloat(p.amount)||0), 0),
+  })).sort((a,b) => b.ec-a.ec).slice(0,8);
+  document.getElementById('topTbody').innerHTML = data.length
+    ? data.map((c,i) => `<tr><td style="color:var(--text-dim);font-size:11px;">${i+1}</td><td><b>${c.emoji||'📚'} ${c.title}</b></td><td>${c.ec}</td><td><div class="mprog"><div class="mprog-f" style="width:${pct(c.cc,c.ec)}%"></div></div><span style="font-size:10px;color:var(--text-dim);">${pct(c.cc,c.ec)}%</span></td><td style="color:var(--accent);font-weight:700;">${c.rv>0?c.rv.toLocaleString()+' ج.م':'مجاني'}</td></tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:18px;">لا توجد كورسات بعد</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+//  COURSES — WIZARD SYSTEM
+// ═══════════════════════════════════════════════════════
+
+// ── Wizard state ──
+let wizVideoUrl   = '';   // رابط الفيديو بعد الرفع
+let wizPdfFiles   = [];   // { file, name, size, url }
+let wizCurrentStep = 1;
+
+function wizGoTo(step) {
+  for (let i = 1; i <= 4; i++) {
+    const ws = document.getElementById('ws'+i);
+    const wp = document.getElementById('wp'+i);
+    const wl = document.getElementById('wl'+(i));
+    if (ws) {
+      ws.classList.remove('active','done');
+      if (i < step)       ws.classList.add('done');
+      else if (i === step) ws.classList.add('active');
+    }
+    if (wp) { wp.classList.remove('active'); if (i === step) wp.classList.add('active'); }
+  }
+  // lines
+  document.querySelectorAll('.wline').forEach((l, i) => {
+    l.classList.toggle('done', i + 1 < step);
+  });
+  wizCurrentStep = step;
+}
+
+function wizNext(from) {
+  if (from === 1) {
+    if (!document.getElementById('cTitle').value.trim()) { showToast('اكتب اسم الكورس ⚠️'); return; }
+    wizGoTo(2);
+  } else if (from === 2) {
+    if (!document.getElementById('lTitle').value.trim()) { showToast('اكتب عنوان الدرس ⚠️'); return; }
+    wizGoTo(3);
+  } else if (from === 3) {
+    wizGoTo(4);
+    buildReview();
+  }
+}
+
+function wizPrev(from) {
+  wizGoTo(from - 1);
+}
+
+function buildReview() {
+  const title      = document.getElementById('cTitle').value.trim();
+  const emoji      = document.getElementById('cEmoji').value.trim() || '📚';
+  const desc       = document.getElementById('cDesc').value.trim();
+  const cat        = document.getElementById('cCat').value;
+  const price      = parseFloat(document.getElementById('cPrice').value) || 0;
+  const instructor = document.getElementById('cInstructor').value.trim();
+  const status     = document.getElementById('cStatus').value;
+  const lTitle     = document.getElementById('lTitle').value.trim();
+  const lDuration  = document.getElementById('lDuration').value || '—';
+  const lDesc      = document.getElementById('lDesc').value.trim();
+  const catNames   = {math:'📐 رياضيات', science:'🔬 علوم', lang:'🌍 لغات', code:'💻 برمجة', other:'📚 أخرى'};
+
+  document.getElementById('reviewBox').innerHTML = `
+    <div style="display:grid;gap:10px;">
+      <div style="font-size:20px;font-weight:900;">${emoji} ${title}</div>
+      ${desc ? `<div style="font-size:13px;color:var(--text-dim);">${desc}</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <span class="badge active">${catNames[cat]||cat}</span>
+        <span class="badge ${price===0?'active':'paid'}">${price===0?'مجاني':price+' ج.م'}</span>
+        <span class="badge ${status==='active'?'active':'soon'}">${status==='active'?'✅ منشور':'⏳ قريباً'}</span>
+        ${document.getElementById('cIsNew').checked ? '<span class="badge paid">🆕 جديد</span>' : ''}
+        ${document.getElementById('cIsHot').checked ? '<span class="badge active">🔥 الأكثر</span>' : ''}
+      </div>
+      ${instructor ? `<div style="font-size:12px;color:var(--text-dim);">👨‍🏫 ${instructor}</div>` : ''}
+      <hr style="border:none;border-top:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:700;">🎬 الدرس</div>
+      <div style="background:var(--bg2);border-radius:9px;padding:12px;font-size:12px;">
+        <div><b>${lTitle}</b></div>
+        ${lDesc ? `<div style="color:var(--text-dim);margin-top:4px;">${lDesc}</div>` : ''}
+        <div style="margin-top:6px;display:flex;gap:12px;color:var(--text-dim);">
+          <span>⏱ ${lDuration} دقيقة</span>
+          <span>${wizVideoUrl ? '✅ فيديو مرفوع' : '⚠️ بدون فيديو'}</span>
+          <span>${wizPdfFiles.filter(p=>p.url).length > 0 ? `📎 ${wizPdfFiles.filter(p=>p.url).length} PDF` : 'بدون مرفقات'}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Video upload ──
+function previewVideo(input) {
+  const file = input.files[0]; if (!file) return;
+  const url  = URL.createObjectURL(file);
+  document.getElementById('videoPreview').src    = url;
+  document.getElementById('videoFileName').textContent = `${file.name} (${(file.size/1024/1024).toFixed(1)} MB)`;
+  document.getElementById('videoPreviewWrap').style.display = 'block';
+  document.getElementById('videoDropInner').style.display   = 'none';
+}
+
+function clearVideo() {
+  document.getElementById('videoFile').value = '';
+  document.getElementById('videoPreview').src = '';
+  document.getElementById('videoPreviewWrap').style.display = 'none';
+  document.getElementById('videoDropInner').style.display   = 'block';
+  document.getElementById('videoUrlWrap').style.display     = 'none';
+  document.getElementById('uploadProgress').style.display   = 'none';
+  wizVideoUrl = '';
+}
+
+async function uploadVideoToStorage(file, courseTitle) {
+  const ext  = file.name.split('.').pop() || 'mp4';
+  const slug = courseTitle.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g,'').slice(0,30);
+  const path = `videos/${slug}_${Date.now()}.${ext}`;
+  const session = JSON.parse(localStorage.getItem('sb_session') || 'null');
+  const token   = session?.access_token || sb.key;
+
+  // XMLHttpRequest عشان نتابع progress
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${sb.url}/storage/v1/object/course-videos/${path}`);
+    xhr.setRequestHeader('apikey', sb.key);
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+
+    xhr.upload.onprogress = (e) => {
+      if (!e.lengthComputable) return;
+      const pct = Math.round((e.loaded / e.total) * 100);
+      document.getElementById('uploadBar').style.width = pct + '%';
+      document.getElementById('uploadPct').textContent = pct + '%';
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(`${sb.url}/storage/v1/object/public/course-videos/${path}`);
+      } else {
+        try { reject(new Error(JSON.parse(xhr.responseText).message || 'فشل الرفع')); }
+        catch { reject(new Error('فشل رفع الفيديو')); }
+      }
+    };
+    xhr.onerror = () => reject(new Error('خطأ في الشبكة'));
+    xhr.send(file);
+  });
+}
+
+// ── PDF files ──
+function addPdfFiles(files) {
+  Array.from(files).forEach(f => {
+    if (wizPdfFiles.find(p => p.name === f.name)) return;
+    wizPdfFiles.push({ file: f, name: f.name, size: f.size, url: '' });
+  });
+  renderPdfList();
+}
+
+function renderPdfList() {
+  const wrap = document.getElementById('pdfList');
+  if (!wizPdfFiles.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = wizPdfFiles.map((p, i) => `
+    <div class="pdf-item">
+      <span style="font-size:18px;">📄</span>
+      <span class="pi-name">${p.name}</span>
+      <span class="pi-size">${(p.size/1024/1024).toFixed(2)} MB</span>
+      <span class="pi-status">${p.url ? '✅' : '⏳'}</span>
+      <button class="ab r" onclick="removePdf(${i})" style="font-size:10px;padding:3px 8px;">✕</button>
+    </div>`).join('');
+}
+
+function removePdf(i) {
+  wizPdfFiles.splice(i, 1);
+  renderPdfList();
+}
+
+async function uploadPdfs(courseTitle) {
+  const slug = courseTitle.replace(/\s+/g,'_').slice(0,30);
+  const session = JSON.parse(localStorage.getItem('sb_session')||'null');
+  const token   = session?.access_token || sb.key;
+  for (const p of wizPdfFiles) {
+    if (p.url) continue;
+    const path = `pdfs/${slug}_${Date.now()}_${p.name}`;
+    const res = await fetch(`${sb.url}/storage/v1/object/course-videos/${path}`, {
+      method: 'POST',
+      headers: { 'apikey': sb.key, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/pdf' },
+      body: p.file,
+    });
+    if (res.ok) p.url = `${sb.url}/storage/v1/object/public/course-videos/${path}`;
+  }
+  renderPdfList();
+}
+
+// ── Drag & Drop ──
+function dragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag'); }
+function dragLeave(id)   { document.getElementById(id).classList.remove('drag'); }
+function dropFile(e, inputId, dropId) {
+  e.preventDefault();
+  dragLeave(dropId);
+  const files = e.dataTransfer.files;
+  if (!files.length) return;
+  const input = document.getElementById(inputId);
+  // DataTransfer trick
+  const dt = new DataTransfer();
+  Array.from(files).forEach(f => dt.items.add(f));
+  input.files = dt.files;
+  input.dispatchEvent(new Event('change'));
+}
+
+// ── Save course ──
+async function addCourse() {
+  const title      = document.getElementById('cTitle').value.trim();
+  const lTitle     = document.getElementById('lTitle').value.trim();
+  if (!title || !lTitle) { showToast('تأكد من اكتمال البيانات ⚠️'); return; }
+
+  const btn = document.getElementById('saveCBtn');
+  btn.disabled = true; btn.textContent = '⏳ جاري الرفع...';
+
+  try {
+    // 1) رفع الفيديو لو موجود ولم يُرفع بعد
+    const videoFile = document.getElementById('videoFile').files[0];
+    if (videoFile && !wizVideoUrl) {
+      document.getElementById('uploadProgress').style.display = 'block';
+      btn.textContent = '⏳ رفع الفيديو...';
+      wizVideoUrl = await uploadVideoToStorage(videoFile, title);
+      document.getElementById('uploadProgress').style.display = 'none';
+      document.getElementById('videoUrlWrap').style.display   = 'block';
+      document.getElementById('videoUrlText').textContent     = wizVideoUrl;
+    }
+
+    // 2) رفع PDFs
+    if (wizPdfFiles.some(p => !p.url)) {
+      btn.textContent = '⏳ رفع الملفات...';
+      document.getElementById('pdfUploadStatus').style.display = 'block';
+      await uploadPdfs(title);
+      document.getElementById('pdfUploadStatus').style.display = 'none';
+    }
+
+    // 3) بناء الدرس
+    const lesson = {
+      id:       'l_0',
+      title:    lTitle,
+      description: document.getElementById('lDesc').value.trim(),
+      duration: parseInt(document.getElementById('lDuration').value) || 0,
+      videoUrl: wizVideoUrl || '',
+      pdfs:     wizPdfFiles.filter(p => p.url).map(p => ({ name: p.name, url: p.url })),
+      order:    1,
+    };
+
+    const hours = Math.round((lesson.duration || 0) / 60 * 10) / 10;
+
+    // 4) حفظ الكورس
+    btn.textContent = '⏳ حفظ الكورس...';
+    await sb.insert('courses', {
+      title,
+      emoji:        document.getElementById('cEmoji').value.trim() || '📚',
+      description:  document.getElementById('cDesc').value.trim(),
+      category:     document.getElementById('cCat').value,
+      price:        parseFloat(document.getElementById('cPrice').value) || 0,
+      status:       document.getElementById('cStatus').value,
+      is_new:       document.getElementById('cIsNew').checked,
+      is_hot:       document.getElementById('cIsHot').checked,
+      lessons:      [lesson],
+      lessons_count: 1,
+      instructor:   document.getElementById('cInstructor').value.trim(),
+      hours,
+      rating: 5,
+      students: 0,
+    });
+
+    // 5) تنظيف
+    localStorage.removeItem('alshehab_courses');
+    showToast('🚀 تم نشر الكورس بنجاح!');
+    wizVideoUrl = '';
+    wizPdfFiles = [];
+    wizGoTo(1);
+    // reset fields
+    ['cTitle','cEmoji','cDesc','cPrice','cInstructor','lTitle','lDuration','lDesc'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value = '';
+    });
+    document.getElementById('cIsNew').checked = false;
+    document.getElementById('cIsHot').checked = false;
+    clearVideo();
+    renderPdfList();
+    loadStats();
+    loadCoursesTbl();
+
+  } catch(e) {
+    showToast('⚠️ ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '🚀 نشر الكورس الآن';
+  }
+}
+
+// ══ Table ══
+async function loadCoursesTbl() {
+  document.getElementById('cNoMsg').textContent = '⏳ جاري التحميل...';
+  document.getElementById('cNoMsg').style.display = 'block';
+  try {
+    const data = await sb.select('courses', 'order=created_at.desc');
+    allCourses = Array.isArray(data) ? data : [];
+    renderCoursesTbl(allCourses);
+    document.getElementById('ctCount').textContent = allCourses.length;
+    ['enCourse','cpCourse'].forEach(id => {
+      const el = document.getElementById(id); if (!el) return;
+      const def = id === 'cpCourse' ? '<option value="">كل الكورسات</option>' : '<option value="">-- اختر --</option>';
+      el.innerHTML = def + allCourses.map(c => `<option value="${c.id}">${c.emoji||'📚'} ${c.title}</option>`).join('');
+    });
+  } catch(e) { document.getElementById('cNoMsg').textContent = '⚠️ خطأ: ' + e.message; }
+}
+
+function renderCoursesTbl(list) {
+  const tbody = document.getElementById('cTbody');
+  const noMsg = document.getElementById('cNoMsg');
+  if (!list?.length) { tbody.innerHTML=''; noMsg.textContent='لا توجد كورسات بعد'; noMsg.style.display='block'; return; }
+  noMsg.style.display = 'none';
+  tbody.innerHTML = list.map(c => {
+    const lesson = Array.isArray(c.lessons) && c.lessons[0];
+    const hasVideo = lesson?.videoUrl ? '✅' : '—';
+    return `<tr>
+      <td><b>${c.emoji||'📚'} ${c.title}</b>${c.is_new?'<span class="badge paid" style="margin-right:5px;">جديد</span>':''}${c.is_hot?'<span class="badge active" style="margin-right:3px;">🔥</span>':''}</td>
+      <td>${c.category||'—'}</td>
+      <td style="font-size:11px;">${lesson ? `<b>${lesson.title||'—'}</b><br><span style="color:var(--text-dim);">${hasVideo} فيديو · ${lesson.duration||0} د</span>` : '—'}</td>
+      <td>${c.price==0?'<span class="badge active">مجاني</span>':`<b style="color:var(--accent)">${c.price} ج.م</b>`}</td>
+      <td>${c.status==='soon'?'<span class="badge soon">قريباً</span>':'<span class="badge active">منشور</span>'}</td>
+      <td>${c.students||0}</td>
+      <td style="white-space:nowrap">
+        <button class="ab b" onclick="openEditC('${c.id}')" style="margin-left:4px">✏️</button>
+        <button class="ab o" onclick="copyC('${c.id}')" style="margin-left:4px" data-tip="نسخ">📋</button>
+        <button class="ab r" onclick="deleteC('${c.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCTbl(q)  { cTblFilter.q=q.toLowerCase(); applyCFilter(); }
+function filterCCat(c)  { cTblFilter.cat=c; applyCFilter(); }
+function applyCFilter() {
+  renderCoursesTbl(allCourses.filter(c =>
+    (!cTblFilter.q || c.title.toLowerCase().includes(cTblFilter.q)) &&
+    (!cTblFilter.cat || c.category===cTblFilter.cat)
+  ));
+}
+
+function openEditC(id) {
+  const c = allCourses.find(x => x.id===id); if (!c) return;
+  document.getElementById('eCid').value = id;
+  document.getElementById('eTitle').value       = c.title||'';
+  document.getElementById('eDesc').value        = c.description||'';
+  document.getElementById('eInstructor').value  = c.instructor||'';
+  document.getElementById('eEmoji').value       = c.emoji||'';
+  document.getElementById('eCat').value         = c.category||'other';
+  document.getElementById('ePrice').value       = c.price||0;
+  document.getElementById('eStatus').value      = c.status||'active';
+  document.getElementById('eIsNew').checked     = !!c.is_new;
+  document.getElementById('eIsHot').checked     = !!c.is_hot;
+  openM('mEditCourse');
+}
+
+async function saveEditCourse() {
+  const id = document.getElementById('eCid').value;
+  const payload = { title:document.getElementById('eTitle').value.trim(), emoji:document.getElementById('eEmoji').value.trim()||'📚', description:document.getElementById('eDesc').value.trim(), category:document.getElementById('eCat').value, price:parseFloat(document.getElementById('ePrice').value)||0, instructor:document.getElementById('eInstructor').value.trim(), status:document.getElementById('eStatus').value, is_new:document.getElementById('eIsNew').checked, is_hot:document.getElementById('eIsHot').checked };
+  try { await sb.update('courses', payload, `id=eq.${id}`); closeM('mEditCourse'); showToast('✅ تم التعديل'); loadCoursesTbl(); }
+  catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+async function copyC(id) {
+  const c = allCourses.find(x => x.id===id); if (!c) return;
+  try { await sb.insert('courses', {...c, id:undefined, title:'نسخة من '+c.title, created_at:undefined}); showToast('✅ تم النسخ'); loadCoursesTbl(); }
+  catch(e) { showToast('⚠️ '+e.message); }
+}
+
+async function deleteC(id) {
+  if (!confirm('تحذف الكورس؟')) return;
+  try { await sb.delete('courses', `id=eq.${id}`); showToast('تم الحذف 🗑'); loadCoursesTbl(); localStorage.removeItem('alshehab_courses'); }
+  catch(e) { showToast('⚠️ '+e.message); }
+}
+
+async function deleteAllCourses() {
+  if (!confirm('مؤكد تمسح كل الكورسات؟ ⚠️\nمفيش رجعة!')) return;
+  try {
+    const all = await sb.select('courses','select=id');
+    if (Array.isArray(all)) for (const c of all) await sb.delete('courses',`id=eq.${c.id}`);
+    localStorage.removeItem('alshehab_courses');
+    showToast('✅ تم المسح'); loadCoursesTbl(); loadStats();
+  } catch(e) { showToast('⚠️ '+e.message); }
+}
+
+// ── Coupons ──
+function renderCoupons() {
+  const tb = document.getElementById('cpTbody'); if (!tb) return;
+  const ent = Object.entries(coupons);
+  tb.innerHTML = ent.length
+    ? ent.map(([code,d]) => `<tr><td><b style="color:var(--accent)">${code}</b></td><td>${d.disc}%</td><td>${d.course||'الكل'}</td><td>${d.used||0} / ${d.limit||'∞'}</td><td><button class="ab r" onclick="delCoupon('${code}')">🗑</button></td></tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:16px">لا توجد كوبونات</td></tr>';
+}
+function openCoupon() { loadCoursesTbl(); openM('mCoupon'); }
+function saveCoupon() {
+  const code=document.getElementById('cpCode').value.trim().toUpperCase();
+  const disc=parseInt(document.getElementById('cpDisc').value)||0;
+  const course=document.getElementById('cpCourse').value||'';
+  const limit=parseInt(document.getElementById('cpLimit').value)||0;
+  if (!code||!disc) { showToast('اكمل البيانات ⚠️'); return; }
+  coupons[code]={disc,course,limit,used:0};
+  localStorage.setItem('alshehab_coupons',JSON.stringify(coupons));
+  closeM('mCoupon'); renderCoupons(); showToast('✅ كوبون '+code+' محفوظ');
+}
+function delCoupon(code) { delete coupons[code]; localStorage.setItem('alshehab_coupons',JSON.stringify(coupons)); renderCoupons(); showToast('تم الحذف 🗑'); }
+
+// ═══════════════════════════════════════════════════════
+//  STUDENTS
+// ═══════════════════════════════════════════════════════
+async function loadStudents() {
+  try {
+    const data = await sb.select('profiles','select=id,name,xp,streak,role,last_active,created_at&order=xp.desc');
+    allStudents = Array.isArray(data) ? data : [];
+    document.getElementById('stCount').textContent = allStudents.length;
+    stPage = 0; renderStudents();
+    // fill enroll select
+    loadCoursesTbl();
+  } catch(e) { console.error(e); }
+}
+
+function filterStudents(q) { stFilter.q=q.toLowerCase(); stPage=0; renderStudents(); }
+function filterStRole(r)   { stFilter.role=r; stPage=0; renderStudents(); }
+function sortStudents(s)   { stFilter.sort=s; renderStudents(); }
+
+function getFiltered() {
+  let list = allStudents.filter(s =>
+    (!stFilter.q    || (s.name||'').toLowerCase().includes(stFilter.q)) &&
+    (!stFilter.role || s.role===stFilter.role)
+  );
+  if (stFilter.sort==='name') list.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  else list.sort((a,b)=>(b.xp||0)-(a.xp||0));
+  return list;
+}
+
+function renderStudents() {
+  const list  = getFiltered();
+  const start = stPage * ST_PER;
+  const page  = list.slice(start, start+ST_PER);
+  const tbody = document.getElementById('stTbody');
+  tbody.innerHTML = page.length
+    ? page.map(s => `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px"><div class="av-sm">${(s.name||'?').charAt(0).toUpperCase()}</div><div><b style="font-size:12px">${s.name||'—'}</b><div style="font-size:10px;color:var(--text-dim)">${(s.id||'').slice(0,10)}...</div></div></div></td>
+        <td>${s.role==='admin'?'<span class="badge admin">أدمن</span>':'<span class="badge active">طالب</span>'}</td>
+        <td><b style="color:var(--accent)">${(s.xp||0).toLocaleString()}</b></td>
+        <td style="font-size:11px;color:var(--text-dim)">${s.last_active||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="ab o" onclick="notifStudent('${s.id}')" style="margin-left:4px" data-tip="إشعار">🔔</button>
+          ${s.role!=='admin'?`<button class="ab b" onclick="mkAdmin('${s.id}')" style="margin-left:4px" data-tip="ترقية">👑</button>`:''}
+          <button class="ab r" onclick="removeStudent('${s.id}')">🚫</button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:18px">لا توجد نتائج</td></tr>';
+  // pagination
+  const pages  = Math.ceil(list.length/ST_PER);
+  const pagEl  = document.getElementById('stPag');
+  pagEl.innerHTML = '';
+  if (pages <= 1) return;
+  for (let i=0;i<pages;i++) { const b=Object.assign(document.createElement('button'),{className:'pb'+(i===stPage?' active':''),textContent:i+1}); b.onclick=()=>{stPage=i;renderStudents();}; pagEl.appendChild(b); }
+}
+
+function notifStudent(uid) { document.getElementById('qUID').value=uid; pickTarget('user','ntQ'); showTab('notifs'); showToast('اكتب الإشعار وأرسله 📤'); }
+async function mkAdmin(uid) { if(!confirm('تحويل لأدمن؟'))return; try{ await sb.update('profiles',{role:'admin'},`id=eq.${uid}`); showToast('✅ تم'); loadStudents(); }catch(e){showToast('⚠️ '+e.message);} }
+function removeStudent(uid) { showToast('⚠️ يتطلب Supabase Admin API — اعمله من Dashboard'); }
+
+async function doEnroll() {
+  const uid=document.getElementById('enUID').value.trim();
+  const cid=document.getElementById('enCourse').value;
+  if (!uid||!cid) { showToast('اكمل البيانات ⚠️'); return; }
+  try {
+    await sb.upsert('enrollments',{user_id:uid,course_id:cid,progress:0,completed:false});
+    await sb.insert('notifications',{user_id:uid,title:'🎓 تم تسجيلك في كورس جديد!',body:'تم تسجيلك من قِبل الأدمن — ابدأ التعلم الآن 🚀',is_read:false}).catch(()=>{});
+    closeM('mEnroll'); showToast('✅ تم التسجيل');
+  } catch(e) { showToast('⚠️ '+e.message); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAYMENTS
+// ═══════════════════════════════════════════════════════
+async function loadPayBadge() {
+  try {
+    const d = await sb.select('payment_requests','status=eq.pending&select=id');
+    const n = Array.isArray(d) ? d.length : 0;
+    const b = document.getElementById('payBadge');
+    const c = document.getElementById('pndCnt');
+    if (n>0) { b.textContent=n; b.style.display='inline'; if(c){c.textContent=n;c.style.display='inline';} }
+    else { b.style.display='none'; if(c)c.style.display='none'; }
+  } catch(e) {}
+}
+
+function setPayTab(tab, btn) { payTab=tab; loadPayments(); }
+
+async function loadPayments() {
+  const wrap = document.getElementById('payWrap');
+  wrap.innerHTML = '<div style="text-align:center;padding:22px;color:var(--text-dim)">⏳ جاري التحميل...</div>';
+  try {
+    const reqs = await sb.select('payment_requests',`status=eq.${payTab}&order=created_at.desc`);
+    if (!Array.isArray(reqs)||!reqs.length) {
+      const msgs = {pending:'لا توجد طلبات معلقة ✅',approved:'لا توجد مدفوعات مؤكدة',rejected:'لا توجد طلبات مرفوضة'};
+      wrap.innerHTML = `<div style="text-align:center;padding:38px;color:var(--text-dim);font-size:13px;">${msgs[payTab]||'—'}</div>`;
+      if (payTab==='pending') { document.getElementById('payBadge').style.display='none'; document.getElementById('pndCnt').style.display='none'; }
+      return;
+    }
+    if (payTab==='pending') { document.getElementById('payBadge').textContent=reqs.length; document.getElementById('payBadge').style.display='inline'; document.getElementById('pndCnt').textContent=reqs.length; document.getElementById('pndCnt').style.display='inline'; }
+    wrap.innerHTML = reqs.map(r => {
+      const date   = new Date(r.created_at).toLocaleString('ar-EG');
+      const isPend = payTab==='pending';
+      const statusBadge = r.status==='approved'?'<span class="badge paid">مؤكد</span>':r.status==='rejected'?'<span class="badge rejected">مرفوض</span>':'<span class="badge pending">معلق</span>';
+      return `<div class="pay-card" id="preq_${r.id}">
+        <div class="pay-head">
+          <div><div style="font-weight:700;font-size:14px">${r.course_title||'كورس'}</div><div style="font-size:11px;color:var(--text-dim);margin-top:3px">${r.method==='vodafone'?'📱':'💸'} ${r.method||'—'} · 📞 ${r.phone||'—'}</div><div style="font-size:10px;color:var(--text-dim);margin-top:2px">${date} · ${(r.user_id||'').slice(0,12)}...</div></div>
+          <div style="text-align:left"><div style="font-size:22px;font-weight:900;color:var(--accent)">${r.amount} ج.م</div>${statusBadge}</div>
+        </div>
+        ${r.receipt_url
+          ? `<div style="margin-bottom:11px"><div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">📎 الإيصال:</div><img src="${r.receipt_url}" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--border);cursor:pointer" onclick="window.open('${r.receipt_url}','_blank')" onerror="this.style.display='none'"><a href="${r.receipt_url}" target="_blank" style="font-size:11px;color:var(--accent);display:block;margin-top:5px">🔗 فتح</a></div>`
+          : '<div style="font-size:12px;color:#ef4444;margin-bottom:11px">⚠️ لم يرفع إيصال</div>'
+        }
+        ${isPend
+          ? `<input class="inp" type="text" id="pnote_${r.id}" placeholder="ملاحظة للطالب (اختياري)" style="font-size:12px;margin-bottom:9px">
+             <div class="pay-acts"><button onclick="approveReq('${r.id}','${r.user_id}','${r.course_id}')" class="ab g" style="flex:1;padding:10px;font-size:12px">✅ تأكيد</button><button onclick="rejectReq('${r.id}','${r.user_id}')" class="ab r" style="flex:1;padding:10px;font-size:12px">❌ رفض</button></div>`
+          : `<div style="font-size:12px;color:var(--text-dim)">ملاحظة: ${r.admin_note||'—'}</div>`
+        }
+      </div>`;
+    }).join('');
+  } catch(e) { wrap.innerHTML=`<div style="text-align:center;padding:20px;color:#ef4444">⚠️ ${e.message}</div>`; }
+}
+
+async function approveReq(rid, uid, cid) {
+  const note = document.getElementById('pnote_'+rid)?.value||'';
+  document.querySelectorAll(`#preq_${rid} .ab`).forEach(b=>b.disabled=true);
+  try {
+    await sb.update('payment_requests',{status:'approved',admin_note:note},`id=eq.${rid}`);
+    await sb.upsert('enrollments',{user_id:uid,course_id:cid,progress:0,completed:false});
+    await sb.insert('notifications',{user_id:uid,title:'✅ تم تأكيد دفعك!',body:'فُتح لك الكورس — ابدأ التعلم الآن 🎓',is_read:false}).catch(()=>{});
+    document.getElementById('preq_'+rid)?.remove();
+    showToast('✅ تم التأكيد وفُتح الكورس');
+    loadPayBadge();
+  } catch(e) { showToast('⚠️ '+e.message); document.querySelectorAll(`#preq_${rid} .ab`).forEach(b=>b.disabled=false); }
+}
+
+async function rejectReq(rid, uid) {
+  const note = document.getElementById('pnote_'+rid)?.value||'تم رفض الطلب';
+  document.querySelectorAll(`#preq_${rid} .ab`).forEach(b=>b.disabled=true);
+  try {
+    await sb.update('payment_requests',{status:'rejected',admin_note:note},`id=eq.${rid}`);
+    await sb.insert('notifications',{user_id:uid,title:'❌ تم رفض طلب الدفع',body:`السبب: ${note}`,is_read:false}).catch(()=>{});
+    document.getElementById('preq_'+rid)?.remove();
+    showToast('تم الرفض ❌'); loadPayBadge();
+  } catch(e) { showToast('⚠️ '+e.message); document.querySelectorAll(`#preq_${rid} .ab`).forEach(b=>b.disabled=false); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════
+function pickTarget(val, groupId) {
+  notifTargets[groupId] = val;
+  document.querySelectorAll(`#${groupId} .ntar`).forEach(t => t.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  const userWrap = document.getElementById(groupId==='ntM' ? 'ntMUser' : 'ntQUser');
+  if (userWrap) userWrap.style.display = val==='user' ? 'block' : 'none';
+}
+
+function applyTpl(val) {
+  if (!val || !TPL[val]) return;
+  document.getElementById('qTitle').value = TPL[val].t;
+  document.getElementById('qBody').value  = TPL[val].b;
+}
+
+async function sendNotif(src) {
+  const isModal  = src === 'modal';
+  const title    = document.getElementById(isModal?'mTitle':'qTitle').value.trim();
+  const body     = document.getElementById(isModal?'mBody':'qBody').value.trim();
+  const target   = isModal ? notifTargets['ntM'] : notifTargets['ntQ'];
+  const uid      = isModal ? document.getElementById('mUID').value.trim() : document.getElementById('qUID').value.trim();
+  if (!title) { showToast('اكتب العنوان ⚠️'); return; }
+
+  if (target === 'all') {
+    const profiles = await sb.select('profiles','select=id').catch(()=>[]);
+    if (!profiles?.length) { showToast('⚠️ لا يوجد طلاب'); return; }
+    let sent = 0;
+    for (const p of profiles) { await sb.insert('notifications',{user_id:p.id,title,body,is_read:false}).catch(()=>{}); sent++; }
+    showToast(`✅ أُرسل لـ ${sent} طالب`);
+  } else {
+    if (!uid) { showToast('أدخل User ID ⚠️'); return; }
+    await sb.insert('notifications',{user_id:uid,title,body,is_read:false}).catch(e=>{ showToast('⚠️ '+e.message); return; });
+    showToast('✅ تم الإرسال');
+  }
+
+  if (isModal) { closeM('mNotif'); document.getElementById('mTitle').value=''; document.getElementById('mBody').value=''; }
+  else { document.getElementById('qTitle').value=''; document.getElementById('qBody').value=''; }
+  loadNotifLog();
+}
+
+async function loadNotifLog() {
+  const wrap = document.getElementById('nLog'); if (!wrap) return;
+  try {
+    const data = await sb.select('notifications','order=created_at.desc&limit=30');
+    if (!Array.isArray(data)||!data.length) { wrap.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-dim)">لا توجد إشعارات مُرسلة</div>'; return; }
+    wrap.innerHTML = data.map(n => `<div class="nlog-item"><div class="nlog-icon">${n.is_read?'🔔':'🔴'}</div><div style="flex:1"><b style="font-size:13px">${n.title}</b>${n.body?`<div style="font-size:11px;color:var(--text-dim);margin-top:2px">${n.body}</div>`:''}<div style="font-size:10px;color:var(--text-dim);margin-top:3px">${new Date(n.created_at).toLocaleString('ar-EG')} · ${(n.user_id||'').slice(0,10)}...</div></div></div>`).join('');
+  } catch(e) { wrap.innerHTML=`<div style="text-align:center;color:#ef4444;padding:18px">⚠️ ${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════
+//  MAINTENANCE  ← الجديد كاملاً
+// ═══════════════════════════════════════════════════════
+function checkMaintForVisitor() {
+  const s = getSettings();
+  if (!s.maintenance) return;  // مفيش صيانة
+  // لو المستخدم أدمن — خليه يعدي
+  const session = JSON.parse(localStorage.getItem('sb_session')||'null');
+  if (!session) { showMaintScreen(s); return; } // مش مسجّل — أريه الصيانة
+  // check role fast from profiles cache
+  const cached = JSON.parse(localStorage.getItem('alshehab_profile')||'null');
+  if (cached?.role === 'admin') return; // أدمن — أكمل
+  showMaintScreen(s);
+}
+
+function showMaintScreen(s) {
+  const el = document.getElementById('maintScreen');
+  document.getElementById('maintMsg').textContent = s.maint_msg || 'المنصة في وضع الصيانة مؤقتاً. نعمل على تحسينها وستعود قريباً!';
+  el.classList.add('show');
+  // Countdown
+  if (s.maint_end) {
+    const endTime = new Date(s.maint_end).getTime();
+    document.getElementById('maintCountdown').style.display = 'flex';
+    if (maintTimer) clearInterval(maintTimer);
+    maintTimer = setInterval(() => {
+      const diff = endTime - Date.now();
+      if (diff <= 0) { clearInterval(maintTimer); document.getElementById('maintCountdown').style.display='none'; return; }
+      const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), sec = Math.floor((diff%60000)/1000);
+      document.getElementById('mH').textContent = String(h).padStart(2,'0');
+      document.getElementById('mM').textContent = String(m).padStart(2,'0');
+      document.getElementById('mS').textContent = String(sec).padStart(2,'0');
+    }, 1000);
+  }
+}
+
+function hideMaintScreen() {
+  document.getElementById('maintScreen').classList.remove('show');
+  if (maintTimer) clearInterval(maintTimer);
+}
+
+function toggleMaint() {
+  const el = document.getElementById('tMaint');
+  const isOn = el.classList.contains('on');
+  if (!isOn) {
+    // تفعيل — افتح modal الإعدادات أولاً
+    openM('mMaint');
+  } else {
+    // إيقاف — مباشرة
+    deactivateMaintenance();
+  }
+}
+
+async function activateMaintenance() {
+  const msg    = document.getElementById('maintMsgInp').value.trim() || 'المنصة في وضع الصيانة مؤقتاً.';
+  const endVal = document.getElementById('maintEnd').value;
+  const s      = getSettings();
+  s.maintenance = true;
+  s.maint_msg   = msg;
+  s.maint_end   = endVal || null;
+  saveSettings(s);
+
+  document.getElementById('tMaint').classList.add('on');
+  closeM('mMaint');
+
+  // Notify students if checked
+  if (document.getElementById('maintNotifChk').checked) {
+    const profiles = await sb.select('profiles','select=id').catch(()=>[]);
+    if (Array.isArray(profiles)) {
+      for (const p of profiles) {
+        await sb.insert('notifications',{user_id:p.id,title:'🔧 صيانة مجدولة',body:msg,is_read:false}).catch(()=>{});
+      }
+      showToast(`✅ وضع الصيانة مفعّل + إشعار لـ ${profiles.length} طالب`);
+    }
+  } else {
+    showToast('✅ وضع الصيانة مفعّل');
+  }
+}
+
+async function deactivateMaintenance() {
+  const s = getSettings();
+  s.maintenance = false;
+  s.maint_end   = null;
+  saveSettings(s);
+  document.getElementById('tMaint').classList.remove('on');
+  hideMaintScreen();
+  // Notify students
+  const profiles = await sb.select('profiles','select=id').catch(()=>[]);
+  if (Array.isArray(profiles)) {
+    for (const p of profiles) {
+      await sb.insert('notifications',{user_id:p.id,title:'✅ المنصة عادت للعمل!',body:'انتهت الصيانة — تفضل وابدأ التعلم 🚀',is_read:false}).catch(()=>{});
+    }
+  }
+  showToast('✅ المنصة تعمل مجدداً + إشعار للطلاب');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS (localStorage)
+// ═══════════════════════════════════════════════════════
+function getSettings() { return JSON.parse(localStorage.getItem('alshehab_platform_settings')||'{}'); }
+function saveSettings(s) { localStorage.setItem('alshehab_platform_settings', JSON.stringify(s)); }
+
+function loadSettings() {
+  const s = getSettings();
+  if (s.name)    document.getElementById('stName').value    = s.name;
+  if (s.founder) document.getElementById('stFounder').value = s.founder;
+  if (s.phone)   document.getElementById('stPhone').value   = s.phone;
+  if (s.desc)    document.getElementById('stDesc').value    = s.desc;
+  if (s.paymob_int) document.getElementById('stPmInt').value = s.paymob_int;
+  if (s.paymob_if)  document.getElementById('stPmIF').value  = s.paymob_if;
+  if (s.currency)   document.getElementById('stCurr').value  = s.currency;
+  // toggles
+  const tf = (id, key, def=true) => { const el=document.getElementById(id); if(el){ if(s[key]===false||s[key]===true) el.classList.toggle('on', s[key]!==false); } };
+  tf('tReg','registration'); tf('tFree','free_courses'); tf('tXP','xp'); tf('tCerts','certs');
+  if (s.maintenance) document.getElementById('tMaint').classList.add('on');
+}
+
+function savePlatform() {
+  const s=getSettings(); s.name=document.getElementById('stName').value; s.founder=document.getElementById('stFounder').value; s.phone=document.getElementById('stPhone').value; s.desc=document.getElementById('stDesc').value;
+  saveSettings(s); showToast('✅ تم حفظ بيانات المنصة');
+}
+function savePayment() {
+  const s=getSettings(); s.paymob_int=document.getElementById('stPmInt').value; s.paymob_if=document.getElementById('stPmIF').value; s.currency=document.getElementById('stCurr').value;
+  saveSettings(s); showToast('✅ تم حفظ إعدادات الدفع');
+}
+function toggleF(elId, key) {
+  const el=document.getElementById(elId); el.classList.toggle('on');
+  const s=getSettings(); s[key]=el.classList.contains('on'); saveSettings(s);
+  showToast(el.classList.contains('on')?'✅ تفعيل':'⏹ إيقاف');
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPORTS
+// ═══════════════════════════════════════════════════════
+async function exportCSV(type) {
+  if (type==='students') {
+    if (!allStudents.length) await loadStudents();
+    dlCSV('students.csv', [['الاسم','الدور','XP','آخر نشاط'], ...allStudents.map(s=>[s.name||'—',s.role||'student',s.xp||0,s.last_active||'—'])]);
+    showToast('✅ تصدير الطلاب');
+  } else if (type==='revenue') {
+    const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    dlCSV('revenue.csv', [['الشهر','الإيرادات'], ...months.map((m,i)=>[m,0])]);
+    showToast('✅ تصدير الإيرادات');
+  } else if (type==='all') {
+    const [courses,profiles,enrollments]=await Promise.all([sb.select('courses','order=created_at.desc').catch(()=>[]),sb.select('profiles','select=id,name,xp,role').catch(()=>[]),sb.select('enrollments','select=id,user_id,course_id,progress,completed').catch(()=>[])]);
+    dlJSON('alshehab_backup_'+new Date().toISOString().slice(0,10)+'.json',{courses,profiles,enrollments});
+    showToast('✅ تصدير JSON');
+  }
+}
+</script>
+</body>
+</html>
