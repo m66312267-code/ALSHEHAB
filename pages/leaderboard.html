@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBDA3 — المتصدرون</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="toast"></div><div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+<header class="topbar">
+  <div class="logo">إبداع</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item active"><span>🏆</span>تصنيف</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-item active"><span>🏆</span> المتصدرون</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="typeof sb !== 'undefined' ? sb.signOut() : window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active">
+      <div class="page-title">🏆 المتصدرون</div>
+      <div class="page-sub">أقوى الطلاب على المنصة</div>
+      <div class="panel" id="leaderList">
+        <div style="text-align:center;padding:40px;color:var(--text-dim);font-size:14px;">
+          <div style="font-size:48px;margin-bottom:15px;">🏆</div>
+          <p>لا يوجد طلاب في المتصدرين بعد</p>
+          <p style="font-size:12px;margin-top:6px;">ابدأ التعلم واكسب XP لتظهر هنا!</p>
+          <button class="submit-btn" style="margin-top:15px;" onclick="window.location.href='courses.html'">ابدأ التعلم</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>requireAuth();</script>
+<script>
+  async function loadLeaderboard() {
+    const wrap = document.getElementById('leaderList');
+    const medals = ['🥇','🥈','🥉'];
+    const currentUser = sb.getUser();
+
+    // جيب المتصدرين من Supabase
+    let board = [];
+    try {
+      board = await sb.select('profiles', 'select=id,name,xp&order=xp.desc&limit=20');
+      if (!Array.isArray(board)) board = [];
+    } catch(e) {}
+
+    // Fallback: localStorage
+    if (board.length === 0) {
+      board = JSON.parse(localStorage.getItem('ibda3_leaderboard') || '[]');
+      board.sort((a,b) => b.xp - a.xp);
+    }
+
+    if (board.length === 0) {
+      // keep empty state
+      return;
+    }
+
+    wrap.innerHTML = board.map((u, i) => {
+      const isMe = currentUser && u.id === currentUser.id;
+      const rank = medals[i] || (i + 1);
+      return `<div class="leader-row" style="${isMe ? 'background:rgba(0,212,170,0.06);border:1px solid var(--border);' : i===0 ? 'background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);' : ''}">
+        <div class="leader-rank">${rank}</div>
+        <div class="leader-name">${u.name || 'مجهول'}${isMe ? ' 👋' : ''}</div>
+        <div class="leader-xp">${(u.xp||0).toLocaleString()} XP</div>
+      </div>`;
+    }).join('');
+  }
+
+  loadLeaderboard();
+</script>
+</body>
+</html>
