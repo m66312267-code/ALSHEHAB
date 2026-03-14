@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إبداع — حسابي</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+<style>
+/* ===== PROFILE PAGE STYLES ===== */
+
+/* Cover Banner */
+.profile-cover {
+  width:100%;
+  height:160px;
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b5e 40%, #1a0535 70%, #0d0520 100%);
+  position:relative;
+  overflow:hidden;
+  border-radius:20px 20px 0 0;
+  margin-bottom:0;
+}
+.profile-cover::before {
+  content:'';
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(124,58,237,.35) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(236,72,153,.2) 0%, transparent 50%);
+}
+.profile-cover-stars {
+  position:absolute;inset:0;
+  background:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 70%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 15%, rgba(255,255,255,.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 25%, rgba(216,180,254,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 85%, rgba(216,180,254,.5) 0%, transparent 100%);
+}
+.cover-rings {
+  position:absolute;
+  bottom:-60px; left:50%;
+  transform:translateX(-50%);
+  width:160px;height:160px;
+  border-radius:50%;
+  border:1px solid rgba(168,85,247,.15);
+  box-shadow:0 0 0 30px rgba(124,58,237,.04), 0 0 0 60px rgba(124,58,237,.02);
+}
+
+/* Avatar */
+.profile-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:0 0 20px 20px;
+  padding:0 24px 28px;
+  position:relative;
+  margin-bottom:20px;
+}
+.profile-av-wrap {
+  display:flex;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:16px;
+}
+.profile-av-outer {
+  position:relative;
+  margin-top:-50px;
+  flex-shrink:0;
+}
+.profile-av {
+  width:100px; height:100px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;font-weight:900;color:#fff;
+  border:4px solid var(--bg2);
+  box-shadow:0 0 0 2px rgba(168,85,247,.4), 0 8px 30px rgba(124,58,237,.4);
+  cursor:pointer;
+  position:relative;
+  transition:transform .3s, box-shadow .3s;
+}
+.profile-av:hover { transform:scale(1.05); box-shadow:0 0 0 2px rgba(168,85,247,.7), 0 12px 40px rgba(124,58,237,.6); }
+.av-edit-icon {
+  position:absolute;bottom:2px;left:2px;
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;border:2px solid var(--bg2);
+  cursor:pointer;
+}
+.profile-av-ring {
+  position:absolute;inset:-6px;
+  border-radius:50%;
+  border:2px dashed rgba(168,85,247,.3);
+  animation:spinSlow 12s linear infinite;
+}
+@keyframes spinSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* Profile info next to avatar */
+.profile-meta { padding-top:10px; flex:1; }
+.profile-name-big {
+  font-size:22px;font-weight:900;
+  color:var(--text);margin-bottom:3px;
+}
+.profile-email-sm { font-size:12px;color:var(--text-dim);margin-bottom:10px; }
+.level-pill {
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(168,85,247,.1));
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:20px;padding:4px 14px;
+  font-size:12px;font-weight:700;color:var(--accent);
+}
+
+/* XP Bar */
+.xp-section { margin-top:14px; }
+.xp-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+.xp-label { font-size:11px;color:var(--text-dim); }
+.xp-val { font-size:11px;font-weight:700;color:var(--accent); }
+.xp-track {
+  height:8px;border-radius:99px;
+  background:rgba(124,58,237,.1);
+  border:1px solid rgba(124,58,237,.15);
+  overflow:hidden;
+}
+.xp-fill {
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#7c3aed,#a855f7,#ec4899);
+  background-size:200%;
+  animation:shimmerBar 2s linear infinite;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+@keyframes shimmerBar{0%{background-position:0%}100%{background-position:200%}}
+
+/* Stats Grid */
+.stats-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:20px;
+}
+.stat-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px 12px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  transition:transform .2s, border-color .2s;
+}
+.stat-card:hover { transform:translateY(-3px); border-color:rgba(168,85,247,.4); }
+.stat-card::before {
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.stat-card:hover::before { opacity:1; }
+.stat-icon { font-size:24px;margin-bottom:8px; }
+.stat-num {
+  font-size:28px;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),#ec4899);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:5px;
+}
+.stat-lbl { font-size:11px;color:var(--text-dim);font-weight:600; }
+
+/* Sections */
+.profile-section {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:16px;
+}
+.section-header {
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.section-icon {
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(168,85,247,.1));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.section-title { font-size:15px;font-weight:800;color:var(--text); }
+.section-sub { font-size:11px;color:var(--text-dim);margin-top:1px; }
+
+/* Inputs */
+.field-group { margin-bottom:14px; }
+.field-label {
+  font-size:11px;font-weight:700;
+  color:rgba(168,85,247,.7);
+  letter-spacing:1px;
+  margin-bottom:6px;display:block;
+}
+.field-inp {
+  width:100%;box-sizing:border-box;
+  background:rgba(124,58,237,.06);
+  border:1px solid rgba(124,58,237,.2);
+  border-radius:12px;
+  color:var(--text);
+  font-family:'Cairo',sans-serif;
+  font-size:14px;
+  padding:12px 16px;
+  outline:none;
+  transition:all .3s;
+}
+.field-inp:focus {
+  border-color:rgba(168,85,247,.7);
+  background:rgba(124,58,237,.1);
+  box-shadow:0 0 0 3px rgba(124,58,237,.15), 0 0 20px rgba(168,85,247,.15);
+}
+.field-inp::placeholder { color:rgba(168,85,247,.25); }
+.field-inp[readonly] { opacity:.5;cursor:not-allowed; }
+
+/* Save Button */
+.save-btn {
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
+  border:none;border-radius:12px;
+  color:#fff;font-family:'Cairo',sans-serif;
+  font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 20px rgba(124,58,237,.35);
+  position:relative;overflow:hidden;
+}
+.save-btn::after {
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  transition:left .5s;
+}
+.save-btn:hover::after { left:100%; }
+.save-btn:hover { transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.5); }
+.save-btn:active { transform:scale(.97); }
+
+/* Toggle Row */
+.toggle-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;
+  border-bottom:1px solid rgba(124,58,237,.07);
+}
+.toggle-row:last-child { border-bottom:none;padding-bottom:0; }
+.toggle-info h4 { font-size:13px;font-weight:700;color:var(--text);margin:0 0 3px; }
+.toggle-info p { font-size:11px;color:var(--text-dim);margin:0; }
+.sw {
+  width:44px;height:24px;border-radius:12px;
+  background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.2);
+  position:relative;cursor:pointer;transition:all .3s;flex-shrink:0;
+}
+.sw::after {
+  content:'';position:absolute;
+  top:3px;right:3px;
+  width:16px;height:16px;border-radius:50%;
+  background:rgba(168,85,247,.4);
+  transition:all .3s;
+}
+.sw.on { background:linear-gradient(135deg,#7c3aed,#a855f7);border-color:transparent;box-shadow:0 0 15px rgba(124,58,237,.4); }
+.sw.on::after { right:auto;left:3px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3); }
+
+/* Social Buttons */
+.social-btns { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px; }
+.social-btn {
+  padding:10px;border-radius:10px;
+  background:rgba(124,58,237,.06);
+  border:1px solid rgba(124,58,237,.15);
+  color:var(--text);font-family:'Cairo',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.social-btn:hover { background:rgba(124,58,237,.12);border-color:rgba(168,85,247,.35);transform:translateY(-1px); }
+
+/* Achievements */
+.achievements-grid {
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.ach-item {
+  text-align:center;padding:12px 6px;
+  background:rgba(124,58,237,.05);
+  border:1px solid rgba(124,58,237,.1);
+  border-radius:12px;
+  transition:all .2s;
+}
+.ach-item:hover { background:rgba(124,58,237,.1);transform:translateY(-2px); }
+.ach-item.locked { opacity:.35;filter:grayscale(1); }
+.ach-emoji { font-size:24px;margin-bottom:5px; }
+.ach-name { font-size:10px;color:var(--text-dim);font-weight:600; }
+
+/* Logout btn */
+.logout-btn {
+  width:100%;padding:12px;
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.2);
+  border-radius:12px;color:#ef4444;
+  font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:6px;
+}
+.logout-btn:hover { background:rgba(239,68,68,.15);transform:translateY(-1px); }
+
+/* ===== MOBILE ===== */
+@media (max-width:768px) {
+  .profile-cover { height:120px;border-radius:0; }
+  .profile-card { border-radius:0;padding:0 16px 22px; }
+  .profile-av { width:80px;height:80px;font-size:28px; }
+  .profile-av-outer { margin-top:-40px; }
+  .profile-name-big { font-size:18px; }
+  .stats-grid { grid-template-columns:repeat(3,1fr);gap:8px; }
+  .stat-card { padding:14px 8px; }
+  .stat-num { font-size:22px; }
+  .stat-lbl { font-size:10px; }
+  .stat-icon { font-size:18px;margin-bottom:5px; }
+  .achievements-grid { grid-template-columns:repeat(4,1fr);gap:8px; }
+  .ach-emoji { font-size:20px; }
+  .profile-section { padding:16px;border-radius:14px; }
+  .social-btns { grid-template-columns:1fr 1fr; }
+  .profile-av-wrap { gap:14px; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">إبداع</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
+      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4><div id="notifList"></div></div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" id="avatarBtn">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item active"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item active"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="nav-item" onclick="window.location.href='quiz.html'"><span>📝</span> الاختبارات</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="sb.signOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+
+      <!-- Cover + Avatar Card -->
+      <div class="profile-cover">
+        <div class="profile-cover-stars"></div>
+        <div class="cover-rings"></div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-av-wrap">
+          <div class="profile-av-outer">
+            <div class="profile-av-ring"></div>
+            <div class="profile-av" id="profileAv" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
+            <div class="av-edit-icon">📷</div>
+          </div>
+          <div class="profile-meta">
+            <div class="profile-name-big" id="profileNameDisplay">جاري التحميل...</div>
+            <div class="profile-email-sm" id="profileEmailDisplay"></div>
+            <div class="level-pill" id="levelBadge">⭐ مبتدئ</div>
+          </div>
+        </div>
+
+        <!-- XP Bar -->
+        <div class="xp-section">
+          <div class="xp-row">
+            <span class="xp-label">تقدمك نحو المستوى التالي</span>
+            <span class="xp-val"><span id="xpCurrent">0</span> / <span id="xpTarget">500</span> XP</span>
+          </div>
+          <div class="xp-track">
+            <div class="xp-fill" id="xpFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-num" id="pEnrolled">0</div>
+          <div class="stat-lbl">كورسات مسجّل</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-num" id="pCompleted">0</div>
+          <div class="stat-lbl">مكتملة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-num" id="pHours">0</div>
+          <div class="stat-lbl">ساعات دراسة</div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-icon">🏅</div>
+          <div>
+            <div class="section-title">الإنجازات</div>
+            <div class="section-sub">إنجازاتك على المنصة</div>
+          </div>
+        </div>
+        <div class="achievements-grid">
+          <div class="ach-item" id="ach1">
+            <div class="ach-emoji">🚀</div>
+            <div class="ach-name">أول خطوة</div>
+          </div>
+          <div class="ach-item locked" id="ach2">
+            <div class="ach-emoji">🔥</div>
+            <div class="ach-name">متحمس</div>
+          </div>
+          <div class="ach-item locked" id="ach3">
+            <div class="ach-emoji">💎</div>
+            <div class="ach-name">متميز</div>
+          </div>
+          <div class="ach-item locked" id="ach4">
+            <div class="ach-emoji">👑</div>
+            <div class="ach-name">أسطورة</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Profile -->
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-icon">✏️</div>
+          <div>
+            <div class="section-title">تعديل البيانات</div>
+            <div class="section-sub">حدّث معلوماتك الشخصية</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">الاسم الكامل</label>
+          <input class="field-inp" type="text" id="profileName" placeholder="اكتب اسمك">
+        </div>
+        <div class="field-group">
+          <label class="field-label">البريد الإلكتروني</label>
+          <input class="field-inp" type="email" id="profileEmail" readonly>
+        </div>
+        <button class="save-btn" id="saveBtn" onclick="saveProfile()">💾 حفظ التغييرات</button>
+      </div>
+
+      <!-- Security -->
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-icon">🔐</div>
+          <div>
+            <div class="section-title">الأمان والخصوصية</div>
+            <div class="section-sub">إعدادات الحساب والحماية</div>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>التحقق بخطوتين (2FA)</h4>
+            <p>حماية إضافية لحسابك</p>
+          </div>
+          <div class="sw" id="tfaToggle" onclick="toggleTFA()"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>إشعارات البريد</h4>
+            <p>استقبال تحديثات الكورسات</p>
+          </div>
+          <div class="sw on" id="emailToggle" onclick="toggleSwitch('emailToggle')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>إشعارات فورية</h4>
+            <p>Push Notifications</p>
+          </div>
+          <div class="sw on" id="pushToggle" onclick="toggleSwitch('pushToggle')"></div>
+        </div>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;font-weight:700;">ربط الحسابات</div>
+          <div class="social-btns">
+            <button class="social-btn" onclick="showToast('قريباً 🔗')">🌐 Google</button>
+            <button class="social-btn" onclick="showToast('قريباً 🔗')">📘 Facebook</button>
+          </div>
+        </div>
+
+        <button class="logout-btn" onclick="sb.signOut()">🚪 تسجيل الخروج</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+  requireAuth();
+  const user = sb.getUser();
+
+  // Override toggleTFA & toggleSwitch to use new .sw class
+  function toggleTFA(){
+    const el=document.getElementById('tfaToggle');
+    el.classList.toggle('on');
+    showToast(el.classList.contains('on')?'تم تفعيل 2FA 🔐':'تم إيقاف 2FA');
+  }
+  function toggleSwitch(id){
+    const el=document.getElementById(id);
+    el.classList.toggle('on');
+    showToast(el.classList.contains('on')?'تم التفعيل ✅':'تم الإيقاف');
+  }
+
+  async function loadProfile() {
+    const [profile, enrollments] = await Promise.all([
+      getProfile(user.id),
+      getEnrollments(user.id),
+    ]);
+    const completed = enrollments.filter(e => e.completed);
+    const userData  = JSON.parse(localStorage.getItem('ibda3_user') || '{}');
+    const name      = profile?.name || userData.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'طالب';
+    const email     = user?.email || userData.email || '';
+
+    document.getElementById('profileAv').textContent           = name.charAt(0).toUpperCase();
+    document.getElementById('avatarBtn').textContent           = name.charAt(0).toUpperCase();
+    document.getElementById('profileNameDisplay').textContent  = name;
+    document.getElementById('profileEmailDisplay').textContent = email;
+    document.getElementById('profileName').value               = name;
+    document.getElementById('profileEmail').value              = email;
+
+    // XP + Level
+    const xp     = profile?.xp || parseInt(localStorage.getItem('ibda3_xp') || '0');
+    const levels = [
+      { label:'🌱 مبتدئ', min:0,    max:500  },
+      { label:'⚡ متوسط',  min:500,  max:1500 },
+      { label:'🔥 متقدم',  min:1500, max:3000 },
+      { label:'👑 خبير',   min:3000, max:5000 },
+    ];
+    const lvl = levels.find(l => xp < l.max) || levels[levels.length-1];
+    const pct = Math.min(100, Math.round(((xp - lvl.min) / (lvl.max - lvl.min)) * 100));
+
+    document.getElementById('levelBadge').textContent  = lvl.label + ' — ' + xp.toLocaleString() + ' XP';
+    document.getElementById('xpCurrent').textContent   = xp.toLocaleString();
+    document.getElementById('xpTarget').textContent    = lvl.max.toLocaleString();
+
+    // Animate XP fill
+    setTimeout(() => {
+      document.getElementById('xpFill').style.width = pct + '%';
+    }, 300);
+
+    // Stats
+    document.getElementById('pEnrolled').textContent  = enrollments.length;
+    document.getElementById('pCompleted').textContent = completed.length;
+    const studyLog  = JSON.parse(localStorage.getItem('ibda3_studylog') || '{}');
+    const totalMins = Object.values(studyLog).reduce((a,b) => a+b, 0);
+    document.getElementById('pHours').textContent = Math.round(totalMins / 60);
+
+    // Achievements unlock logic
+    if(enrollments.length > 0) document.getElementById('ach1').classList.remove('locked');
+    if(xp >= 500)              document.getElementById('ach2').classList.remove('locked');
+    if(completed.length >= 1)  document.getElementById('ach3').classList.remove('locked');
+    if(xp >= 3000)             document.getElementById('ach4').classList.remove('locked');
+
+    localStorage.setItem('ibda3_xp', xp);
+    localStorage.setItem('ibda3_user', JSON.stringify({...userData, name, email}));
+  }
+
+  async function saveProfile() {
+    const name = document.getElementById('profileName').value.trim();
+    if (!name) { showToast('اكتب اسمك ⚠️'); return; }
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = '⏳ جاري الحفظ...';
+    try {
+      await sb.upsert('profiles', { id: user.id, name });
+      const userData = JSON.parse(localStorage.getItem('ibda3_user') || '{}');
+      localStorage.setItem('ibda3_user', JSON.stringify({...userData, name}));
+      document.getElementById('profileAv').textContent          = name.charAt(0).toUpperCase();
+      document.getElementById('avatarBtn').textContent          = name.charAt(0).toUpperCase();
+      document.getElementById('profileNameDisplay').textContent = name;
+      showToast('تم حفظ التغييرات ✅');
+    } catch(e) {
+      showToast('⚠️ فشل الحفظ: ' + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = '💾 حفظ التغييرات';
+    }
+  }
+
+  loadProfile();
+</script>
+</body>
+</html>
