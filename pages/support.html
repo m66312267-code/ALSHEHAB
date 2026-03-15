@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBDA3 — الدعم والمساعدة</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* ══ HERO ══ */
+    .sp-hero {
+      background: linear-gradient(135deg, var(--bg2), var(--card));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sp-hero::before {
+      content: '';
+      position: absolute;
+      top: -50px; left: -50px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,170,.07), transparent 70%);
+      pointer-events: none;
+    }
+    .sp-hero-icon {
+      width: 68px; height: 68px;
+      border-radius: 18px;
+      background: rgba(0,212,170,.1);
+      border: 1px solid rgba(0,212,170,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; flex-shrink: 0;
+    }
+    .sp-hero-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+    .sp-hero-sub { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+    /* ══ RESPONSE BAR ══ */
+    .sp-rt-bar {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .sp-rt-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .sp-rt-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .sp-rt-label { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; }
+    .sp-rt-value { font-size: 13px; font-weight: 900; }
+
+    /* ══ GRID ══ */
+    .sp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    /* ══ SECTION HEAD ══ */
+    .sp-sec-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sp-sec-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(0,212,170,.1);
+      border: 1px solid rgba(0,212,170,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .sp-sec-title { font-size: 14px; font-weight: 900; }
+    .sp-sec-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ══ FORM ══ */
+    .sp-fgrp { margin-bottom: 13px; }
+    .sp-fgrp label { display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 5px; }
+    .sp-select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .sp-select:focus { border-color: var(--accent); }
+    .sp-char { font-size: 10px; color: var(--text-dim); text-align: left; margin-top: 4px; }
+    .sp-char.warn { color: #f59e0b; }
+    .sp-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all .25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .sp-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--glow); }
+    .sp-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* ══ SUCCESS ══ */
+    .sp-success {
+      display: none;
+      text-align: center;
+      padding: 32px 20px;
+      animation: fadeUp .3s ease;
+    }
+    .sp-success.show { display: block; }
+    .sp-success-icon { font-size: 54px; margin-bottom: 14px; }
+    .sp-success-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+    .sp-success-sub { font-size: 12px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
+
+    /* ══ FAQ ══ */
+    .sp-faq {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 9px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .sp-faq:hover { border-color: rgba(0,212,170,.3); }
+    .sp-faq.open { border-color: rgba(0,212,170,.4); }
+    .sp-faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 15px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      gap: 10px;
+      user-select: none;
+      background: var(--bg3);
+    }
+    .sp-faq-q:hover { background: rgba(0,212,170,.04); }
+    .sp-faq-arr { font-size: 11px; color: var(--text-dim); transition: transform .25s; flex-shrink: 0; }
+    .sp-faq.open .sp-faq-arr { transform: rotate(180deg); color: var(--accent); }
+    .sp-faq-a {
+      display: none;
+      padding: 13px 15px;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .sp-faq.open .sp-faq-a { display: block; animation: fadeUp .2s ease; }
+
+    /* ══ CHANNELS ══ */
+    .sp-channels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .sp-ch {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .sp-ch:hover { border-color: var(--accent); transform: translateY(-2px); background: rgba(0,212,170,.04); }
+    .sp-ch-icon {
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; flex-shrink: 0;
+    }
+    .sp-ch-name { font-size: 13px; font-weight: 700; }
+    .sp-ch-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .sp-ch-arr { margin-right: auto; font-size: 12px; color: var(--text-dim); }
+
+    @media(max-width:768px) {
+      .sp-hero { flex-direction: column; text-align: center; padding: 24px 18px; }
+      .sp-rt-bar { grid-template-columns: 1fr 1fr; }
+      .sp-grid { grid-template-columns: 1fr; }
+      .sp-channels { grid-template-columns: 1fr; }
+    }
+    @media(max-width:420px) {
+      .sp-rt-bar { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .sp-rt-value { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+    <div class="tdot" style="background:#ef4444;" onclick="setColor('red')"></div>
+    <div class="tdot" style="background:#ec4899;" onclick="setColor('pink')"></div>
+    <div class="tdot" style="background:#eab308;" onclick="setColor('gold')"></div>
+    <div class="tdot" style="background:#84cc16;" onclick="setColor('olive')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">IBDA3</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()">🔔<span class="notif-dot"></span></button>
+      <div class="notif-dropdown" id="notifDrop"><h4>الإشعارات</h4></div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='quiz.html'"><span>📝</span>اختبارات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item active"><span>💬</span> الدعم</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="typeof sb!=='undefined'?sb.signOut():window.location.href='index.html'"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+
+      <!-- HERO -->
+      <div class="sp-hero">
+        <div class="sp-hero-icon">🎧</div>
+        <div>
+          <div class="sp-hero-title">مركز الدعم والمساعدة</div>
+          <div class="sp-hero-sub">فريقنا جاهز لمساعدتك في أي وقت — سواء كانت مشكلة تقنية أو سؤال عن كورس أو استفسار عن الدفع.</div>
+        </div>
+      </div>
+
+      <!-- RESPONSE TIME -->
+      <div class="sp-rt-bar">
+        <div class="sp-rt-card">
+          <div class="sp-rt-icon" style="background:rgba(34,197,94,.1);">⚡</div>
+          <div>
+            <div class="sp-rt-label">واتساب</div>
+            <div class="sp-rt-value" style="color:#22c55e;">خلال ساعة</div>
+          </div>
+        </div>
+        <div class="sp-rt-card">
+          <div class="sp-rt-icon" style="background:rgba(59,130,246,.1);">📧</div>
+          <div>
+            <div class="sp-rt-label">البريد / الرسالة</div>
+            <div class="sp-rt-value" style="color:#60a5fa;">24 ساعة</div>
+          </div>
+        </div>
+        <div class="sp-rt-card">
+          <div class="sp-rt-icon" style="background:rgba(0,212,170,.1);">🕐</div>
+          <div>
+            <div class="sp-rt-label">أوقات الدعم</div>
+            <div class="sp-rt-value" style="color:var(--accent);">9ص — 11م</div>
+          </div>
+        </div>
+        <div class="sp-rt-card">
+          <div class="sp-rt-icon" style="background:rgba(249,115,22,.1);">📅</div>
+          <div>
+            <div class="sp-rt-label">أيام العمل</div>
+            <div class="sp-rt-value" style="color:#fb923c;">السبت — الخميس</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="sp-grid">
+
+        <!-- FORM -->
+        <div class="panel">
+          <div class="sp-sec-head">
+            <div class="sp-sec-icon">📩</div>
+            <div>
+              <div class="sp-sec-title">أرسل رسالة</div>
+              <div class="sp-sec-sub">هنرد عليك في أقرب وقت</div>
+            </div>
+          </div>
+
+          <div id="spFormBody">
+            <div class="sp-fgrp">
+              <label>الاسم الكامل</label>
+              <input class="inp" id="spName" type="text" placeholder="اكتب اسمك...">
+            </div>
+            <div class="sp-fgrp">
+              <label>نوع المشكلة</label>
+              <select class="sp-select" id="spCat">
+                <option value="">— اختر —</option>
+                <option value="technical">🔧 مشكلة تقنية</option>
+                <option value="course">📚 استفسار عن كورس</option>
+                <option value="payment">💳 مشكلة في الدفع</option>
+                <option value="account">👤 مشكلة في الحساب</option>
+                <option value="certificate">🏆 الشهادات</option>
+                <option value="other">💬 أخرى</option>
+              </select>
+            </div>
+            <div class="sp-fgrp">
+              <label>تفاصيل المشكلة</label>
+              <textarea class="notes-area" id="spMsg" rows="5"
+                placeholder="اشرح مشكلتك بالتفصيل..."
+                oninput="spCharCount(this)"
+                style="margin-bottom:0;resize:vertical;"></textarea>
+              <div class="sp-char"><span id="spCC">0</span> / 500</div>
+            </div>
+            <button class="sp-btn" id="spBtn" onclick="sendSupport()">
+              <span>💬</span> إرسال عبر واتساب
+            </button>
+          </div>
+
+          <div class="sp-success" id="spSuccess">
+            <div class="sp-success-icon">✅</div>
+            <div class="sp-success-title">تم إرسال رسالتك!</div>
+            <div class="sp-success-sub">هنراجع مشكلتك ونرد عليك قريباً.<br>متوسط وقت الرد: 24 ساعة.</div>
+            <button class="sp-btn" style="max-width:190px;margin:0 auto;" onclick="resetSupportForm()">
+              إرسال رسالة أخرى
+            </button>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="panel">
+          <div class="sp-sec-head">
+            <div class="sp-sec-icon">❓</div>
+            <div>
+              <div class="sp-sec-title">الأسئلة الشائعة</div>
+              <div class="sp-sec-sub">إجابات سريعة لأكثر الأسئلة</div>
+            </div>
+          </div>
+
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">كيف أبدأ كورساً؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">روح صفحة الكورسات، اختر الكورس المناسب لصفك، واضغط "ابدأ الآن". الكورسات المجانية بتبدأ فوراً.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">هل الكورسات مجانية؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">في كورسات مجانية وأخرى مدفوعة. الكورسات المجانية متاحة مباشرة. المدفوعة بتحتاج اشتراك عبر بوابات الدفع.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">هل أحصل على شهادة؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">أيوه! عند إتمام الكورس بنسبة 100% هتلاقي زر "تحميل الشهادة". الشهادة PDF ممكن تحملها وتشاركها.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">كيف أدفع للكورسات المدفوعة؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">بنقبل: فيزا وماستركارد، فودافون كاش، إنستاباي، وفوري. اضغط "اشترك" وهتتوجه لصفحة الدفع الآمنة.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">نسيت كلمة المرور؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">في صفحة تسجيل الدخول اضغط "نسيت كلمة المرور"، هتوصلك رسالة على بريدك فيها رابط الاستعادة.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">الفيديو مش بيشتغل؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">جرب: (1) تحديث الصفحة، (2) مسح الكاش، (3) متصفح تاني. لو المشكلة فاضلة بعتلنا رسالة باسم الكورس والدرس.</div>
+          </div>
+          <div class="sp-faq" onclick="toggleFaq(this)">
+            <div class="sp-faq-q">إزاي أغير صفي الدراسي؟<span class="sp-faq-arr">▼</span></div>
+            <div class="sp-faq-a">روح "حسابي" ← "تعديل الصف الدراسي". لو مش لاقي الخيار، تواصل معنا على واتساب.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANNELS -->
+      <div class="panel">
+        <div class="sp-sec-head">
+          <div class="sp-sec-icon">📞</div>
+          <div>
+            <div class="sp-sec-title">تواصل معنا مباشرة</div>
+            <div class="sp-sec-sub">اختر القناة الأسرع ليك</div>
+          </div>
+        </div>
+        <div class="sp-channels">
+          <a class="sp-ch" id="waLink" href="https://wa.me/201063786533" target="_blank">
+            <div class="sp-ch-icon" style="background:rgba(34,197,94,.12);">💬</div>
+            <div>
+              <div class="sp-ch-name">واتساب</div>
+              <div class="sp-ch-desc">رد خلال ساعة · الأسرع</div>
+            </div>
+            <div class="sp-ch-arr">←</div>
+          </a>
+          <a class="sp-ch" id="fbLink" href="#" target="_blank">
+            <div class="sp-ch-icon" style="background:rgba(59,130,246,.12);">📘</div>
+            <div>
+              <div class="sp-ch-name">فيسبوك</div>
+              <div class="sp-ch-desc">الصفحة الرسمية</div>
+            </div>
+            <div class="sp-ch-arr">←</div>
+          </a>
+          <a class="sp-ch" id="ytLink" href="#" target="_blank">
+            <div class="sp-ch-icon" style="background:rgba(239,68,68,.12);">▶️</div>
+            <div>
+              <div class="sp-ch-name">يوتيوب</div>
+              <div class="sp-ch-desc">شروحات ودروس مجانية</div>
+            </div>
+            <div class="sp-ch-arr">←</div>
+          </a>
+          <div class="sp-ch" id="mailLink">
+            <div class="sp-ch-icon" style="background:rgba(0,212,170,.12);">✉️</div>
+            <div>
+              <div class="sp-ch-name">البريد الإلكتروني</div>
+              <div class="sp-ch-desc" id="mailDesc">رد خلال 24 ساعة</div>
+            </div>
+            <div class="sp-ch-arr">←</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>requireAuth();</script>
+<script>
+// ── تحميل بيانات التواصل من الإعدادات ──
+(function() {
+  const s = JSON.parse(localStorage.getItem('ibda3_platform_settings') || '{}');
+  if (s.phone)    document.getElementById('waLink').href = 'https://wa.me/2' + s.phone.replace(/^0/, '');
+  if (s.facebook) document.getElementById('fbLink').href = s.facebook;
+  if (s.youtube)  document.getElementById('ytLink').href = s.youtube;
+  if (s.email) {
+    document.getElementById('mailLink').onclick = () => location.href = 'mailto:' + s.email;
+    document.getElementById('mailDesc').textContent = s.email;
+  }
+  // تحميل اسم الطالب تلقائياً
+  try {
+    const cached = JSON.parse(localStorage.getItem('ibda3_profile') || '{}');
+    if (cached.name) document.getElementById('spName').value = cached.name;
+  } catch(e) {}
+})();
+
+// ── FAQ ──
+function toggleFaq(el) {
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.sp-faq.open').forEach(x => x.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
+// ── char counter ──
+function spCharCount(el) {
+  const len = el.value.length;
+  if (len > 500) el.value = el.value.slice(0, 500);
+  const cc = document.getElementById('spCC');
+  if (cc) { cc.textContent = Math.min(len, 500); cc.parentElement.classList.toggle('warn', len > 400); }
+}
+
+// ── إرسال الرسالة على واتساب ──
+async function sendSupport() {
+  const name = document.getElementById('spName')?.value.trim();
+  const cat  = document.getElementById('spCat')?.value;
+  const msg  = document.getElementById('spMsg')?.value.trim();
+  const btn  = document.getElementById('spBtn');
+
+  if (!name)                   { showToast('⚠️ اكتب اسمك'); return; }
+  if (!cat)                    { showToast('⚠️ اختر نوع المشكلة'); return; }
+  if (!msg || msg.length < 10) { showToast('⚠️ اشرح مشكلتك بشكل أوضح'); return; }
+
+  const labels = { technical:'🔧 مشكلة تقنية', course:'📚 استفسار كورس', payment:'💳 مشكلة دفع', account:'👤 مشكلة حساب', certificate:'🏆 شهادات', other:'💬 أخرى' };
+
+  // جيب رقم الواتساب من الإعدادات أو استخدم الرقم الثابت
+  const s = JSON.parse(localStorage.getItem('ibda3_platform_settings') || '{}');
+  const rawPhone = s.phone || '01063786533';
+  const intlPhone = '20' + rawPhone.replace(/^0/, '');
+
+  // بناء نص الرسالة
+  const waText = encodeURIComponent(
+    `مرحباً 👋\n` +
+    `📌 *نوع المشكلة:* ${labels[cat] || cat}\n` +
+    `👤 *الاسم:* ${name}\n\n` +
+    `📝 *التفاصيل:*\n${msg}`
+  );
+
+  // حفظ في Supabase كـ notification للأدمن
+  try {
+    const user = sb.getUser();
+    if (user) {
+      await sb.insert('notifications', {
+        user_id: user.id,
+        title: `📩 دعم: ${labels[cat]||cat} — ${name}`,
+        body: msg,
+        is_read: false
+      });
+    }
+  } catch(e) {}
+
+  // فتح واتساب
+  window.open(`https://wa.me/${intlPhone}?text=${waText}`, '_blank');
+
+  // إظهار رسالة النجاح
+  document.getElementById('spFormBody').style.display = 'none';
+  document.getElementById('spSuccess').classList.add('show');
+}
+
+// ── reset ──
+function resetSupportForm() {
+  document.getElementById('spCat').value = '';
+  document.getElementById('spMsg').value = '';
+  document.getElementById('spCC').textContent = '0';
+  document.getElementById('spSuccess').classList.remove('show');
+  document.getElementById('spFormBody').style.display = 'block';
+}
+</script>
+</body>
+</html>
