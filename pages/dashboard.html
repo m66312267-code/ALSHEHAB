@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBDA3 — الرئيسية</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+
+  <style>
+    /* ═══════════════════════════════════
+       DASHBOARD — Clean Professional
+    ═══════════════════════════════════ */
+
+    /* WELCOME STRIP */
+    .dw-strip { display:flex; align-items:center; justify-content:space-between; padding-bottom:20px; border-bottom:1px solid var(--border); margin-bottom:22px; gap:16px; flex-wrap:wrap; }
+    .dw-date { font-size:11px; color:var(--text-dim); font-weight:600; margin-bottom:4px; letter-spacing:.4px; }
+    .dw-title { font-size:22px; font-weight:900; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .dw-name { color:var(--accent); }
+    .dw-grade-pill { font-size:10px; font-weight:700; background:rgba(0,212,170,.1); border:1px solid rgba(0,212,170,.25); color:var(--accent); border-radius:20px; padding:3px 10px; }
+    .dw-right-top { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .dw-avatar { width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,var(--accent),#6366f1); display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#000; }
+    .dw-go-btn { background:var(--accent); color:#000; border:none; border-radius:10px; padding:9px 18px; font-family:'Cairo',sans-serif; font-size:12px; font-weight:900; cursor:pointer; transition:all .2s; white-space:nowrap; }
+    .dw-go-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px var(--glow); }
+
+    /* MOTIVATIONAL */
+    .dw-motiv { background:var(--card); border:1px solid var(--border); border-right:3px solid var(--accent); border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px; transition:opacity .4s; }
+    .dw-motiv-emoji { font-size:20px; flex-shrink:0; }
+    .dw-motiv-body { flex:1; }
+    .dw-motiv-label { font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; }
+    .dw-motiv-text { font-size:13px; color:var(--text); line-height:1.6; }
+    .dw-motiv-refresh { background:none; border:none; color:var(--text-dim); font-size:15px; cursor:pointer; padding:5px; border-radius:7px; transition:all .25s; flex-shrink:0; }
+    .dw-motiv-refresh:hover { color:var(--accent); background:rgba(0,212,170,.08); transform:rotate(180deg); }
+
+    /* KPI */
+    .dw-kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .dw-kpi-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 16px; transition:border-color .2s, transform .2s; }
+    .dw-kpi-card:hover { border-color:rgba(0,212,170,.35); transform:translateY(-2px); }
+    .dw-kpi-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .dw-kpi-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .dw-kpi-badge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; }
+    .dw-kpi-num { font-size:28px; font-weight:900; line-height:1; margin-bottom:4px; }
+    .dw-kpi-lbl { font-size:11px; color:var(--text-dim); font-weight:600; }
+
+    /* BODY */
+    .dw-body { display:grid; grid-template-columns:1fr 290px; gap:16px; }
+
+    /* PANELS */
+    .dw-panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; }
+    .dw-panel + .dw-panel { margin-top:14px; }
+    .dw-panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+    .dw-panel-title { font-size:13px; font-weight:900; display:flex; align-items:center; gap:7px; }
+    .dw-panel-link { font-size:11px; color:var(--accent); cursor:pointer; font-weight:700; }
+
+    /* XP */
+    .dw-xp-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+    .dw-xp-level { font-weight:900; font-size:13px; }
+    .dw-xp-bar { height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; margin-bottom:16px; }
+    .dw-xp-fill { height:100%; background:linear-gradient(90deg,var(--accent),#6366f1); border-radius:3px; width:0%; transition:width 1s cubic-bezier(.4,0,.2,1); }
+
+    /* ROWS */
+    .dw-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.04); gap:8px; }
+    .dw-row:last-child { border-bottom:none; padding-bottom:0; }
+    .dw-row-label { font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:7px; }
+    .dw-row-val { font-size:13px; font-weight:700; text-align:left; }
+
+    /* CHART */
+    .dw-chart { display:flex; align-items:flex-end; gap:6px; height:70px; margin-top:4px; }
+    .dw-cbar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+    .dw-cbar { width:100%; border-radius:3px 3px 0 0; min-height:3px; background:var(--bg3); transition:height .8s cubic-bezier(.4,0,.2,1); }
+    .dw-cbar.has { background:linear-gradient(180deg,rgba(0,212,170,.55),rgba(0,212,170,.12)); }
+    .dw-cbar.today { background:linear-gradient(180deg,var(--accent),rgba(0,212,170,.25)); }
+    .dw-clbl { font-size:9px; color:var(--text-dim); }
+
+    /* STREAK */
+    .dw-streak-center { text-align:center; padding:12px 0 10px; }
+    .dw-streak-n { font-size:46px; font-weight:900; color:#f97316; line-height:1; }
+    .dw-streak-sub { font-size:11px; color:var(--text-dim); margin-top:4px; }
+    .dw-sdays { display:flex; gap:5px; justify-content:center; margin:12px 0 2px; }
+    .dw-sday { width:28px; height:28px; border-radius:7px; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:var(--text-dim); }
+    .dw-sday.done { background:rgba(249,115,22,.15); border-color:rgba(249,115,22,.4); color:#f97316; }
+    .dw-sday.today { background:#f97316; color:#000; border-color:#f97316; font-weight:900; }
+
+    /* QUICK NAV */
+    .dw-qbtn { display:flex; align-items:center; gap:11px; padding:11px 13px; background:var(--bg3); border:1px solid var(--border); border-radius:11px; cursor:pointer; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; color:var(--text); transition:all .2s; text-align:right; width:100%; margin-bottom:8px; }
+    .dw-qbtn:last-child { margin-bottom:0; }
+    .dw-qbtn:hover { border-color:var(--accent); color:var(--accent); background:rgba(0,212,170,.05); }
+    .dw-qbtn-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .dw-qbtn span { flex:1; }
+    .dw-qbtn-arr { font-size:12px; color:var(--text-dim); }
+
+    /* NOTIF ITEMS IN DASHBOARD */
+    .db-notif-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.04); cursor:pointer; transition:opacity .15s; }
+    .db-notif-item:last-child { border-bottom:none; padding-bottom:0; }
+    .db-notif-item:hover { opacity:.8; }
+    .db-notif-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:5px; }
+    .db-notif-dot.read { background:var(--bg3); border:1px solid var(--border); }
+    .db-notif-title { font-size:12px; font-weight:700; margin-bottom:2px; line-height:1.4; }
+    .db-notif-time { font-size:10px; color:var(--text-dim); }
+
+    @media(max-width:768px) {
+      .dw-kpi { grid-template-columns:1fr 1fr; }
+      .dw-body { grid-template-columns:1fr; }
+      .dw-kpi-num { font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div class="offline-badge" id="offlineBadge">⚠️ أنت غير متصل بالإنترنت</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h4>🎨 لون المنصة</h4>
+  <div class="theme-dots">
+    <div class="tdot active" style="background:#00d4aa;" onclick="setColor('green')"></div>
+    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
+    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
+    <div class="tdot" style="background:#f97316;" onclick="setColor('orange')"></div>
+    <div class="tdot" style="background:#ef4444;" onclick="setColor('red')"></div>
+    <div class="tdot" style="background:#ec4899;" onclick="setColor('pink')"></div>
+    <div class="tdot" style="background:#eab308;" onclick="setColor('gold')"></div>
+    <div class="tdot" style="background:#84cc16;" onclick="setColor('olive')"></div>
+  </div>
+  <h4>🌙 المظهر</h4>
+  <div style="display:flex;gap:8px;">
+    <button class="ftab active" onclick="setMode('dark')" style="flex:1;padding:7px;">داكن</button>
+    <button class="ftab" onclick="setMode('light')" style="flex:1;padding:7px;">فاتح</button>
+  </div>
+</div>
+<button class="float-settings" onclick="toggleSettings()">⚙️</button>
+
+<header class="topbar">
+  <div class="logo">إبـــداع</div>
+  <div class="topbar-right">
+    <div style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()" id="notifBtn">🔔<span class="notif-dot" id="notifDot" style="display:none;"></span></button>
+      <div class="notif-dropdown" id="notifDrop">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="margin:0;">الإشعارات</h4>
+          <span style="font-size:11px;color:var(--accent);cursor:pointer;" onclick="readAllNotifs()">قراءة الكل</span>
+        </div>
+        <div id="notifList"><div style="text-align:center;color:var(--text-dim);font-size:12px;padding:10px;">جاري التحميل...</div></div>
+      </div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+    <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profile.html'">A</div>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-item active"><span>🏠</span>الرئيسية</div>
+  <div class="bottom-nav-item" onclick="window.location.href='courses.html'"><span>📚</span>كورسات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span>مفضلة</div>
+  <div class="bottom-nav-item" onclick="window.location.href='quiz.html'"><span>📝</span>اختبارات</div>
+  <div class="bottom-nav-item" onclick="window.location.href='profile.html'"><span>👤</span>حسابي</div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-label">القائمة الرئيسية</div>
+    <div class="nav-item active"><span>🏠</span> الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='courses.html'"><span>📚</span> الكورسات</div>
+    <div class="nav-item" onclick="window.location.href='favorites.html'"><span>❤️</span> المفضلة</div>
+    <div class="nav-label">حسابي</div>
+    <div class="nav-item" onclick="window.location.href='profile.html'"><span>👤</span> الحساب</div>
+    <div class="nav-item" onclick="window.location.href='admin.html'"><span>⚙️</span> لوحة التحكم</div>
+    <div class="nav-item" onclick="window.location.href='about.html'"><span>💡</span> من نحن</div>
+    <div class="nav-item" onclick="window.location.href='support.html'"><span>💬</span> الدعم</div>
+    <div class="nav-item" onclick="window.location.href='quiz.html'"><span>📝</span> الاختبارات</div>
+    <div class="sidebar-footer">
+      <div class="nav-item" style="color:#ef4444;" onclick="doSignOut()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page active">
+
+      <!-- WELCOME STRIP -->
+      <div class="dw-strip">
+        <div>
+          <div class="dw-date" id="dwDate">—</div>
+          <div class="dw-title">
+            <span id="dwGreeting">مرحباً،</span>
+            <span class="dw-name" id="welcomeName">طالب</span>
+            <span class="dw-grade-pill" id="dwGradePill" style="display:none;"></span>
+          </div>
+          <!-- الساعة -->
+          <div id="liveClock" style="font-size:22px;font-weight:900;color:var(--accent);letter-spacing:2px;margin-top:6px;font-variant-numeric:tabular-nums;">—</div>
+        </div>
+        <div class="dw-right-top">
+          <div class="dw-avatar" id="heroAvatar">A</div>
+          <button class="dw-go-btn" onclick="window.location.href='courses.html'">ابدأ التعلم ←</button>
+        </div>
+      </div>
+
+      <!-- MOTIVATIONAL -->
+      <div class="dw-motiv" id="dwMotiv">
+        <div class="dw-motiv-emoji" id="motivEmoji">💡</div>
+        <div class="dw-motiv-body">
+          <div class="dw-motiv-label">رسالة اليوم</div>
+          <div class="dw-motiv-text" id="motivText">جاري التحميل...</div>
+        </div>
+        <button class="dw-motiv-refresh" onclick="loadMotiv(true)" title="رسالة جديدة">↻</button>
+      </div>
+
+      <!-- KPI -->
+      <div class="dw-kpi">
+        <div class="dw-kpi-card">
+          <div class="dw-kpi-top">
+            <div class="dw-kpi-icon" style="background:rgba(0,212,170,.1);">📚</div>
+            <span class="dw-kpi-badge" style="background:rgba(0,212,170,.1);color:var(--accent);">مسجّل</span>
+          </div>
+          <div class="dw-kpi-num" id="sv2">—</div>
+          <div class="dw-kpi-lbl">كورسات</div>
+        </div>
+        <div class="dw-kpi-card">
+          <div class="dw-kpi-top">
+            <div class="dw-kpi-icon" style="background:rgba(99,102,241,.1);">📹</div>
+            <span class="dw-kpi-badge" style="background:rgba(99,102,241,.1);color:#818cf8;">مكتمل</span>
+          </div>
+          <div class="dw-kpi-num" id="sv1">—</div>
+          <div class="dw-kpi-lbl">دروس مكتملة</div>
+        </div>
+        <div class="dw-kpi-card">
+          <div class="dw-kpi-top">
+            <div class="dw-kpi-icon" style="background:rgba(34,197,94,.1);">✅</div>
+            <span class="dw-kpi-badge" style="background:rgba(34,197,94,.1);color:#22c55e;">أتمّ</span>
+          </div>
+          <div class="dw-kpi-num" id="sv3">—</div>
+          <div class="dw-kpi-lbl">كورسات مكتملة</div>
+        </div>
+        <div class="dw-kpi-card">
+          <div class="dw-kpi-top">
+            <div class="dw-kpi-icon" style="background:rgba(251,191,36,.1);">⚡</div>
+            <span class="dw-kpi-badge" style="background:rgba(251,191,36,.1);color:#fbbf24;">XP</span>
+          </div>
+          <div class="dw-kpi-num" id="sv4">—</div>
+          <div class="dw-kpi-lbl">نقاط الخبرة</div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="dw-body">
+
+        <!-- LEFT -->
+        <div>
+          <div class="dw-panel">
+            <div class="dw-panel-head">
+              <div class="dw-panel-title">📊 تقدمك ونشاطك</div>
+              <span class="dw-panel-link" onclick="window.location.href='profile.html'">الملف الشخصي ←</span>
+            </div>
+            <div class="dw-xp-row">
+              <span class="dw-xp-level" id="xpLevel">المستوى 1</span>
+              <span style="font-size:11px;color:var(--text-dim);"><span id="xpCur">0</span> / <span id="xpTgt">500</span> XP</span>
+            </div>
+            <div class="dw-xp-bar"><div class="dw-xp-fill" id="progFill"></div></div>
+            <div class="dw-row">
+              <div class="dw-row-label">⏱ وقت الدراسة اليوم</div>
+              <div class="dw-row-val" id="studyTime">0 دقيقة</div>
+            </div>
+            <div class="dw-row">
+              <div class="dw-row-label">⚡ إجمالي XP</div>
+              <div class="dw-row-val" style="color:var(--accent);" id="xpTotal">0 XP</div>
+            </div>
+            <div class="dw-row">
+              <div class="dw-row-label">📘 آخر كورس</div>
+              <div class="dw-row-val" style="font-size:11px;max-width:155px;text-align:left;" id="lastCourse">—</div>
+            </div>
+          </div>
+
+          <div class="dw-panel">
+            <div class="dw-panel-head">
+              <div class="dw-panel-title">📈 النشاط الأسبوعي</div>
+              <span style="font-size:11px;color:var(--text-dim);">إجمالي: <strong style="color:var(--accent);" id="weekTotal">0 دقيقة</strong></span>
+            </div>
+            <div class="dw-chart" id="weekChart"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div>
+          <div class="dw-panel">
+            <div class="dw-panel-head">
+              <div class="dw-panel-title">🔥 Streak اليومي</div>
+              <span style="font-size:11px;color:var(--text-dim);" id="streakMsg"></span>
+            </div>
+            <div class="dw-streak-center">
+              <div style="font-size:30px;">🔥</div>
+              <div class="dw-streak-n" id="streakCount">0</div>
+              <div class="dw-streak-sub">أيام متواصلة</div>
+            </div>
+            <div class="dw-sdays" id="streakDays"></div>
+          </div>
+
+          <div class="dw-panel" style="margin-top:14px;">
+            <div class="dw-panel-head">
+              <div class="dw-panel-title">🔔 آخر الإشعارات</div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <span class="dw-panel-link" onclick="readAllNotifs()">قراءة الكل</span>
+                <span class="dw-panel-link" style="color:#ef4444;" onclick="clearAllNotifs()">🗑️ مسح الكل</span>
+              </div>
+            </div>
+            <div id="dbNotifList">
+              <div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px;">⏳ جاري التحميل...</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/shared.js"></script>
+<script src="../js/supabase.js"></script>
+<script>
+  const user = sb.getUser();
+  if (!user) { window.location.replace('index.html'); }
+
+  function doSignOut() { sb.signOut(); }
+
+  // ── MOTIVATIONAL ──
+  const MOTIVS = [
+    {e:'💡', t:'النجاح مش بيجي في يوم وليلة — كل درس بتتعلمه هو خطوة للأمام.'},
+    {e:'🔥', t:'أنت أقرب للهدف مما تتخيل — استمر ولا تتوقف.'},
+    {e:'📚', t:'العلم نور — كل ما تتعلم أكتر، كل ما بقيت أقوى.'},
+    {e:'🚀', t:'اليوم زرعت بذرة — بكره هتحصد النجاح.'},
+    {e:'💪', t:'الصعاب مش عقبة — هي الطريق للنجاح.'},
+    {e:'🎯', t:'ركّز على هدفك — أقل حاجة تقدر تعملها النهارده هي درس واحد.'},
+    {e:'🧠', t:'كل معلومة جديدة بتتعلمها بتغير طريقة تفكيرك للأفضل.'},
+    {e:'🏆', t:'الفائز هو اللي بيكمل رغم الأخطاء.'},
+    {e:'⚡', t:'دقيقة من التعلم أحسن من ساعة من التفكير. ابدأ دلوقتي!'},
+    {e:'🌟', t:'أنت طالب IBDA3 — يعني أنت من النخبة. اثبت ذلك!'},
+    {e:'🌈', t:'مهما كانت الظروف صعبة — إرادتك أقوى.'},
+    {e:'📖', t:'التعلم المستمر هو أفضل استثمار في نفسك.'},
+  ];
+  function loadMotiv(forceNew=false) {
+    const today=new Date().toISOString().slice(0,10), saved=localStorage.getItem('ibda3_motiv_date');
+    let idx;
+    if(!forceNew && saved===today) idx=parseInt(localStorage.getItem('ibda3_motiv_idx')||'0');
+    else { idx=forceNew?(parseInt(localStorage.getItem('ibda3_motiv_idx')||'0')+1)%MOTIVS.length:Math.floor(Math.random()*MOTIVS.length); localStorage.setItem('ibda3_motiv_date',today); localStorage.setItem('ibda3_motiv_idx',idx); }
+    const m=MOTIVS[idx%MOTIVS.length], el=document.getElementById('dwMotiv');
+    el.style.opacity='0';
+    setTimeout(()=>{ document.getElementById('motivEmoji').textContent=m.e; document.getElementById('motivText').textContent=m.t; el.style.opacity='1'; el.style.transition='opacity .4s'; },180);
+  }
+
+  function setDisplayName(name) {
+    const n = (name||'').trim() || 'طالب';
+    document.getElementById('avatarBtn').textContent  = n.charAt(0).toUpperCase();
+    document.getElementById('heroAvatar').textContent = n.charAt(0).toUpperCase();
+    document.getElementById('welcomeName').textContent = n;
+  }
+
+  async function initDashboard() {
+    // Date + greeting
+    const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const now=new Date();
+    document.getElementById('dwDate').textContent=`${days[now.getDay()]}، ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    const h=now.getHours();
+    document.getElementById('dwGreeting').textContent=(h>=4&&h<15)?'صباح الخير،':'مساء الخير،';
+
+    // ── الساعة المباشرة (نظام 12 ساعة) ──
+    function updateClock() {
+      const n = new Date();
+      const nh = n.getHours();
+      let hh = nh % 12 || 12;
+      const mm = String(n.getMinutes()).padStart(2,'0');
+      const ss = String(n.getSeconds()).padStart(2,'0');
+      const ampm = nh < 12 ? 'ص' : 'م';
+      document.getElementById('liveClock').textContent = `${hh}:${mm}:${ss} ${ampm}`;
+      // تحديث التحية لو اتغير الوقت
+      document.getElementById('dwGreeting').textContent = (nh>=4&&nh<15)?'صباح الخير،':'مساء الخير،';
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    loadMotiv();
+
+    // اسم من cache سريع أولاً
+    const cached=JSON.parse(localStorage.getItem('ibda3_user')||'{}');
+    const cachedName=cached.name||user?.user_metadata?.name||user?.email?.split('@')[0]||'';
+    if(cachedName) setDisplayName(cachedName);
+
+    // ثم الاسم الحقيقي من Supabase
+    try {
+      const profile=await sb.select('profiles',`id=eq.${user.id}&select=name,grade,role`);
+      const p=profile?.[0];
+      if(p?.name) {
+        setDisplayName(p.name);
+        cached.name=p.name; localStorage.setItem('ibda3_user',JSON.stringify(cached));
+        const pp=JSON.parse(localStorage.getItem('ibda3_profile')||'{}');
+        pp.role=p.role; pp.grade=p.grade; localStorage.setItem('ibda3_profile',JSON.stringify(pp));
+        if(p.grade) localStorage.setItem('ibda3_grade',p.grade);
+      } else if(!cachedName) { setDisplayName(user?.email?.split('@')[0]||'طالب'); }
+    } catch(e) { if(!cachedName) setDisplayName(user?.email?.split('@')[0]||'طالب'); }
+
+    // grade chip
+    const grade=localStorage.getItem('ibda3_grade');
+    const gn={grade1:'🥇 أول ثانوي',grade2:'🥈 ثاني ثانوي',grade3:'🥉 ثالث ثانوي'};
+    if(grade&&gn[grade]){const p=document.getElementById('dwGradePill');p.textContent=gn[grade];p.style.display='inline-flex';}
+
+    checkGradePopup();
+    loadNotifications();
+    loadDashboard();
+    if(typeof Notifs !== 'undefined') Notifs.startPolling(30000);
+  }
+
+  // تشغيل بعد تعريف كل الفانكشنز
+  if (user) initDashboard();
+
+  // ===== GRADE POPUP =====
+  let _selectedGrade = '';
+
+  function selectGradePopup(grade, btnId) {
+    _selectedGrade = grade;
+    ['gpb1','gpb2','gpb3'].forEach(id => document.getElementById(id).classList.remove('selected'));
+    document.getElementById(btnId).classList.add('selected');
+    const btn = document.getElementById('gpSaveBtn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+
+  async function saveGradePopup() {
+    if (!_selectedGrade) return;
+    const btn = document.getElementById('gpSaveBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري الحفظ...';
+    try {
+      await sb.upsert('profiles', { id: user.id, grade: _selectedGrade });
+      localStorage.setItem('ibda3_grade', _selectedGrade);
+      document.getElementById('gradePopup').style.display = 'none';
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', blockEscape);
+      showToast('تم حفظ صفك ✅ جاري عرض كورساتك...');
+      setTimeout(() => window.location.href = 'courses.html', 1200);
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = '✅ تأكيد الصف';
+      btn.style.opacity = '1';
+      alert('حدث خطأ، حاول تاني');
+    }
+  }
+
+  async function checkGradePopup() {
+    try {
+      const profile = await sb.select('profiles', `select=grade,role&id=eq.${user.id}`);
+      const grade = profile?.[0]?.grade;
+      const role  = profile?.[0]?.role;
+      if (role === 'admin') return; // الأدمن معفي
+      if (!grade) {
+        localStorage.removeItem('ibda3_grade');
+        showGradePopup(); // ✅ إجباري — بيبلوك كل حاجة
+      } else {
+        localStorage.setItem('ibda3_grade', grade);
+      }
+    } catch(e) {
+      const cached = localStorage.getItem('ibda3_grade');
+      if (!cached) showGradePopup();
+    }
+  }
+
+  function showGradePopup() {
+    const popup = document.getElementById('gradePopup');
+    popup.style.display = 'flex';
+    // ✅ امنع الـ scroll ومنع الخروج بـ Escape
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', blockEscape);
+  }
+
+  function blockEscape(e) {
+    if (e.key === 'Escape') e.preventDefault();
+  }
+
+  // ===== NOTIFICATIONS =====
+  async function loadNotifications() {
+    const notifs = await getNotifications(user.id);
+    const list   = document.getElementById('notifList');
+    const dot    = document.getElementById('notifDot');
+    const unread = notifs.filter(n => !n.is_read);
+    dot.style.display = unread.length > 0 ? 'block' : 'none';
+    if (notifs.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:12px;padding:10px;">لا توجد إشعارات</div>';
+      return;
+    }
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item" style="${!n.is_read ? 'border-right:3px solid var(--accent);' : ''}" onclick="markRead('${n.id}',this)">
+        <div style="font-size:18px;">${n.is_read ? '🔔' : '🔴'}</div>
+        <div>
+          <strong>${n.title}</strong>
+          ${n.body ? `<br><span style="color:var(--text-dim);font-size:11px;">${n.body}</span>` : ''}
+          <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${timeAgo(n.created_at)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function markRead(id, el) {
+    await markNotifRead(id);
+    el.style.borderRight = 'none';
+    el.querySelector('div:first-child').textContent = '🔔';
+    loadNotifications();
+  }
+
+  async function readAllNotifs() {
+    await markAllNotifsRead(user.id);
+    loadNotifications();
+    showToast('تم تحديد الكل كمقروء ✅');
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60)    return 'الآن';
+    if (diff < 3600)  return `منذ ${Math.floor(diff/60)} دقيقة`;
+    if (diff < 86400) return `منذ ${Math.floor(diff/3600)} ساعة`;
+    return `منذ ${Math.floor(diff/86400)} يوم`;
+  }
+
+  // ── GRADE POPUP ──
+  let _sg='';
+  function selectGradePopup(g,id){_sg=g;['gpb1','gpb2','gpb3'].forEach(i=>document.getElementById(i).classList.remove('selected'));document.getElementById(id).classList.add('selected');const b=document.getElementById('gpSaveBtn');b.disabled=false;b.style.opacity='1';}
+  async function saveGradePopup(){
+    if(!_sg)return;
+    const b=document.getElementById('gpSaveBtn');b.disabled=true;b.textContent='⏳ جاري الحفظ...';
+    try{
+      await sb.upsert('profiles',{id:user.id,grade:_sg});
+      localStorage.setItem('ibda3_grade',_sg);
+      const p=JSON.parse(localStorage.getItem('ibda3_profile')||'{}');p.grade=_sg;localStorage.setItem('ibda3_profile',JSON.stringify(p));
+      document.getElementById('gradePopup').style.display='none';document.body.style.overflow='';document.removeEventListener('keydown',blockEsc);
+      showToast('✅ تم حفظ صفك — جاري عرض كورساتك...');
+      setTimeout(()=>window.location.href='courses.html',1200);
+    }catch(e){b.disabled=false;b.textContent='✅ تأكيد الصف';b.style.opacity='1';showToast('⚠️ حدث خطأ');}
+  }
+  async function checkGradePopup(){
+    const c=JSON.parse(localStorage.getItem('ibda3_profile')||'null');if(c?.role==='admin')return;
+    try{
+      const pr=await sb.select('profiles',`select=grade,role&id=eq.${user.id}`);
+      const grade=pr?.[0]?.grade,role=pr?.[0]?.role;
+      if(role){const p=JSON.parse(localStorage.getItem('ibda3_profile')||'{}');p.role=role;localStorage.setItem('ibda3_profile',JSON.stringify(p));}
+      if(role==='admin')return;
+      if(!grade){localStorage.removeItem('ibda3_grade');showGradePopup();}else{localStorage.setItem('ibda3_grade',grade);}
+    }catch(e){if(!localStorage.getItem('ibda3_grade'))showGradePopup();}
+  }
+  function showGradePopup(){document.getElementById('gradePopup').style.display='flex';document.body.style.overflow='hidden';document.addEventListener('keydown',blockEsc);}
+  function blockEsc(e){if(e.key==='Escape')e.preventDefault();}
+
+  // ── NOTIFICATIONS — يستخدم Notifs الجاهز في supabase.js ──
+  async function loadNotifications(){
+    if(typeof Notifs !== 'undefined'){
+      await Notifs.updateBadge();
+    }
+    const list = document.getElementById('dbNotifList');
+    if (!list) return;
+    try {
+      const notifs = await getNotifications(user.id);
+      if (!notifs.length) {
+        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;"><div style="font-size:28px;margin-bottom:8px;">🔕</div>لا توجد إشعارات</div>';
+        return;
+      }
+      const tAgo = d => { const s=Math.floor((Date.now()-new Date(d))/1000); if(s<60)return'الآن'; if(s<3600)return`${Math.floor(s/60)} د`; if(s<86400)return`${Math.floor(s/3600)} س`; return`${Math.floor(s/86400)} ي`; };
+      list.innerHTML = notifs.slice(0,5).map(n => `
+        <div class="db-notif-item" id="dbN-${n.id}" onclick="markDbNotif('${n.id}',this)" style="position:relative;padding-left:24px;">
+          <div class="db-notif-dot ${n.is_read?'read':''}"></div>
+          <div style="flex:1;min-width:0;">
+            <div class="db-notif-title" style="${!n.is_read?'color:var(--text);':'color:var(--text-dim);'}">${n.title}</div>
+            <div class="db-notif-time">${tAgo(n.created_at)}</div>
+          </div>
+          <button onclick="event.stopPropagation();deleteDbNotif('${n.id}')" title="مسح"
+            style="position:absolute;left:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-dim);padding:2px 4px;border-radius:4px;transition:.2s;line-height:1;"
+            onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+        </div>`).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:12px;">تعذّر التحميل</div>';
+    }
+  }
+
+  async function deleteDbNotif(id) {
+    // مسح من Supabase
+    await deleteNotif(id).catch(()=>{});
+    const el = document.getElementById('dbN-' + id);
+    if (el) { el.style.opacity='0'; el.style.transition='opacity .25s'; setTimeout(()=>el.remove(), 250); }
+    // لو مفيش إشعارات خلاص
+    setTimeout(() => {
+      const list = document.getElementById('dbNotifList');
+      if (list && !list.querySelector('.db-notif-item')) {
+        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;"><div style="font-size:28px;margin-bottom:8px;">🔕</div>لا توجد إشعارات</div>';
+      }
+    }, 300);
+    showToast('تم مسح الإشعار 🗑️');
+  }
+
+  async function clearAllNotifs(){
+    if (!confirm('هتمسح كل الإشعارات؟')) return;
+    await deleteAllNotifs(user.id).catch(()=>{});
+    const list = document.getElementById('dbNotifList');
+    if (list) list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;"><div style="font-size:28px;margin-bottom:8px;">🔕</div>لا توجد إشعارات</div>';
+    if(typeof Notifs !== 'undefined') Notifs.updateBadge();
+    showToast('تم مسح كل الإشعارات 🗑️');
+  }
+
+  async function markDbNotif(id, el) {
+    await markNotifRead(id).catch(()=>{});
+    el.querySelector('.db-notif-dot')?.classList.add('read');
+    el.querySelector('.db-notif-title')?.style.setProperty('color','var(--text-dim)');
+  }
+
+  async function readAllNotifs(){
+    if(typeof Notifs !== 'undefined') await Notifs.markAllRead();
+    showToast('تم تحديد الكل كمقروء ✅');
+    loadNotifications();
+  }
+
+  // ── DASHBOARD DATA ──
+  async function loadDashboard(){
+    const [profile,enrollments]=await Promise.all([getProfile(user.id).catch(()=>null),getEnrollments(user.id).catch(()=>[])]);
+    const completed=enrollments.filter(e=>e.completed);
+    const totalLessons=enrollments.reduce((a,e)=>a+Math.round(((e.courses?.lessons_count||0)*(e.progress||0))/100),0);
+    const anim=(id,n)=>{const el=document.getElementById(id);if(!el)return;const d=700,s=performance.now();const f=t=>{const p=Math.min((t-s)/d,1);el.textContent=Math.round(p*p*n).toLocaleString('ar-EG');if(p<1)requestAnimationFrame(f);};requestAnimationFrame(f);};
+    anim('sv1',totalLessons);anim('sv2',enrollments.length);anim('sv3',completed.length);
+    const xp=profile?.xp||parseInt(localStorage.getItem('ibda3_xp')||'0');
+    anim('sv4',xp);document.getElementById('xpTotal').textContent=xp.toLocaleString('ar-EG')+' XP';
+    const lvls=[{max:500,n:'المستوى 1 — مبتدئ'},{max:1500,n:'المستوى 2 — متعلم'},{max:3000,n:'المستوى 3 — متقدم'},{max:5000,n:'المستوى 4 — محترف'},{max:99999,n:'المستوى 5 — خبير 🏆'}];
+    let base=0,lv=lvls[0];for(const l of lvls){if(xp<l.max){lv=l;break;}base=l.max;}
+    const tgt=lv.max===99999?xp:lv.max,pct=Math.min(100,Math.round(((xp-base)/(tgt-base))*100));
+    document.getElementById('xpLevel').textContent=lv.n;
+    document.getElementById('xpCur').textContent=xp.toLocaleString('ar-EG');
+    document.getElementById('xpTgt').textContent=lv.max===99999?'∞':lv.max.toLocaleString('ar-EG');
+    setTimeout(()=>{document.getElementById('progFill').style.width=pct+'%';},400);
+    if(enrollments.length>0){const l=enrollments[0];document.getElementById('lastCourse').textContent=(l.courses?.emoji||'📚')+' '+(l.courses?.title||'—');}
+    const today=new Date().toISOString().slice(0,10),log=JSON.parse(localStorage.getItem('ibda3_studylog')||'{}');
+    document.getElementById('studyTime').textContent=(log[today]||0)+' دقيقة';
+    let streak=0;for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);if((log[d.toISOString().slice(0,10)]||0)>0)streak++;else if(i>0)break;}
+    document.getElementById('streakCount').textContent=streak;
+    document.getElementById('streakMsg').textContent=streak>0?streak+' يوم 🔥':'ابدأ النهارده! 💪';
+    const dn=['أح','إث','ثل','أر','خم','جم','سب'],ti=new Date().getDay();
+    document.getElementById('streakDays').innerHTML=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-((ti-i+7)%7));const k=d.toISOString().slice(0,10),isT=i===ti,done=(log[k]||0)>0;return`<div class="dw-sday ${isT?'today':done?'done':''}">${dn[i]}</div>`;}).join('');
+    let wt=0;document.getElementById('weekChart').innerHTML=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-((ti-i+7)%7));const k=d.toISOString().slice(0,10),mins=log[k]||0,isT=i===ti;wt+=mins;const h=mins>0?Math.max(10,Math.min(100,Math.round((mins/90)*100))):6;return`<div class="dw-cbar-wrap"><div class="dw-cbar${mins>0?' has':''}${isT?' today':''}" style="height:${h}%"></div><div class="dw-clbl" style="${isT?'color:var(--accent);font-weight:700;':''}">${dn[i]}</div></div>`;}).join('');
+    document.getElementById('weekTotal').textContent=wt+' دقيقة';
+  }
+</script>
+<!-- ===== GRADE SELECTION POPUP ===== -->
+<div id="gradePopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;" onclick="event.stopPropagation()">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:22px;padding:32px 26px;max-width:380px;width:100%;text-align:center;animation:fadeUp .3s ease;">
+    <div style="font-size:44px;margin-bottom:10px;">🎓</div>
+    <h2 style="font-size:18px;font-weight:900;margin-bottom:6px;">اختر صفك الدراسي 🎓</h2>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:22px;line-height:1.7;">لازم تحدد صفك الدراسي عشان تقدر تكمل<br><span style="color:#ef4444;font-weight:700;">⚠️ مش هتقدر تتصفح الموقع من غير ما تختار</span></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px;" class="dash-three-col">
+      <div class="gp-btn" id="gpb1" onclick="selectGradePopup('grade1','gpb1')">
+        <div style="font-size:28px;margin-bottom:6px;">🥇</div>
+        <div style="font-size:13px;font-weight:700;">الأول</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">الثانوي</div>
+      </div>
+      <div class="gp-btn" id="gpb2" onclick="selectGradePopup('grade2','gpb2')">
+        <div style="font-size:28px;margin-bottom:6px;">🥈</div>
+        <div style="font-size:13px;font-weight:700;">الثاني</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">الثانوي</div>
+      </div>
+      <div class="gp-btn" id="gpb3" onclick="selectGradePopup('grade3','gpb3')">
+        <div style="font-size:28px;margin-bottom:6px;">🥉</div>
+        <div style="font-size:13px;font-weight:700;">الثالث</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">الثانوي</div>
+      </div>
+    </div>
+    <button id="gpSaveBtn" onclick="saveGradePopup()" disabled
+      style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--accent);color:#000;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;opacity:0.4;transition:opacity .2s;">
+      ✅ تأكيد الصف
+    </button>
+  </div>
+</div>
+
+<style>
+.gp-btn {
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gp-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+.gp-btn.selected {
+  background: rgba(0,212,170,0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(0,212,170,0.2);
+}
+</style>
+</body>
+</html>
