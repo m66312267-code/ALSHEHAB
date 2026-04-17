@@ -169,68 +169,6 @@
       display:flex; align-items:center; justify-content:center;
     }
     .cd-video-wrap iframe { width:100%; height:100%; border:none; display:none; }
-
-    /* ══ حماية الفيديو من المشاركة ══ */
-
-    /* يغطي زرار المشاركة + زرار واتساب في أسفل اليسار */
-    .yt-block-share {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 180px;
-      height: 42px;
-      z-index: 10;
-      background: #000;
-      cursor: default;
-    }
-
-    /* يغطي زرار اليوتيوب في أسفل اليمين */
-    .yt-block-logo {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 120px;
-      height: 42px;
-      z-index: 10;
-      background: #000;
-      cursor: default;
-    }
-
-    /* يغطي شاشة الـ end screen (فيديوهات مقترحة لما الفيديو يخلص) */
-    .yt-block-endscreen {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      background: transparent;
-      pointer-events: none; /* مش بيمنع الفيديو نفسه */
-      transition: background .4s;
-    }
-    .yt-block-endscreen.active {
-      background: rgba(0,0,0,0.92);
-      pointer-events: all;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .yt-endscreen-msg {
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      font-size: 18px;
-      font-weight: 900;
-      text-align: center;
-      display: none;
-    }
-    .yt-block-endscreen.active .yt-endscreen-msg { display: block; }
-    .yt-endscreen-sub {
-      color: rgba(255,255,255,.5);
-      font-family: 'Cairo', sans-serif;
-      font-size: 13px;
-      text-align: center;
-      display: none;
-    }
-    .yt-block-endscreen.active .yt-endscreen-sub { display: block; }
     .cd-no-video {
       color:#555; font-size:13px; text-align:center; padding:40px;
       display:flex; flex-direction:column; align-items:center; gap:12px;
@@ -672,15 +610,6 @@
                 <!-- YouTube IFrame API player -->
                 <div id="ytPlayer" style="width:100%;height:100%;"></div>
                 <iframe id="ytIframe" allowfullscreen allow="autoplay; encrypted-media" style="display:none;width:100%;height:100%;border:none;"></iframe>
-                <!-- ══ حماية: تغطي زرار المشاركة وواتساب (أسفل يسار) ══ -->
-                <div class="yt-block-share"></div>
-                <!-- ══ حماية: تغطي لوجو يوتيوب الكليكابل (أسفل يمين) ══ -->
-                <div class="yt-block-logo"></div>
-                <!-- ══ حماية: تغطي فيديوهات نهاية الفيديو ══ -->
-                <div class="yt-block-endscreen" id="ytEndscreen">
-                  <div class="yt-endscreen-msg">✅ انتهى الدرس</div>
-                  <div class="yt-endscreen-sub">اختر الدرس التالي من القائمة 👇</div>
-                </div>
               </div>
               <!-- شريط تقدم الفيديو -->
               <div id="videoProgressBar" style="height:4px;background:var(--bg3);position:relative;display:none;">
@@ -887,15 +816,12 @@
   }
 
   function onPlayerStateChange(event) {
-    const endscreen = document.getElementById('ytEndscreen');
     // 0 = انتهى الفيديو
     if (event.data === YT.PlayerState.ENDED) {
       clearInterval(progressInterval);
       // ملي الشريط 100%
       const fill = document.getElementById('videoProgressFill');
       if (fill) fill.style.width = '100%';
-      // اعرض overlay يخفي الفيديوهات المقترحة
-      if (endscreen) endscreen.classList.add('active');
       // تعليم مكتمل أوتوماتيك
       markDone();
     }
@@ -903,9 +829,8 @@
     if (event.data === YT.PlayerState.PAUSED) {
       clearInterval(progressInterval);
     }
-    // 1 = playing — ابدأ التتبع وأخفي الـ endscreen
+    // 1 = playing — ابدأ التتبع
     if (event.data === YT.PlayerState.PLAYING) {
-      if (endscreen) endscreen.classList.remove('active');
       clearInterval(progressInterval);
       progressInterval = setInterval(updateVideoProgress, 1000);
     }
@@ -1051,9 +976,6 @@
 
     const noMsg  = document.getElementById('noVideoMsg');
     const playerDiv = document.getElementById('ytPlayer');
-    // إخفاء endscreen عند تغيير الدرس
-    const endscreen = document.getElementById('ytEndscreen');
-    if (endscreen) endscreen.classList.remove('active');
     if (l.youtubeId) {
       if (noMsg) noMsg.style.display = 'none';
       if (playerDiv) playerDiv.style.display = 'block';
