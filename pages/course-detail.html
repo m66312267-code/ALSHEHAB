@@ -400,6 +400,73 @@
       .cd-actions { gap:8px; }
       .cd-btn-enroll, .cd-btn-sec, .cd-btn-rate { padding:10px 14px; font-size:12px; }
     }
+
+    /* ══ MINI PLAYER ══ */
+    #miniPlayer {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 320px;
+      background: var(--card);
+      border: 1px solid rgba(0,212,170,.35);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(0,212,170,.1);
+      z-index: 9999;
+      display: none;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    #miniPlayer.show {
+      display: block;
+      animation: miniSlideIn .35s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes miniSlideIn {
+      from { transform:translateY(30px); opacity:0; }
+      to   { transform:translateY(0);    opacity:1; }
+    }
+    #miniPlayer .mini-video {
+      width: 100%; aspect-ratio: 16/9; background: #000; position: relative;
+    }
+    #miniPlayer .mini-video iframe,
+    #miniPlayer .mini-video > div { width:100%; height:100%; }
+    #miniPlayer .mini-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, var(--bg3), var(--bg2));
+    }
+    #miniPlayer .mini-title {
+      flex: 1; font-size: 11px; font-weight: 700;
+      color: var(--text); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #miniPlayer .mini-close {
+      background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3);
+      color: #ef4444; border-radius: 8px; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 13px; flex-shrink: 0;
+      transition: all .2s;
+    }
+    #miniPlayer .mini-close:hover { background:rgba(239,68,68,.3); transform:scale(1.1); }
+    #miniPlayer .mini-expand {
+      background: rgba(0,212,170,.12); border: 1px solid rgba(0,212,170,.25);
+      color: var(--accent); border-radius: 8px; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 12px; flex-shrink: 0;
+      transition: all .2s;
+    }
+    #miniPlayer .mini-expand:hover { background:rgba(0,212,170,.25); transform:scale(1.1); }
+    /* زرار تصغير في الـ player الأصلي */
+    #miniPlayerToggle {
+      background: rgba(0,212,170,.1); border: 1px solid rgba(0,212,170,.25);
+      color: var(--accent); border-radius: 10px; padding: 5px 12px;
+      font-size: 11px; font-weight: 700; font-family: Cairo,sans-serif;
+      cursor: pointer; transition: all .2s; flex-shrink: 0;
+      display: none;
+    }
+    #miniPlayerToggle:hover { background:rgba(0,212,170,.2); transform:scale(1.03); }
+    #miniPlayerToggle.active { background:rgba(0,212,170,.2); border-color:var(--accent); }
   </style>
 </head>
 <body>
@@ -532,6 +599,7 @@
                 <div class="cd-lesson-title">
                   <span id="videoTitle">اختر درساً من القائمة</span>
                   <span class="cd-lesson-badge" id="lessonBadge" style="display:none;"></span>
+                  <button id="miniPlayerToggle" onclick="toggleMiniPlayer()" title="تصغير الفيديو">⤡ تصغير</button>
                 </div>
               </div>
               <div class="cd-video-wrap">
@@ -539,11 +607,23 @@
                   <div class="cd-no-video-icon">▶️</div>
                   <span>اختر درساً من القائمة لتشغيله</span>
                 </div>
-                <iframe id="ytIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                <!-- YouTube IFrame API player -->
+                <div id="ytPlayer" style="width:100%;height:100%;"></div>
+                <iframe id="ytIframe" allowfullscreen allow="autoplay; encrypted-media" style="display:none;width:100%;height:100%;border:none;"></iframe>
+              </div>
+              <!-- شريط تقدم الفيديو -->
+              <div id="videoProgressBar" style="height:4px;background:var(--bg3);position:relative;display:none;">
+                <div id="videoProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#6366f1);transition:width .5s;border-radius:0 2px 2px 0;"></div>
               </div>
               <div class="cd-player-controls">
                 <button class="cd-ctrl-btn" onclick="prevLesson()">→ السابق</button>
-                <button class="cd-ctrl-done" id="doneBtn" onclick="markDone()">✅ مكتمل</button>
+                <!-- زر مكتمل مخفي — المنصة هي اللي تتحكم فيه -->
+                <button class="cd-ctrl-done done" id="doneBtn" style="display:none;" disabled>✅ مكتمل</button>
+                <!-- مؤشر الحالة مخفي - بيتحدث برمجياً فقط -->
+                <div id="lessonStatusIndicator" style="display:none;">
+                  <span id="lessonStatusIcon">⏳</span>
+                  <span id="lessonStatusText">شاهد الفيديو</span>
+                </div>
                 <button class="cd-ctrl-btn" onclick="nextLesson()">← التالي</button>
               </div>
             </div>
@@ -560,11 +640,13 @@
 
             <!-- COMMENTS -->
             <div class="cd-cmts-card">
-              <div class="cd-card-head">
+              <div class="cd-card-head" style="cursor:pointer;user-select:none;" onclick="toggleComments()">
                 <div class="cd-card-icon">💬</div>
                 <div class="cd-card-title">تعليقات الطلاب</div>
                 <span class="cd-cmt-count" id="commentsCount"></span>
+                <button id="cmtToggleBtn" style="margin-right:auto;background:linear-gradient(135deg,var(--accent),#6366f1);border:none;color:#000;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:900;font-family:Cairo,sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px var(--glow);letter-spacing:.3px;" title="إخفاء/إظهار التعليقات" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">▲ إخفاء</button>
               </div>
+              <div id="commentsBody">
               <div id="commentsList">
                 <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:13px;">⏳ جاري التحميل...</div>
               </div>
@@ -572,6 +654,7 @@
                 <textarea class="cd-notes-area" id="newCommentText" rows="3" placeholder="شاركنا رأيك في الكورس..."></textarea>
                 <button class="cd-post-btn" id="postCommentBtn" onclick="postComment()">💬 نشر التعليق</button>
               </div>
+              </div><!-- /commentsBody -->
             </div>
 
           </div>
@@ -618,6 +701,140 @@
       isAdmin = p?.[0]?.role === 'admin';
     } catch(e) {}
   })();
+
+  // ══ YouTube IFrame API ══
+  let ytPlayer = null;
+  let ytReady = false;
+  let progressInterval = null;
+  let currentYoutubeId = null;
+
+  // تحميل YouTube API
+  const ytScript = document.createElement('script');
+  ytScript.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(ytScript);
+
+  window.onYouTubeIframeAPIReady = function() {
+    ytReady = true;
+    // لو في درس محمل قبل ما الـ API يجهز
+    if (currentYoutubeId) initYTPlayer(currentYoutubeId);
+  };
+
+  function initYTPlayer(videoId) {
+    currentYoutubeId = videoId;
+
+    // لو ملف محلي file:// — استخدم iframe عادي بدل API (API مش بتشتغل locally)
+    if (window.location.protocol === 'file:') {
+      const playerDiv = document.getElementById('ytPlayer');
+      if (playerDiv) {
+        playerDiv.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1" style="width:100%;height:100%;border:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>';
+      }
+      const bar = document.getElementById('videoProgressBar');
+      if (bar) bar.style.display = 'none'; // مش هنقدر نتتبع التقدم locally
+      showMiniToggle();
+      return;
+    }
+
+    if (!ytReady) return; // هيتشتغل لما onYouTubeIframeAPIReady يتنادى
+
+    const playerDiv = document.getElementById('ytPlayer');
+    playerDiv.innerHTML = ''; // مسح القديم
+
+    ytPlayer = new YT.Player('ytPlayer', {
+      videoId: videoId,
+      playerVars: {
+        autoplay: 1, rel: 0, modestbranding: 1, enablejsapi: 1,
+        origin: (window.location.protocol === 'file:') ? 'https://www.youtube.com' : window.location.origin
+      },
+      events: {
+        onStateChange: onPlayerStateChange,
+        onReady: onPlayerReady,
+        onError: function() {
+          // fallback لو فشل الـ API (ملف محلي)
+          const d = document.getElementById('ytPlayer');
+          if (d) d.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0" style="width:100%;height:100%;border:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe>';
+        }
+      }
+    });
+  }
+
+  function onPlayerReady(event) {
+    // بدء تتبع التقدم
+    clearInterval(progressInterval);
+    updateVideoProgress();
+    progressInterval = setInterval(updateVideoProgress, 1000);
+    // إظهار شريط التقدم
+    const bar = document.getElementById('videoProgressBar');
+    if (bar) bar.style.display = 'block';
+    // إظهار زرار Mini
+    showMiniToggle();
+  }
+
+  function updateVideoProgress() {
+    if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+    const current = ytPlayer.getCurrentTime();
+    const total   = ytPlayer.getDuration();
+    if (!total) return;
+    const pct = Math.min(100, Math.round((current / total) * 100));
+    const fill = document.getElementById('videoProgressFill');
+    if (fill) fill.style.width = pct + '%';
+    // تحديث مؤشر الحالة
+    updateStatusIndicator(pct);
+  }
+
+  function updateStatusIndicator(pct) {
+    const icon = document.getElementById('lessonStatusIcon');
+    const text = document.getElementById('lessonStatusText');
+    const indicator = document.getElementById('lessonStatusIndicator');
+    if (!icon || !text) return;
+
+    const lessons = course?.lessons || [];
+    const l = lessons[currentLesson];
+    const lid = l ? (l.id || l.title || `lesson_${currentLesson}`) : null;
+    const isDone = lid && doneLessons.includes(lid);
+
+    if (isDone) {
+      icon.textContent = '✅';
+      text.textContent = 'مكتمل';
+      text.style.color = 'var(--accent)';
+      if (indicator) {
+        indicator.style.background = 'rgba(0,212,170,.1)';
+        indicator.style.borderColor = 'rgba(0,212,170,.3)';
+      }
+    } else if (pct >= 90) {
+      icon.textContent = '⏳';
+      text.textContent = 'يكتمل قريباً...';
+      text.style.color = '#fbbf24';
+    } else if (pct > 0) {
+      icon.textContent = '▶️';
+      text.textContent = `${pct}% شاهدت`;
+      text.style.color = 'var(--text-dim)';
+    } else {
+      icon.textContent = '⏳';
+      text.textContent = 'شاهد الفيديو';
+      text.style.color = 'var(--text-dim)';
+    }
+  }
+
+  function onPlayerStateChange(event) {
+    // 0 = انتهى الفيديو
+    if (event.data === YT.PlayerState.ENDED) {
+      clearInterval(progressInterval);
+      // ملي الشريط 100%
+      const fill = document.getElementById('videoProgressFill');
+      if (fill) fill.style.width = '100%';
+      // تعليم مكتمل أوتوماتيك
+      markDone();
+    }
+    // 2 = pause — وقّف التتبع
+    if (event.data === YT.PlayerState.PAUSED) {
+      clearInterval(progressInterval);
+    }
+    // 1 = playing — ابدأ التتبع
+    if (event.data === YT.PlayerState.PLAYING) {
+      clearInterval(progressInterval);
+      progressInterval = setInterval(updateVideoProgress, 1000);
+    }
+  }
 
   // ── تحميل الكورس ──
   async function loadCourse() {
@@ -754,27 +971,40 @@
       badge.textContent = doneLessons.includes(lid) ? '✅ مكتمل' : `درس ${i+1} من ${lessons.length}`;
     }
 
-    // done btn state
-    const doneBtn = document.getElementById('doneBtn');
-    if (doneBtn) {
-      const isDone = doneLessons.includes(lid);
-      doneBtn.textContent = isDone ? '✅ مكتمل بالفعل' : '✅ مكتمل';
-      doneBtn.classList.toggle('done', isDone);
+    // تحديث مؤشر الحالة
+    updateStatusIndicator(0);
+
+    const noMsg  = document.getElementById('noVideoMsg');
+    const playerDiv = document.getElementById('ytPlayer');
+    if (l.youtubeId) {
+      if (noMsg) noMsg.style.display = 'none';
+      if (playerDiv) playerDiv.style.display = 'block';
+      // reset شريط التقدم
+      const fill = document.getElementById('videoProgressFill');
+      if (fill) fill.style.width = doneLessons.includes(lid) ? '100%' : '0%';
+      clearInterval(progressInterval);
+      // شغّل الفيديو عن طريق YouTube API
+      if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+        ytPlayer.loadVideoById(l.youtubeId);
+        const bar = document.getElementById('videoProgressBar');
+        if (bar) bar.style.display = 'block';
+      } else {
+        initYTPlayer(l.youtubeId);
+      }
+    } else {
+      if (playerDiv) playerDiv.style.display = 'none';
+      if (noMsg) noMsg.style.display = 'flex';
+      const bar = document.getElementById('videoProgressBar');
+      if (bar) bar.style.display = 'none';
     }
 
-    const iframe = document.getElementById('ytIframe');
-    const noMsg  = document.getElementById('noVideoMsg');
-    if (l.youtubeId) {
-      iframe.src = `https://www.youtube.com/embed/${l.youtubeId}?autoplay=1&rel=0`;
-      iframe.style.display = 'block';
-      noMsg.style.display  = 'none';
-    } else {
-      iframe.style.display = 'none';
-      noMsg.style.display  = 'flex';
+    // لو الدرس مكتمل بالفعل
+    if (doneLessons.includes(lid)) {
+      updateStatusIndicator(100);
     }
   }
 
-  // ── تمييز مكتمل ──
+  // ── تمييز مكتمل (المنصة تناديها أوتوماتيك لما الفيديو يخلص) ──
   function markDone() {
     const lessons = course?.lessons || [];
     const l = lessons[currentLesson];
@@ -783,13 +1013,14 @@
     if (!doneLessons.includes(lid)) {
       doneLessons.push(lid);
       localStorage.setItem('ibda3_done_'+course.id, JSON.stringify(doneLessons));
-      showToast('✅ أحسنت! +10 XP');
+      showToast('🎉 أحسنت! الدرس اكتمل +10 XP');
       XP.add(10, 'أكملت درس 📚').catch(()=>{});
       Courses.updateProgress(course.id, Math.round(doneLessons.length / lessons.length * 100)).catch(()=>{});
       renderPlaylist(lessons);
-      playLesson(currentLesson); // تحديث الـ badge والـ done btn
-    } else {
-      showToast('الدرس مكتمل بالفعل ✅');
+      // تحديث badge وmؤشر الحالة
+      const badge = document.getElementById('lessonBadge');
+      if (badge) badge.textContent = '✅ مكتمل';
+      updateStatusIndicator(100);
     }
   }
 
@@ -1040,6 +1271,22 @@
     }
   }
 
+  // ── Toggle التعليقات ──
+  let cmtsVisible = true;
+  function toggleComments() {
+    cmtsVisible = !cmtsVisible;
+    const body = document.getElementById('commentsBody');
+    const btn  = document.getElementById('cmtToggleBtn');
+    if (!body || !btn) return;
+    if (cmtsVisible) {
+      body.style.display = 'block';
+      btn.textContent = '▲ إخفاء';
+    } else {
+      body.style.display = 'none';
+      btn.textContent = '▼ إظهار';
+    }
+  }
+
   function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function timeAgo(iso) {
     if (!iso) return '';
@@ -1051,7 +1298,110 @@
     return new Date(iso).toLocaleDateString('ar-EG');
   }
 
+
+  // ══ MINI PLAYER ══
+  let isMini = false;
+  let mainPlayerObserver = null;
+
+  function toggleMiniPlayer() {
+    if (isMini) expandMiniPlayer();
+    else activateMiniPlayer();
+  }
+
+  function activateMiniPlayer() {
+    const ytDiv    = document.getElementById('ytPlayer');
+    const miniSlot = document.getElementById('miniVideoSlot');
+    const miniEl   = document.getElementById('miniPlayer');
+    const toggleBtn = document.getElementById('miniPlayerToggle');
+    const miniTitle = document.getElementById('miniTitle');
+    if (!ytDiv || !miniSlot) return;
+
+    // نقل محتوى الفيديو للـ mini
+    miniSlot.innerHTML = '';
+    miniSlot.appendChild(ytDiv);
+
+    // إظهار الـ mini
+    miniEl.classList.add('show');
+    isMini = true;
+    if (toggleBtn) { toggleBtn.textContent = '⤢ توسيع'; toggleBtn.classList.add('active'); }
+    if (miniTitle) miniTitle.textContent = document.getElementById('videoTitle')?.textContent || 'جاري التشغيل...';
+
+    // إخفاء المكان الأصلي
+    const wrap = document.querySelector('.cd-video-wrap');
+    if (wrap) {
+      wrap.style.background = 'var(--bg3)';
+      wrap.innerHTML += `<div id="miniPlaceholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text-dim);font-size:13px;font-weight:700;height:100%;width:100%;position:absolute;top:0;left:0;">
+        <div style="font-size:40px;opacity:.3;">⊡</div>
+        <span>الفيديو في Mini Player</span>
+        <button onclick="expandMiniPlayer()" style="background:rgba(0,212,170,.12);border:1px solid rgba(0,212,170,.25);color:var(--accent);border-radius:12px;padding:8px 18px;font-size:12px;font-weight:700;font-family:Cairo,sans-serif;cursor:pointer;">⤢ العودة للشاشة الكاملة</button>
+      </div>`;
+    }
+
+    // scroll detection - إظهار mini لما الـ player يختفي من الشاشة
+    startScrollWatch();
+  }
+
+  function expandMiniPlayer() {
+    const ytDiv    = document.getElementById('ytPlayer');
+    const miniSlot = document.getElementById('miniVideoSlot');
+    const miniEl   = document.getElementById('miniPlayer');
+    const toggleBtn = document.getElementById('miniPlayerToggle');
+    const wrap      = document.querySelector('.cd-video-wrap');
+    if (!ytDiv || !wrap) return;
+
+    // رجّع الفيديو لمكانه الأصلي
+    const placeholder = document.getElementById('miniPlaceholder');
+    if (placeholder) placeholder.remove();
+    wrap.style.background = '#000';
+    wrap.insertBefore(ytDiv, wrap.querySelector('#ytIframe'));
+
+    // إخفاء الـ mini
+    miniEl.classList.remove('show');
+    setTimeout(() => { if (!isMini) miniEl.style.display = 'none'; }, 300);
+    isMini = false;
+    if (toggleBtn) { toggleBtn.textContent = '⤡ تصغير'; toggleBtn.classList.remove('active'); }
+    stopScrollWatch();
+
+    // scroll للـ player
+    document.querySelector('.cd-player-card')?.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  function closeMiniPlayer() {
+    expandMiniPlayer();
+  }
+
+  function startScrollWatch() {
+    const playerCard = document.querySelector('.cd-player-card');
+    if (!playerCard || !('IntersectionObserver' in window)) return;
+    stopScrollWatch();
+    mainPlayerObserver = new IntersectionObserver((entries) => {
+      // مش محتاجين حاجة هنا لأن المستخدم هو اللي يفعّل الـ mini
+    }, { threshold: 0.1 });
+    mainPlayerObserver.observe(playerCard);
+  }
+
+  function stopScrollWatch() {
+    if (mainPlayerObserver) { mainPlayerObserver.disconnect(); mainPlayerObserver = null; }
+  }
+
+  // إظهار زرار Mini لما يبدأ الفيديو
+  function showMiniToggle() {
+    const btn = document.getElementById('miniPlayerToggle');
+    if (btn) btn.style.display = 'inline-flex';
+  }
+
   loadCourse();
 </script>
+
+<!-- ══ MINI PLAYER ══ -->
+<div id="miniPlayer">
+  <div class="mini-video" id="miniVideoSlot"></div>
+  <div class="mini-bar">
+    <span class="mini-title" id="miniTitle">جاري التشغيل...</span>
+    <div class="mini-expand" onclick="expandMiniPlayer()" title="العودة للشاشة الكاملة">⤢</div>
+    <div class="mini-close" onclick="closeMiniPlayer()" title="إغلاق">✕</div>
+  </div>
+</div>
+
 </body>
 </html>
