@@ -1756,7 +1756,7 @@ async function loadStats() {
       sb.select('courses', 'select=id,title,price,lessons_count,status,category,emoji,grade,created_at').catch(() => []),
       sb.select('enrollments', 'select=id,completed,user_id,course_id,enrolled_at').catch(() => []),
       sb.select('payment_requests', 'status=eq.approved&select=amount,created_at,course_id,user_id').catch(() => []),
-      sb.select('profiles', 'select=id,grade,created_at,last_seen,xp,role').catch(() => []),
+      sb.select('profiles', 'select=id,grade,created_at,xp,role').catch(() => []),
       sb.select('quiz_results', 'select=user_id,score,total,submitted_at').catch(() => []),
     ]);
 
@@ -1770,9 +1770,10 @@ async function loadStats() {
     const done     = E.filter(e => e.completed);
     const rev      = P.reduce((a,p) => a + (parseFloat(p.amount)||0), 0);
 
-    // الطلاب النشطون اليوم — من last_seen الحقيقي
-    const todayStr    = new Date().toISOString().slice(0, 10);
-    const activeToday = PR.filter(p => (p.last_seen||'').slice(0,10) === todayStr).length;
+    // الطلاب المسجّلون في آخر 7 أيام
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7*86400000).toISOString();
+    const activeToday = PR.filter(p => (p.created_at||'') >= weekAgo).length;
 
     // ── KPI Cards ──
     document.getElementById('kCourses').textContent   = C.length;
@@ -2758,11 +2759,11 @@ async function toggleSuspend(uid, isSusp, name) {
   if (!confirm(`${action} حساب "${name}"؟`)) return;
   try {
     await sb.update('profiles', { suspended: !isSusp }, `id=eq.${uid}`);
-    // Notify student
+    // Notify student — non-blocking, ignore permission errors
     const msg = isSusp
       ? 'تم استعادة حسابك ✅ يمكنك الدخول مجدداً.'
       : '🚫 تم إيقاف حسابك مؤقتاً. تواصل مع الإدارة.';
-    await sb.insert('notifications', { user_id: uid, title: isSusp ? '✅ تم استعادة حسابك' : '🚫 تم إيقاف حسابك', body: msg, is_read: false }).catch(()=>{});
+    sb.insert('notifications', { user_id: uid, title: isSusp ? '✅ تم استعادة حسابك' : '🚫 تم إيقاف حسابك', body: msg, is_read: false }).catch(()=>{});
     showToast(`✅ تم ${action} حساب ${name}`);
     loadStudents();
   } catch(e) { showToast('⚠️ ' + e.message); }
@@ -3116,6 +3117,34 @@ async function addStudentNote() {
   await loadStudentNotes(uid);
 }
 
+async function deleteStudent(uid, name) {
+  if (!confirm(`⚠️ حذف الطالب "${name}" نهائياً؟\nمفيش رجعة!`)) return;
+  showToast('⏳ جاري الحذف...');
+
+  // حذف البيانات المرتبطة أولاً (non-blocking)
+  const related = [
+    ['enrollments',   `user_id=eq.${uid}`],
+    ['notifications', `user_id=eq.${uid}`],
+    ['quiz_results',  `user_id=eq.${uid}`],
+    ['student_notes', `user_id=eq.${uid}`],
+  ];
+  for (const [table, filter] of related) {
+    try { await sb.delete(table, filter); }
+    catch(e) { console.warn(`حذف ${table}:`, e.message); }
+  }
+
+  // حذف البروفايل — الخطوة الأساسية
+  try {
+    await sb.delete('profiles', `id=eq.${uid}`);
+    showToast(`✅ تم حذف الطالب "${name}" بنجاح`);
+    closeM('mStudentDetail');
+    loadStudents();
+  } catch(e) {
+    console.error('فشل حذف البروفايل:', e);
+    showToast(`❌ فشل الحذف: ${e.message || 'تأكد من صلاحيات الأدمن في Supabase'}`);
+  }
+}
+
 async function deleteStudentNote(noteId, uid) {
   try {
     await sb.delete('student_notes', `id=eq.${noteId}`);
@@ -3163,16 +3192,12 @@ async function confirmSuspend() {
   const reason = reasons[reasonType] || reasonType;
   try {
     await sb.update('profiles', { suspended: true, suspend_reason: reason }, `id=eq.${uid}`);
+    // إشعار الطالب — non-blocking
     const msg = `🚫 تم إيقاف حسابك.\nالسبب: ${reason}` + (note ? `\n${note}` : '');
-    await sb.insert('notifications', { user_id: uid, title: '🚫 تم إيقاف حسابك', body: msg, is_read: false }).catch(()=>{});
-    // أضف ملاحظة تلقائية
+    sb.insert('notifications', { user_id: uid, title: '🚫 تم إيقاف حسابك', body: msg, is_read: false }).catch(()=>{});
+    // ملاحظة تلقائية — non-blocking
     const noteData = { user_id: uid, text: `🚫 تم الإيقاف — السبب: ${reason}`, type: 'danger', created_at: new Date().toISOString() };
-    await sb.insert('student_notes', noteData).catch(()=>{
-      const cached = JSON.parse(localStorage.getItem('student_notes_'+uid)||'[]');
-      noteData.id = 'ln_'+Date.now();
-      cached.unshift(noteData);
-      localStorage.setItem('student_notes_'+uid, JSON.stringify(cached));
-    });
+    sb.insert('student_notes', noteData).catch(()=>{});
     showToast(`✅ تم إيقاف حساب ${name}`);
     closeM('mSuspendReason');
     loadStudents();

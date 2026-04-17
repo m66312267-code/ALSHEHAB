@@ -245,7 +245,7 @@
         </div>
         <div class="dw-right-top">
           <div class="dw-avatar" id="heroAvatar">A</div>
-          <button class="dw-go-btn" onclick="window.location.href='courses.html'">ابدأ التعلم ←</button>
+          <button class="dw-go-btn" onclick="window.location.href='courses.html'">ابدأ←</button>
         </div>
       </div>
 
@@ -300,9 +300,9 @@
         <button class="inst-close" onclick="event.stopPropagation();hideInstBanner()" title="إخفاء">✕</button>
         <div class="inst-av">م</div>
         <div class="inst-info">
-          <div class="inst-label">👨‍💻 مبرمج ومنشئ المنصة</div>
+          <div class="inst-label">👨‍💻 مبرمج المنصة</div>
           <div class="inst-name">محمد فهمي المحص</div>
-          <div class="inst-desc">بنى منصة إبداع من الصفر — من الـ UI للداتابيز لكل سطر كود 🚀</div>
+          <div class="inst-desc">صلي علي رسول الله 🥰​</div>
           <div class="inst-links" onclick="event.stopPropagation()">
             <a class="inst-link" href="https://wa.me/201063786533" target="_blank">💬 واتساب</a>
             <a class="inst-link" href="https://www.facebook.com/share/1DTsTsuZMy/" target="_blank">📘 فيسبوك</a>
@@ -399,12 +399,12 @@
     {e:'🔥', t:'أنت أقرب للهدف مما تتخيل — استمر ولا تتوقف.'},
     {e:'📚', t:'العلم نور — كل ما تتعلم أكتر، كل ما بقيت أقوى.'},
     {e:'🚀', t:'اليوم زرعت بذرة — بكره هتحصد النجاح.'},
-    {e:'💪', t:'الصعاب مش عقبة — هي الطريق للنجاح.'},
+    {e:'💪', t:'لا اجمد كده احنا لسه بنسمي .'},
     {e:'🎯', t:'ركّز على هدفك — أقل حاجة تقدر تعملها النهارده هي درس واحد.'},
     {e:'🧠', t:'كل معلومة جديدة بتتعلمها بتغير طريقة تفكيرك للأفضل.'},
     {e:'🏆', t:'الفائز هو اللي بيكمل رغم الأخطاء.'},
     {e:'⚡', t:'دقيقة من التعلم أحسن من ساعة من التفكير. ابدأ دلوقتي!'},
-    {e:'🌟', t:'أنت طالب IBDA3 — يعني أنت من النخبة. اثبت ذلك!'},
+    {e:'🌟', t:'أنت احد طلاب محمد شهاب  — يعني أنت من النخبة. اثبت ذلك!'},
     {e:'🌈', t:'مهما كانت الظروف صعبة — إرادتك أقوى.'},
     {e:'📖', t:'التعلم المستمر هو أفضل استثمار في نفسك.'},
   ];
@@ -432,7 +432,7 @@
     const now=new Date();
     document.getElementById('dwDate').textContent=`${days[now.getDay()]}، ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     const h=now.getHours();
-    document.getElementById('dwGreeting').textContent=(h>=4&&h<15)?'صباح الخير،':'مساء الخير،';
+    document.getElementById('dwGreeting').textContent=(h>=4&&h<15)?' صباح الخير،':' مساء الخير يا مراكم،';
 
     // ── الساعة المباشرة (نظام 12 ساعة) ──
     function updateClock() {

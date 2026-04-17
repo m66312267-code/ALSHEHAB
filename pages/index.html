@@ -749,8 +749,8 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 
     <!-- ══ LOGIN ══ -->
     <div class="auth-form active" id="form-login">
-      <div class="auth-logo">مرحباً بعودتك</div>
-      <div class="auth-sub">موقع إبداع — محمد شهاب 🚀</div>
+      <div class="auth-logo">وحشتنا والله اتفضل 🚶‍​</div>
+      <div class="auth-sub">منصه إبداع — محمد شهاب </div>
 
       <!-- TOGGLE: إيميل / موبايل -->
       <div class="login-toggle">
@@ -791,7 +791,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
     <!-- DEV CREDIT -->
     <div class="dev-credit">
       <span class="dev-dot"></span>
-      Developed by <span class="dev-name">محمد فهمي المحص</span>
+      Developed by <span class="dev-name">Mohamed Fahmy Almahs</span>
     </div>
 
     <!-- ══ REGISTER — 3 خطوات ══ -->
@@ -873,10 +873,20 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
     <!-- ══ RESET ══ -->
     <div class="auth-form" id="form-reset">
       <div class="auth-logo">استعادة كلمة السر</div>
-      <div class="auth-sub" style="font-size:13px!important;font-weight:400!important;color:#888!important;">أدخل إيميلك وهنبعتلك رابط إعادة التعيين</div>
-      <label class="inp-label">البريد الإلكتروني</label>
-      <input class="inp" type="email" placeholder="example@email.com" id="reset-email">
-      <button class="btn-full" id="resetBtn" onclick="doReset()">إرسال الرابط</button>
+      <div class="auth-sub">🔐 طلب تغيير كلمة السر</div>
+      <div style="background:#faf5ff;border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#7c3aed;line-height:1.8;">
+        💬 هتتبعت رسالة واتساب للأدمن بمعلوماتك<br>وهيغيرلك الباسورد في أقرب وقت<br>ملاحظه لما تسجل دخول تاني بعد م نغير كلمه السر ابقي ادخل غير اسمك من البروفيل
+      </div>
+      <label class="inp-label">الاسم الثلاثي <span style="color:#dc2626">*</span></label>
+      <input class="inp" type="text" placeholder="اسمك ثلاثي" id="reset-name">
+      <label class="inp-label">البريد الإلكتروني <span style="color:#dc2626">*</span></label>
+      <input class="inp" type="email" placeholder="example@gmail.com" id="reset-email">
+      <label class="inp-label">كلمة السر الجديدة <span style="color:#dc2626">*</span></label>
+      <div class="pass-wrap" style="margin-bottom:16px;">
+        <input class="inp" type="password" placeholder=" وحيات امك م تنسي الباسورد تاني عشان خاطري" id="reset-newpass" style="margin-bottom:0!important;">
+        <button class="eye-btn" onclick="togglePass('reset-newpass',this)" tabindex="-1">👁</button>
+      </div>
+      <button class="btn-full" id="resetBtn" onclick="doReset()">📲 إرسال طلب التغيير</button>
       <p class="auth-bottom-link"><a onclick="switchAuth('login')">← رجوع لتسجيل الدخول</a></p>
     </div>
 
@@ -1031,16 +1041,31 @@ async function doRegister(){
   }catch(e){showError(e.message||'حدث خطأ، حاول تاني');setLoading('registerBtn',false,'إنشاء الحساب 🚀');}
 }
 
-// ── RESET ──
-async function doReset(){
-  const email=document.getElementById('reset-email').value.trim();
-  if(!email){showError('أدخل إيميلك أولاً');return;}
-  setLoading('resetBtn',true,'إرسال الرابط');
-  try{
-    await fetch(`${sb.url}/auth/v1/recover`,{method:'POST',headers:{'Content-Type':'application/json','apikey':sb.key},body:JSON.stringify({email})});
-    showSuccess('تم! افتح إيميلك 📧');
-  }catch{showError('حدث خطأ، تأكد من الإيميل');}
-  setLoading('resetBtn',false,'إرسال الرابط');
+// ── RESET — WhatsApp ──
+function doReset(){
+  const name    = document.getElementById('reset-name').value.trim();
+  const email   = document.getElementById('reset-email').value.trim();
+  const newpass = document.getElementById('reset-newpass').value;
+
+  if(!name)            { showError('اكتب اسمك الكامل'); return; }
+  if(!email || !email.includes('@')) { showError('أدخل إيميل صحيح'); return; }
+  if(newpass.length < 6) { showError('كلمة السر لازم تكون 6 أحرف على الأقل'); return; }
+
+  const msg = `🔐 طلب تغيير كلمة السر — منصة إبداع
+━━━━━━━━━━━━━━━━
+👤 الاسم: ${name}
+📧 الإيميل: ${email}
+🔑 الباسورد الجديد: ${newpass}
+━━━━━━━━━━━━━━━━
+⏰ ${new Date().toLocaleString('ar-EG')}`;
+
+  const waUrl = 'https://wa.me/201063786533?text=' + encodeURIComponent(msg);
+  window.open(waUrl, '_blank');
+  showSuccess('✅ تم فتح واتساب! ابعت الرسالة للأدمن وهيرد عليك قريباً 🚀');
+  // مسح الحقول بعد الإرسال
+  document.getElementById('reset-name').value = '';
+  document.getElementById('reset-email').value = '';
+  document.getElementById('reset-newpass').value = '';
 }
 
 document.addEventListener('keydown',e=>{
