@@ -636,7 +636,11 @@
       await sb.upsert('profiles', { id: user.id, avatar_url: base64 });
 
       displayAvatar(base64);
-      localStorage.setItem('ibda3_admin_avatar', base64); // كاش للصفحات التانية
+      localStorage.setItem('ibda3_admin_avatar', base64);
+      // حفظ في platform_settings عشان الطلاب يشوفوها
+      try {
+        await sb.upsert('platform_settings', { id: 1, admin_avatar: base64 });
+      } catch(e) {}
       showToast('تم حفظ الصورة بنجاح ✅');
     } catch (e) {
       showToast('⚠️ فشل الحفظ: ' + e.message);
@@ -709,8 +713,16 @@
     // ===== صورة البروفيل =====
     if (profile?.avatar_url) {
       displayAvatar(profile.avatar_url);
-      // خزّن صورة الأدمن في localStorage عشان باقي الصفحات تاخدها فوراً
-      if (_isAdmin) localStorage.setItem('ibda3_admin_avatar', profile.avatar_url);
+      if (_isAdmin) {
+        localStorage.setItem('ibda3_admin_avatar', profile.avatar_url);
+        // sync لـ platform_settings لو مش موجودة
+        try {
+          const ps = await sb.select('platform_settings', 'select=admin_avatar&limit=1');
+          if (!ps?.[0]?.admin_avatar) {
+            await sb.upsert('platform_settings', { id: 1, admin_avatar: profile.avatar_url });
+          }
+        } catch(e) {}
+      }
     } else {
       document.getElementById('profileAvLetter').textContent = name.charAt(0).toUpperCase();
     }
