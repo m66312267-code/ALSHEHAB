@@ -298,7 +298,10 @@
       <!-- INSTRUCTOR BANNER -->
       <div class="inst-banner" id="instBanner" onclick="window.location.href='about.html'">
         <button class="inst-close" onclick="event.stopPropagation();hideInstBanner()" title="إخفاء">✕</button>
-        <div class="inst-av">م</div>
+        <div class="inst-av" id="instAv" style="overflow:hidden;padding:0;">
+          <img id="instAvImg" src="" alt="م" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:14px;">
+          <span id="instAvLetter">م</span>
+        </div>
         <div class="inst-info">
           <div class="inst-label">👨‍💻 مبرمج المنصة</div>
           <div class="inst-name">محمد فهمي المحص</div>
@@ -712,6 +715,36 @@
   }
 
   // ══ INSTRUCTOR BANNER ══
+  // جيب صورة الأدمن من localStorage أولاً (فوري) ثم Supabase كـ fallback
+  function applyAdminAvatar(url) {
+    if (!url) return;
+    const img    = document.getElementById('instAvImg');
+    const letter = document.getElementById('instAvLetter');
+    if (!img) return;
+    if (url.startsWith('data:')) {
+      img.src = url;
+      img.style.display = 'block';
+      if (letter) letter.style.display = 'none';
+    } else {
+      img.onload  = () => { img.style.display = 'block'; if(letter) letter.style.display = 'none'; };
+      img.onerror = () => {};
+      img.src = url;
+    }
+  }
+
+  // 1) من localStorage فوراً
+  const _cachedAdminAv = localStorage.getItem('ibda3_admin_avatar');
+  if (_cachedAdminAv) applyAdminAvatar(_cachedAdminAv);
+
+  // 2) Supabase للتحديث
+  (async () => {
+    try {
+      const admins = await sb.select('profiles', 'select=avatar_url&role=eq.admin&limit=1');
+      const url = admins?.[0]?.avatar_url;
+      if (url) { localStorage.setItem('ibda3_admin_avatar', url); applyAdminAvatar(url); }
+    } catch(e) {}
+  })();
+
   function hideInstBanner() {
     const el = document.getElementById('instBanner');
     el.style.maxHeight = el.offsetHeight + 'px';

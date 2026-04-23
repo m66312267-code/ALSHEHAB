@@ -440,6 +440,7 @@
       .social-grid { grid-template-columns:1fr; }
       .stats-grid { grid-template-columns:repeat(2,1fr); }
     }
+
   </style>
 </head>
 <body>
@@ -521,7 +522,9 @@
           <div class="av-dot-1"></div>
           <div class="av-dot-2"></div>
           <div class="av-laser"></div>
-          <div class="av-core">
+          <div class="av-core" id="avCore">
+            <!-- صورة الأدمن الحقيقية — تظهر لو متوفرة -->
+            <img id="avCoreImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;z-index:3;">
             <svg width="130" height="130" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -880,6 +883,40 @@
     });
   }, { threshold: 0.15 });
   document.querySelectorAll('.tech-card, .about-sec').forEach(el => revealObserver.observe(el));
+
+  // ══ LOAD ADMIN AVATAR ══
+  function applyAdminAvatarAbout(url) {
+    if (!url) return;
+
+    // 1) الدايرة الكبيرة في الهيرو
+    const avImg = document.getElementById('avCoreImg');
+    if (avImg) {
+      if (url.startsWith('data:')) {
+        avImg.src = url;
+        avImg.style.display = 'block';
+      } else {
+        avImg.onload  = () => { avImg.style.display = 'block'; };
+        avImg.onerror = () => {};
+        avImg.src = url;
+      }
+    }
+
+
+  }
+
+  // من localStorage فوراً
+  const _cachedAvAbout = localStorage.getItem('ibda3_admin_avatar');
+  if (_cachedAvAbout) applyAdminAvatarAbout(_cachedAvAbout);
+
+  // Supabase كـ fallback + تحديث
+  (async () => {
+    try {
+      const admins = await sb.select('profiles', 'select=avatar_url&role=eq.admin&limit=1');
+      const url = admins?.[0]?.avatar_url;
+      if (url) { localStorage.setItem('ibda3_admin_avatar', url); applyAdminAvatarAbout(url); }
+    } catch(e) {}
+  })();
 </script>
+
 </body>
 </html>

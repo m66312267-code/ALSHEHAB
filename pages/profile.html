@@ -403,8 +403,12 @@
         <div class="profile-av-wrap">
           <div class="profile-av-outer">
             <div class="profile-av-ring"></div>
-            <div class="profile-av" id="profileAv" onclick="showToast('تغيير الصورة قريباً 📷')">A</div>
-            <div class="av-edit-icon">📷</div>
+            <div class="profile-av" id="profileAv" onclick="handleAvatarClick()">
+              <span id="profileAvLetter">A</span>
+              <img id="profileAvImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;">
+            </div>
+            <div class="av-edit-icon" id="avEditIcon" onclick="handleAvatarClick()">📷</div>
+            <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadAvatar(this)">
           </div>
           <div class="profile-meta">
             <div class="profile-name-big" id="profileNameDisplay">جاري التحميل...</div>
@@ -587,6 +591,85 @@
   requireAuth();
   const user = sb.getUser();
 
+  // ===== هل المستخدم الحالي أدمن؟ =====
+  let _isAdmin = false;
+
+  // ===== عرض صورة البروفيل =====
+  function displayAvatar(url) {
+    const img    = document.getElementById('profileAvImg');
+    const letter = document.getElementById('profileAvLetter');
+    if (!url) return;
+    // base64 لا يحتاج cache-busting — فقط روابط HTTP
+    img.src = url.startsWith('data:') ? url : url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+    img.onload  = () => { img.style.display = 'block'; letter.style.display = 'none'; };
+    img.onerror = () => { img.style.display = 'none';  letter.style.display = ''; };
+  }
+
+  // ===== اضغط على الصورة =====
+  function handleAvatarClick() {
+    if (_isAdmin) {
+      document.getElementById('avatarUpload').click();
+    } else {
+      showToast('تغيير الصورة قريباً 📷');
+    }
+  }
+
+  // ===== رفع الصورة — الأدمن فقط (base64 مباشر في profiles) =====
+  async function uploadAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('الصورة كبيرة جداً — الحد الأقصى 5MB ⚠️');
+      input.value = '';
+      return;
+    }
+
+    const editIcon = document.getElementById('avEditIcon');
+    editIcon.textContent = '⏳';
+
+    try {
+      // ضغط الصورة وتحويلها لـ base64
+      const base64 = await compressImage(file, 300, 300, 0.82);
+
+      // حفظ مباشر في profiles.avatar_url
+      await sb.upsert('profiles', { id: user.id, avatar_url: base64 });
+
+      displayAvatar(base64);
+      localStorage.setItem('ibda3_admin_avatar', base64); // كاش للصفحات التانية
+      showToast('تم حفظ الصورة بنجاح ✅');
+    } catch (e) {
+      showToast('⚠️ فشل الحفظ: ' + e.message);
+    } finally {
+      editIcon.textContent = '📷';
+      input.value = '';
+    }
+  }
+
+  // ===== ضغط الصورة وتحويلها لـ base64 =====
+  function compressImage(file, maxW, maxH, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('فشل قراءة الصورة'));
+      reader.onload = e => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('صورة غير صالحة'));
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; } }
+          else        { if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; } }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   // Override toggleTFA & toggleSwitch to use new .sw class
   function toggleTFA(){
     const el=document.getElementById('tfaToggle');
@@ -609,7 +692,29 @@
     const name      = profile?.name || userData.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'طالب';
     const email     = user?.email || userData.email || '';
 
-    document.getElementById('profileAv').textContent           = name.charAt(0).toUpperCase();
+    // ===== أدمن؟ =====
+    _isAdmin = profile?.role === 'admin';
+    const editIcon = document.getElementById('avEditIcon');
+    if (_isAdmin) {
+      // الأدمن: أيقونة التعديل واضحة وقابلة للضغط
+      editIcon.title = 'انقر لتغيير الصورة';
+      editIcon.style.cursor = 'pointer';
+      editIcon.style.opacity = '1';
+    } else {
+      // غير الأدمن: أيقونة موجودة بس مش تعدّل
+      editIcon.style.opacity = '0.4';
+      editIcon.style.cursor  = 'default';
+    }
+
+    // ===== صورة البروفيل =====
+    if (profile?.avatar_url) {
+      displayAvatar(profile.avatar_url);
+      // خزّن صورة الأدمن في localStorage عشان باقي الصفحات تاخدها فوراً
+      if (_isAdmin) localStorage.setItem('ibda3_admin_avatar', profile.avatar_url);
+    } else {
+      document.getElementById('profileAvLetter').textContent = name.charAt(0).toUpperCase();
+    }
+
     document.getElementById('avatarBtn').textContent           = name.charAt(0).toUpperCase();
     document.getElementById('profileNameDisplay').textContent  = name;
     document.getElementById('profileEmailDisplay').textContent = email;
@@ -690,7 +795,11 @@
       const ud=JSON.parse(localStorage.getItem('ibda3_user')||'{}');
       localStorage.setItem('ibda3_user',JSON.stringify({...ud,name}));
       if(governorate) localStorage.setItem('ibda3_governorate',governorate);
-      document.getElementById('profileAv').textContent          = name.charAt(0).toUpperCase();
+      // لو مفيش صورة مرفوعة — حدّث الحرف الأول
+      if(!document.getElementById('profileAvImg').src || document.getElementById('profileAvImg').style.display==='none'){
+        document.getElementById('profileAvLetter').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('profileAv').textContent = '';
+      }
       document.getElementById('avatarBtn').textContent          = name.charAt(0).toUpperCase();
       document.getElementById('profileNameDisplay').textContent = name;
       showToast('تم حفظ التغييرات ✅');

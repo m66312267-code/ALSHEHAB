@@ -695,10 +695,20 @@
   let course = null, currentLesson = 0, doneLessons = [];
   const user = sb.getUser();
   let isAdmin = false;
+  let _adminAvatarUrl = null; // صورة الأدمن — تتحمل مرة واحدة
+
   const adminReady = (async () => {
     try {
       const p = await sb.select('profiles', `select=role&id=eq.${user?.id}`);
       isAdmin = p?.[0]?.role === 'admin';
+      // جيب صورة الأدمن — من localStorage أولاً (فوري)
+      _adminAvatarUrl = localStorage.getItem('ibda3_admin_avatar') || null;
+      // ثم تحديث من Supabase في الخلفية
+      try {
+        const admins = await sb.select('profiles', 'select=avatar_url&role=eq.admin&limit=1');
+        const freshUrl = admins?.[0]?.avatar_url || null;
+        if (freshUrl) { _adminAvatarUrl = freshUrl; localStorage.setItem('ibda3_admin_avatar', freshUrl); }
+      } catch(e) {}
     } catch(e) {}
   })();
 
@@ -1111,13 +1121,16 @@
           ? `<span style="background:linear-gradient(135deg,var(--accent),#6366f1);color:#000;font-size:10px;font-weight:900;padding:2px 9px;border-radius:20px;">⚡ أدمن</span>`
           : '';
         const adminAv = isAdminComment
-          ? `style="background:linear-gradient(135deg,var(--accent),#6366f1);box-shadow:0 0 10px var(--glow);"`
+          ? `style="background:linear-gradient(135deg,var(--accent),#6366f1);box-shadow:0 0 10px var(--glow);padding:0;overflow:hidden;"`
           : '';
         const nameClass = isAdminComment ? 'cd-cmt-name cd-cmt-name-admin' : 'cd-cmt-name';
         const crownPrefix = isAdminComment ? '👑 ' : '';
-        const avatarContent = isAdminComment
-          ? `<span style="font-size:18px;line-height:1;">👑</span>`
-          : init;
+        // صورة الأدمن لو متوفرة — غير كده 👑
+        const avatarContent = isAdminComment && _adminAvatarUrl
+          ? `<img src="${_adminAvatarUrl}" alt="أدمن" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="font-size:18px;line-height:1;display:none;">👑</span>`
+          : isAdminComment
+            ? `<span style="font-size:18px;line-height:1;">👑</span>`
+            : init;
         return `<div class="cd-cmt-item${isAdminComment ? ' is-admin-cmt' : ''}">
           <div class="cd-cmt-av" ${adminAv}>${avatarContent}</div>
           <div class="cd-cmt-body">
