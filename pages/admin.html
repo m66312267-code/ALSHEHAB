@@ -2400,65 +2400,70 @@ async function processPdfFile(file) {
   document.getElementById('cPdfSelected').style.display   = 'none';
   document.getElementById('cPdfUploading').style.display  = 'block';
 
-  try {
-    // ── جيب الـ token بكل الطرق الممكنة ──
-    let token = sb.key; // fallback: anon key
-    try {
-      // طريقة 1: sb_session
-      const s1 = JSON.parse(localStorage.getItem('sb_session') || 'null');
-      if (s1?.access_token) token = s1.access_token;
-      // طريقة 2: supabase auth key pattern
-      else {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && (k.includes('auth') || k.includes('supabase') || k.includes('session'))) {
-            try {
-              const v = JSON.parse(localStorage.getItem(k));
-              if (v?.access_token) { token = v.access_token; break; }
-              if (v?.data?.session?.access_token) { token = v.data.session.access_token; break; }
-            } catch(e) {}
-          }
-        }
-      }
-    } catch(e) {}
+  // لو شغال من file:// — حفظ base64 مباشرة زي ما بتعمل مع الصور
+  if (window.location.protocol === 'file:') {
+    const b64 = await new Promise(resolve => {
+      const r = new FileReader();
+      r.onload = e => resolve(e.target.result);
+      r.readAsDataURL(file);
+    });
+    document.getElementById('cPdfUrl').value        = b64;
+    document.getElementById('cPdfName').textContent = '📄 ' + file.name;
+    document.getElementById('cPdfUploading').style.display = 'none';
+    document.getElementById('cPdfSelected').style.display  = 'block';
+    showToast('✅ تم حفظ PDF (ارفع الكورس من Vercel للرفع الكامل)');
+    return;
+  }
 
+  try {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const path     = `pdfs/${Date.now()}_${safeName}`;
-    const bucket   = 'course-covers'; // نفس الـ bucket المستخدم للصور
+    const session  = JSON.parse(localStorage.getItem('sb_session') || '{}');
+    const token    = session?.access_token || sb.key;
 
-    console.log('[PDF Upload] path:', path, '| bucket:', bucket, '| token type:', token === sb.key ? 'anon' : 'user');
-
-    const res = await fetch(`${sb.url}/storage/v1/object/${bucket}/${path}`, {
+    const res = await fetch(`${sb.url}/storage/v1/object/course-covers/${path}`, {
       method:  'POST',
       headers: {
         'apikey':        sb.key,
         'Authorization': `Bearer ${token}`,
-        'Content-Type':  'application/pdf',
+        'Content-Type':  file.type,
         'x-upsert':      'true',
       },
       body: file,
     });
 
-    if (!res.ok) {
-      const errBody = await res.text();
-      console.error('[PDF Upload] Error:', res.status, errBody);
-      throw new Error(`(${res.status}) ${JSON.parse(errBody)?.message || errBody}`);
+    if (res.ok) {
+      const publicUrl = `${sb.url}/storage/v1/object/public/course-covers/${path}`;
+      document.getElementById('cPdfUrl').value        = publicUrl;
+      document.getElementById('cPdfName').textContent = '📄 ' + file.name;
+      document.getElementById('cPdfUploading').style.display = 'none';
+      document.getElementById('cPdfSelected').style.display  = 'block';
+      showToast('✅ تم رفع الـ PDF بنجاح');
+    } else {
+      const errText = await res.text();
+      let msg = res.status;
+      try { msg = JSON.parse(errText)?.message || errText; } catch(e) {}
+      throw new Error('(' + res.status + ') ' + msg);
     }
 
-    const publicUrl = `${sb.url}/storage/v1/object/public/${bucket}/${path}`;
-    console.log('[PDF Upload] Success:', publicUrl);
-
-    document.getElementById('cPdfUrl').value        = publicUrl;
-    document.getElementById('cPdfName').textContent = '📄 ' + file.name;
-    document.getElementById('cPdfUploading').style.display = 'none';
-    document.getElementById('cPdfSelected').style.display  = 'block';
-    showToast('✅ تم رفع الـ PDF بنجاح');
-
   } catch(e) {
-    console.error('[PDF Upload] catch:', e);
-    document.getElementById('cPdfUploading').style.display  = 'none';
-    document.getElementById('cPdfPlaceholder').style.display = 'block';
-    showToast('❌ ' + e.message);
+    // Fallback: base64
+    try {
+      const b64 = await new Promise(resolve => {
+        const r = new FileReader();
+        r.onload = ev => resolve(ev.target.result);
+        r.readAsDataURL(file);
+      });
+      document.getElementById('cPdfUrl').value        = b64;
+      document.getElementById('cPdfName').textContent = '📄 ' + file.name;
+      document.getElementById('cPdfUploading').style.display = 'none';
+      document.getElementById('cPdfSelected').style.display  = 'block';
+      showToast('✅ تم حفظ PDF محلياً');
+    } catch(e2) {
+      document.getElementById('cPdfUploading').style.display   = 'none';
+      document.getElementById('cPdfPlaceholder').style.display = 'block';
+      showToast('❌ ' + e.message);
+    }
   }
 }
 function clearPdf() {
