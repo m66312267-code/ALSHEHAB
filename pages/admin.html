@@ -2249,7 +2249,7 @@ async function saveEditCourse() {
     lessons_count:  lessons.length,
   };
   const btn = document.querySelector('#mEditCourse .mprim');
-  btn.disabled = true; btn.textContent = '⏳ جاري الحفظ...';
+  btn.disabled = true; btn.innerHTML = '⏳ جاري الحفظ...';
   try {
     await sb.update('courses', payload, `id=eq.${id}`);
     localStorage.removeItem('ibda3_courses');
@@ -2258,7 +2258,7 @@ async function saveEditCourse() {
     showToast(`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> تم الحفظ — ${lessons.length} درس`);
     loadCoursesTbl();
   } catch(e) { showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ' + e.message); }
-  finally { btn.disabled = false; btn.textContent = ' حفظ التعديلات'; }
+  finally { btn.disabled = false; btn.innerHTML = '✅ حفظ التعديلات'; }
 }
 
 async function copyC(id) {
@@ -2506,7 +2506,7 @@ async function addCourse() {
   if (!title) { showToast('اكتب اسم الكورس <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'); return; }
   const lessons = lessonIDs.map((id,i) => { const t=document.getElementById(id+'_t')?.value.trim(); const u=document.getElementById(id+'_u')?.value.trim(); return t?{id:'l_'+i,title:t,youtubeUrl:u||'',youtubeId:ytID(u)||'',order:i+1}:null; }).filter(Boolean);
   const btn = document.getElementById('saveCBtn');
-  btn.disabled=true; btn.textContent='⏳ جاري الحفظ...';
+  btn.disabled=true; btn.innerHTML='⏳ جاري الحفظ...';
   try {
     const coverUrl = document.getElementById('cCover').value.trim() || null;
     const pdfUrl   = document.getElementById('cPdfUrl').value.trim() || null;
@@ -2516,10 +2516,10 @@ async function addCourse() {
     document.getElementById('cIsNew').checked=false; document.getElementById('cIsHot').checked=false;
     document.getElementById('lContainer').innerHTML=''; lessonIDs=[]; updLCount();
     localStorage.removeItem('ibda3_courses');
-    showToast(`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> تم نشر الكورس بـ ${lessons.length} درس`);
+    showToast(`✅ تم نشر الكورس بـ ${lessons.length} درس`);
     loadStats();
   } catch(e) { showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> '+e.message); }
-  finally { btn.disabled=false; btn.textContent='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> نشر الكورس'; }
+  finally { btn.disabled=false; btn.innerHTML='✅ نشر الكورس'; }
 }
 
 // ── Coupons ──
