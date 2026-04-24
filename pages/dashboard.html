@@ -467,15 +467,17 @@
       }
       /* إخفاء زر الإعدادات القديم */
       .float-settings { display: none !important; }
-      /* رفع settings panel */
+      /* رفع settings panel فوق كل حاجة */
       .settings-panel {
         bottom: 108px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        width: 280px !important;
+        width: 290px !important;
         max-width: calc(100vw - 24px) !important;
         border-radius: 20px !important;
-        z-index: 1100 !important;
+        z-index: 99999 !important;
+        position: fixed !important;
+        box-shadow: 0 -4px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08) !important;
       }
     }
 
@@ -554,12 +556,12 @@
 </header>
 
 <nav class="bottom-nav">
-  <div class="bottom-nav-item active">
+  <div class="bottom-nav-item active" onclick="window.location.href='dashboard.html'">
     <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>الرئيسية</div>
   <div class="bottom-nav-item" onclick="window.location.href='courses.html'">
     <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>كورسات</div>
-  <!-- FAB CENTER SLOT -->
-  <div class="bottom-nav-fab-slot"></div>
+  <!-- مساحة للزر العائم في المنتصف -->
+  <div style="flex:1.4; min-width:70px; pointer-events:none;"></div>
   <div class="bottom-nav-item" onclick="window.location.href='favorites.html'">
     <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>مفضلة</div>
   <div class="bottom-nav-item" onclick="window.location.href='profile.html'">
@@ -567,17 +569,11 @@
 </nav>
 
 <!-- ===== MOBILE CENTER FAB ===== -->
-<button class="mobile-center-fab" onclick="toggleSettings()" id="mobileCenterFab" aria-label="الإعدادات والألوان">
+<button class="mobile-center-fab" onclick="event.stopPropagation(); toggleSettings();" id="mobileCenterFab" aria-label="الإعدادات والألوان">
   <div class="mcf-ring"></div>
-  <!-- Bot Icon SVG -->
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M12 2a3 3 0 0 1 3 3v6H9V5a3 3 0 0 1 3-3z"/>
-    <circle cx="9" cy="16" r="1" fill="currentColor"/>
-    <circle cx="15" cy="16" r="1" fill="currentColor"/>
-    <line x1="8" y1="22" x2="8" y2="22"/>
-    <line x1="16" y1="22" x2="16" y2="22"/>
-    <path d="M5 11V7a7 7 0 0 1 14 0v4"/>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
   </svg>
 </button>
 
