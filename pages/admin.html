@@ -2327,7 +2327,7 @@ async function uploadCover(file) {
     const session = JSON.parse(localStorage.getItem('sb_session') || '{}');
     const token   = session?.access_token || sb.key;
     const ctrlImg = new AbortController();
-    const toImg = setTimeout(() => ctrlImg.abort(), 15000);
+    const toImg = setTimeout(() => ctrlImg.abort(), 60000);
     const res = await fetch(`${sb.url}/storage/v1/object/course-covers/${path}`, {
       method:  'POST',
       headers: { 'apikey': sb.key, 'Authorization': `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'true' },
@@ -2346,12 +2346,9 @@ async function uploadCover(file) {
       throw new Error('storage failed: ' + res.status);
     }
   } catch(e) {
-    console.warn('[Cover Upload] fallback to base64:', e.message);
-    // Fallback: احفظ base64 مباشرة
-    const b64 = await toBase64(compressed);
-    document.getElementById('cCover').value  = b64;
-    document.getElementById('cCoverImg').src = b64;
-    showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> تم حفظ الصورة');
+    console.warn('[Cover Upload] failed:', e.message);
+    document.getElementById('cCover').value = '';
+    showToast('❌ فشل رفع الصورة — تأكد إن bucket اسمه course-covers موجود في Supabase Storage وصلاحياته Public');
   } finally {
     document.getElementById('cCoverUploading').style.display = 'none';
     document.getElementById('cCoverPreview').style.display   = 'block';
@@ -2407,18 +2404,11 @@ async function processPdfFile(file) {
   document.getElementById('cPdfSelected').style.display   = 'none';
   document.getElementById('cPdfUploading').style.display  = 'block';
 
-  // لو شغال من file:// — حفظ base64 مباشرة زي ما بتعمل مع الصور
+  // تحذير لو شغال من file://
   if (window.location.protocol === 'file:') {
-    const b64 = await new Promise(resolve => {
-      const r = new FileReader();
-      r.onload = e => resolve(e.target.result);
-      r.readAsDataURL(file);
-    });
-    document.getElementById('cPdfUrl').value        = b64;
-    document.getElementById('cPdfName').textContent = '📄 ' + file.name;
-    document.getElementById('cPdfUploading').style.display = 'none';
-    document.getElementById('cPdfSelected').style.display  = 'block';
-    showToast('✅ تم حفظ PDF (ارفع الكورس من Vercel للرفع الكامل)');
+    showToast('⚠️ رفع الـ PDF مش شغال من file:// — ارفع الملفات على سيرفر أو استخدم LiveServer');
+    document.getElementById('cPdfUploading').style.display  = 'none';
+    document.getElementById('cPdfPlaceholder').style.display = 'block';
     return;
   }
 
@@ -2459,23 +2449,11 @@ async function processPdfFile(file) {
     }
 
   } catch(e) {
-    // Fallback: base64
-    try {
-      const b64 = await new Promise(resolve => {
-        const r = new FileReader();
-        r.onload = ev => resolve(ev.target.result);
-        r.readAsDataURL(file);
-      });
-      document.getElementById('cPdfUrl').value        = b64;
-      document.getElementById('cPdfName').textContent = '📄 ' + file.name;
-      document.getElementById('cPdfUploading').style.display = 'none';
-      document.getElementById('cPdfSelected').style.display  = 'block';
-      showToast('✅ تم حفظ PDF محلياً');
-    } catch(e2) {
-      document.getElementById('cPdfUploading').style.display   = 'none';
-      document.getElementById('cPdfPlaceholder').style.display = 'block';
-      showToast('❌ ' + e.message);
-    }
+    document.getElementById('cPdfUploading').style.display   = 'none';
+    document.getElementById('cPdfPlaceholder').style.display = 'block';
+    let errMsg = e.message || 'خطأ غير معروف';
+    if (e.name === 'AbortError') errMsg = 'انتهى الوقت — الملف كبير أو الاتصال بطيء';
+    showToast('❌ فشل رفع PDF: ' + errMsg);
   }
 }
 function clearPdf() {
@@ -2508,8 +2486,12 @@ async function addCourse() {
   const btn = document.getElementById('saveCBtn');
   btn.disabled=true; btn.innerHTML='⏳ جاري الحفظ...';
   try {
-    const coverUrl = document.getElementById('cCover').value.trim() || null;
-    const pdfUrl   = document.getElementById('cPdfUrl').value.trim() || null;
+    const coverRaw = document.getElementById('cCover').value.trim();
+    const pdfRaw   = document.getElementById('cPdfUrl').value.trim();
+    if (coverRaw.startsWith('data:')) { showToast('❌ صورة الغلاف لم تُرفع على Supabase — أعد رفعها'); btn.disabled=false; btn.innerHTML='✅ نشر الكورس'; return; }
+    if (pdfRaw.startsWith('data:'))   { showToast('❌ ملف PDF لم يُرفع على Supabase — أعد رفعه');   btn.disabled=false; btn.innerHTML='✅ نشر الكورس'; return; }
+    const coverUrl = coverRaw || null;
+    const pdfUrl   = pdfRaw   || null;
     await sb.insert('courses', { title, description:document.getElementById('cDesc').value.trim(), price:parseFloat(document.getElementById('cPrice').value)||0, status:document.getElementById('cStatus').value, grade:document.getElementById('cGrade').value, is_new:document.getElementById('cIsNew').checked, is_hot:document.getElementById('cIsHot').checked, lessons, lessons_count:lessons.length, cover_url:coverUrl, pdf_url:pdfUrl, rating:5, students:0, hours:0 });
     ['cTitle','cDesc','cPrice','cCover','cPdfUrl'].forEach(x => document.getElementById(x).value='');
     clearCover(); clearPdf();
