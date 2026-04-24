@@ -181,7 +181,7 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.icon-btn') && !e.target.closest('.notif-dropdown')) {
     document.querySelectorAll('.notif-dropdown').forEach(d => d.classList.remove('show'));
   }
-  if (!e.target.closest('.float-settings') && !e.target.closest('.settings-panel')) {
+  if (!e.target.closest('.float-settings') && !e.target.closest('.mobile-center-fab') && !e.target.closest('#mobileCenterFab') && !e.target.closest('.settings-panel')) {
     document.getElementById('settingsPanel')?.classList.remove('show');
   }
 });
@@ -1546,11 +1546,6 @@ ${nameCtx}
 
   // ── STREAMING API ──
   async function callClaudeStream(onChunk) {
-    // لو المفتاح مش متضاف، بلّغ المستخدم بدل ما ترمي 401
-    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) {
-      onChunk('⚠️ الـ AI مش متاح حالياً — المفتاح غير مضاف.', '⚠️ الـ AI مش متاح حالياً — المفتاح غير مضاف.');
-      return;
-    }
     const messages = chatHistory.map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
@@ -1612,7 +1607,6 @@ ${nameCtx}
 
   // ── API بدون streaming (للصور والصوت) ──
   async function callClaude() {
-    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) return '⚠️ الـ AI مش متاح حالياً.';
     const messages = chatHistory.map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
@@ -1936,7 +1930,6 @@ ${nameCtx}
 
   // API call مع صورة
   async function callClaudeWithContent(contentArray) {
-    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) return '⚠️ الـ AI مش متاح حالياً.';
     const prevMessages = chatHistory.slice(0,-1).map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
