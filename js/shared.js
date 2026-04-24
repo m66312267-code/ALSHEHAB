@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeHint = hour < 12 ? 'الصبح' : hour < 17 ? 'بعد الضهر' : 'الليل';
     const adminCtx = isAdmin ? '\nالمستخدم ده أدمن — ممكن يسألك عن إدارة الطلاب والكورسات.' : '';
 
-    return `أنت "ALMAHS BOT"، المساعد الذكي الرسمي لمنصة إبداع التعليمية.
+    return `أنت "ALMAHS Ai"، المساعد الذكي الرسمي لمنصة إبداع التعليمية.
 ${nameCtx}
 الطالب موجود دلوقتي في صفحة: "${pageName}". الوقت: ${timeHint}.${adminCtx}
 
@@ -570,30 +570,515 @@ ${nameCtx}
       isAdmin = profile.role === 'admin';
     } catch(e) {}
 
-    // inject streaming cursor CSS
+
+    // ── INJECT CHATBOT CSS ──
     if (!document.getElementById('cpStreamStyle')) {
       const style = document.createElement('style');
       style.id = 'cpStreamStyle';
       style.textContent = `
-        .cp-stream-cursor {
-          display: inline-block;
-          width: 2px;
-          height: 1em;
-          background: var(--accent, #00d4aa);
-          margin-right: 2px;
-          vertical-align: text-bottom;
-          border-radius: 1px;
-          animation: cpBlink .6s step-end infinite;
-        }
-        @keyframes cpBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ═══════════════════════════════════════
+   AI BOT ICON ANIMATIONS
+═══════════════════════════════════════ */
+.ai-spark-svg { display:block; color: var(--accent,#00d4aa); transition: color .3s; }
+.ai-spark-sm  { color: var(--accent,#00d4aa); }
+
+.ai-node { animation: aiNodeBlink 2.4s ease-in-out infinite; }
+.ai-node.n1 { animation-delay: 0s; }
+.ai-node.n2 { animation-delay: .4s; }
+.ai-node.n3 { animation-delay: .8s; }
+.ai-node.n4 { animation-delay: 1.2s; }
+@keyframes aiNodeBlink {
+  0%,100% { opacity:1; }
+  45%      { opacity:.15; }
+}
+
+/* eye scan animation */
+.bot-eye-glow { animation: eyeScan 3s ease-in-out infinite; }
+.bot-eye-glow.e2 { animation-delay: .15s; }
+@keyframes eyeScan {
+  0%,100% { opacity:.95; r:1.1; }
+  50%      { opacity:.3;  r:.6; }
+}
+
+/* antenna pulse */
+.bot-antenna { animation: antennaPing 2.5s ease-in-out infinite; }
+@keyframes antennaPing {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.7); }
+}
+
+/* bot head subtle breathe */
+.bot-head { animation: botBreath 4s ease-in-out infinite; transform-origin:16px 17px; }
+@keyframes botBreath {
+  0%,100% { transform:scaleY(1); }
+  50%      { transform:scaleY(1.02); }
+}
+
+/* ═══════════════════════════════════════
+   FAB BUTTON — Modern Redesign
+═══════════════════════════════════════ */
+.float-chatbot {
+  position: fixed !important;
+  bottom: 80px !important;
+  left: 20px !important;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg, var(--accent,#00d4aa) 0%, #6366f1 100%) !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow:
+    0 6px 24px rgba(0,212,170,.35),
+    0 2px 8px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.2) !important;
+  z-index: 9990 !important;
+  transition: transform .25s cubic-bezier(.34,1.6,.64,1), box-shadow .25s !important;
+  animation: fabBreath 4s ease-in-out infinite !important;
+  color: #fff !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.float-chatbot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  background: conic-gradient(from 0deg, var(--accent,#00d4aa), #6366f1, #a855f7, var(--accent,#00d4aa));
+  z-index: -1;
+  opacity: 0;
+  animation: fabRingPulse 3s ease-out infinite;
+}
+.float-chatbot:hover {
+  transform: scale(1.1) translateY(-2px) !important;
+  box-shadow:
+    0 10px 32px rgba(0,212,170,.5),
+    0 4px 12px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+.float-chatbot:hover::before { opacity: .35; }
+@keyframes fabBreath {
+  0%,100% { box-shadow: 0 6px 24px rgba(0,212,170,.35), 0 2px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2); }
+  50%      { box-shadow: 0 8px 32px rgba(0,212,170,.5), 0 2px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2); }
+}
+@keyframes fabRingPulse {
+  0%   { opacity:0; transform:scale(1);   }
+  40%  { opacity:.3; }
+  100% { opacity:0; transform:scale(1.4); }
+}
+
+.chat-fab-dot {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 12px; height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid var(--bg,#0d1117);
+  display: none;
+  animation: dotBounce .8s ease infinite alternate;
+}
+@keyframes dotBounce { from{transform:scale(1)} to{transform:scale(1.35)} }
+
+/* ═══════════════════════════════════════
+   POPUP — Modern Glassmorphism
+═══════════════════════════════════════ */
+.chat-popup {
+  position: fixed;
+  bottom: 148px;
+  left: 20px;
+  width: 368px;
+  max-height: 570px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9991;
+  box-shadow:
+    0 24px 64px rgba(0,0,0,.6),
+    0 8px 24px rgba(0,0,0,.4),
+    0 0 0 1px rgba(255,255,255,.07),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  overflow: hidden;
+  animation: popupIn .28s cubic-bezier(.34,1.25,.64,1);
+  font-family: 'Cairo', sans-serif;
+}
+.chat-popup.closing {
+  animation: popupOut .2s ease forwards;
+}
+@keyframes popupIn  { from{opacity:0;transform:translateY(20px) scale(.94)} to{opacity:1;transform:none} }
+@keyframes popupOut { to  {opacity:0;transform:translateY(12px) scale(.96)} }
+
+@media(max-width:480px){
+  .chat-popup { left:10px; right:10px; width:auto; bottom:140px; }
+  .float-chatbot { bottom:76px; left:16px; }
+}
+
+/* DARK */
+.cp-dark {
+  background: #0c1018;
+  color: #e2e8f0;
+  --cp-bg: #0c1018;
+  --cp-card: #131929;
+  --cp-border: rgba(255,255,255,.07);
+  --cp-dim: rgba(255,255,255,.35);
+  --cp-user-bg: linear-gradient(135deg, var(--accent,#00d4aa), #6366f1);
+  --cp-bot-bg: rgba(30,37,53,.9);
+  --cp-input-bg: rgba(30,37,53,.8);
+  --cp-header-bg: rgba(12,16,24,.9);
+}
+/* LIGHT */
+.cp-light {
+  background: #f4f7fb;
+  color: #1e293b;
+  --cp-bg: #f4f7fb;
+  --cp-card: #fff;
+  --cp-border: rgba(0,0,0,.07);
+  --cp-dim: rgba(0,0,0,.4);
+  --cp-user-bg: linear-gradient(135deg, var(--accent,#00d4aa), #6366f1);
+  --cp-bot-bg: rgba(255,255,255,.95);
+  --cp-input-bg: rgba(255,255,255,.9);
+  --cp-header-bg: rgba(244,247,251,.95);
+}
+
+/* ── HEADER ── */
+.cp-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 13px 13px 15px;
+  background: var(--cp-header-bg, rgba(12,16,24,.9));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--cp-border, rgba(255,255,255,.07));
+  flex-shrink: 0;
+  position: relative;
+}
+/* gradient accent line on top of header */
+.cp-header::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent,#00d4aa) 30%, #6366f1 70%, transparent 100%);
+  border-radius: 22px 22px 0 0;
+}
+/* subtle gradient shimmer on header */
+.cp-header::after {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg, rgba(0,212,170,.05) 0%, transparent 50%, rgba(99,102,241,.05) 100%);
+  pointer-events: none;
+}
+
+.cp-av {
+  width: 40px; height: 40px;
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(0,212,170,.18), rgba(99,102,241,.15));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent,#00d4aa);
+  position: relative;
+  box-shadow: 0 3px 14px rgba(0,212,170,.25), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.cp-av::after {
+  content:'';
+  position:absolute; inset:-2px;
+  border-radius:15px;
+  background: conic-gradient(from 0deg, var(--accent,#00d4aa) 0%, #6366f1 50%, var(--accent,#00d4aa) 100%);
+  z-index:-1;
+  opacity: .6;
+  animation: avBorderSpin 5s linear infinite;
+}
+@keyframes avBorderSpin { to{transform:rotate(360deg)} }
+
+.cp-info { flex:1; min-width:0; }
+.cp-name { font-size:13.5px; font-weight:900; line-height:1.2; letter-spacing:.2px; }
+.cp-status {
+  font-size:10px; color: var(--accent,#00d4aa);
+  display:flex; align-items:center; gap:5px;
+  margin-top:2px;
+}
+.cp-status::before {
+  content:'';
+  width:5px; height:5px; border-radius:50%;
+  background: var(--accent,#00d4aa);
+  animation: statusPulse 2.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes statusPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
+
+.cp-admin-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:9px; font-weight:700;
+  background: rgba(251,191,36,.12);
+  color: #fbbf24;
+  border:1px solid rgba(251,191,36,.2);
+  border-radius:20px; padding:1px 6px;
+  margin-right:5px;
+}
+
+.cp-header-actions { display:flex; gap:3px; flex-shrink:0; }
+.cp-hbtn {
+  width:29px; height:29px;
+  border-radius:9px; border:1px solid var(--cp-border, rgba(255,255,255,.07));
+  background: rgba(255,255,255,.04);
+  color: var(--cp-dim, rgba(255,255,255,.4));
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .2s cubic-bezier(.34,1.4,.64,1);
+}
+.cp-hbtn:hover {
+  background: rgba(0,212,170,.1);
+  color: var(--accent,#00d4aa);
+  border-color: rgba(0,212,170,.2);
+  transform: scale(1.1);
+}
+.cp-hbtn svg { display:block; }
+
+/* ── COUNTER ── */
+.cp-counter {
+  padding: 5px 14px 4px;
+  display:flex; align-items:center; gap:8px;
+  background: var(--cp-card, #131929);
+  border-bottom:1px solid var(--cp-border, rgba(255,255,255,.04));
+  flex-shrink:0;
+}
+.cp-counter-bar {
+  flex:1; height:2px; border-radius:2px;
+  background: rgba(255,255,255,.05);
+  overflow:hidden;
+}
+.cp-counter-fill {
+  height:100%; border-radius:2px;
+  background: linear-gradient(90deg, var(--accent,#00d4aa), #6366f1, #a855f7);
+  transition: width .5s cubic-bezier(.34,1.1,.64,1);
+}
+#cpCounterLabel { font-size:10px; color: var(--cp-dim); white-space:nowrap; letter-spacing:.3px; }
+
+/* ── MESSAGES ── */
+.cp-messages {
+  flex:1; overflow-y:auto; padding:14px 12px;
+  display:flex; flex-direction:column; gap:10px;
+  background: var(--cp-bg, #0c1018);
+  scroll-behavior:smooth;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.025) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.cp-messages::-webkit-scrollbar { width:3px; }
+.cp-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:2px; }
+
+/* empty state */
+.cp-empty {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; gap:12px; padding:24px;
+  opacity:.8;
+}
+.cp-empty-icon {
+  width:68px; height:68px; border-radius:22px;
+  background: linear-gradient(145deg, rgba(0,212,170,.12), rgba(99,102,241,.1));
+  border:1px solid rgba(0,212,170,.18);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 4px 20px rgba(0,212,170,.1), inset 0 1px 0 rgba(255,255,255,.06);
+  animation: emptyIconFloat 4s ease-in-out infinite;
+}
+@keyframes emptyIconFloat {
+  0%,100% { transform:translateY(0); box-shadow:0 4px 20px rgba(0,212,170,.1),inset 0 1px 0 rgba(255,255,255,.06); }
+  50%      { transform:translateY(-5px); box-shadow:0 10px 28px rgba(0,212,170,.18),inset 0 1px 0 rgba(255,255,255,.06); }
+}
+.cp-empty-title { font-size:16px; font-weight:900; letter-spacing:.3px; }
+.cp-empty-sub   { font-size:12px; color: var(--cp-dim); line-height:1.8; max-width:220px; }
+
+/* message rows */
+.cp-msg-row {
+  display:flex; align-items:flex-end; gap:7px;
+  animation: msgIn .22s ease;
+}
+.cp-msg-row.user { flex-direction:row-reverse; }
+@keyframes msgIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* avatars */
+.cp-msg-av {
+  width:30px; height:30px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:900; flex-shrink:0;
+}
+.cp-msg-av.bot {
+  background: linear-gradient(145deg, rgba(0,212,170,.12), rgba(99,102,241,.1));
+  border:1px solid rgba(0,212,170,.18);
+  color: var(--accent,#00d4aa);
+}
+.cp-msg-av.user {
+  background: linear-gradient(135deg, var(--accent,#00d4aa), #6366f1);
+  color:#fff; font-size:13px;
+}
+
+/* bubbles */
+.cp-bubble {
+  padding: 10px 14px;
+  border-radius:16px;
+  font-size:13px; line-height:1.75;
+  word-break:break-word;
+}
+.cp-bubble.bot {
+  background: var(--cp-bot-bg, rgba(30,37,53,.9));
+  border:1px solid var(--cp-border, rgba(255,255,255,.07));
+  border-bottom-right-radius:5px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.cp-bubble.user {
+  background: var(--cp-user-bg, linear-gradient(135deg,#00d4aa,#6366f1));
+  color:#fff;
+  border-bottom-left-radius:5px;
+  box-shadow: 0 3px 14px rgba(0,212,170,.2);
+}
+.cp-bubble strong { font-weight:700; }
+.cp-bubble code {
+  background:rgba(0,0,0,.28); border-radius:5px;
+  padding:1px 6px; font-family:monospace; font-size:12px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.cp-bubble li { margin-right:14px; margin-bottom:3px; }
+
+/* typing */
+.cp-typing { display:flex; align-items:center; gap:4px; padding:10px 14px; }
+.cp-typing span {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--accent,#00d4aa); opacity:.25;
+  animation: typingDot 1.4s ease-in-out infinite;
+}
+.cp-typing span:nth-child(1) { animation-delay: 0s; }
+.cp-typing span:nth-child(2) { animation-delay:.18s; }
+.cp-typing span:nth-child(3) { animation-delay:.36s; }
+@keyframes typingDot {
+  0%,80%,100%{ opacity:.25; transform:scale(1)    }
+  40%        { opacity:1;   transform:scale(1.4)  }
+}
+
+/* action buttons */
+.cp-actions {
+  display:flex; gap:3px; align-items:center; margin-top:4px;
+}
+.cp-act-btn {
+  width:24px; height:24px; border-radius:7px;
+  border:1px solid var(--cp-border, rgba(255,255,255,.06));
+  background:rgba(255,255,255,.03);
+  color: var(--cp-dim, rgba(255,255,255,.28));
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .2s cubic-bezier(.34,1.4,.64,1);
+}
+.cp-act-btn:hover, .cp-act-btn.cp-like:hover {
+  color: var(--accent,#00d4aa);
+  background:rgba(0,212,170,.08);
+  border-color:rgba(0,212,170,.2);
+  transform: scale(1.15);
+}
+.cp-act-btn.cp-dislike:hover { color:#ef4444; background:rgba(239,68,68,.08); border-color:rgba(239,68,68,.2); transform:scale(1.15); }
+.cp-act-btn svg { display:block; }
+
+/* ── INPUT AREA ── */
+.cp-input-area {
+  border-top:1px solid var(--cp-border, rgba(255,255,255,.06));
+  background: var(--cp-card, #131929);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  flex-shrink:0;
+}
+
+.cp-toolbar {
+  display:flex; align-items:center; gap:3px;
+  padding:8px 12px 3px;
+}
+.cp-tool-btn {
+  width:30px; height:28px; border-radius:8px;
+  border:1px solid var(--cp-border, rgba(255,255,255,.06));
+  background:rgba(255,255,255,.03);
+  color: var(--cp-dim, rgba(255,255,255,.3));
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .2s cubic-bezier(.34,1.4,.64,1); flex-shrink:0;
+}
+.cp-tool-btn:hover {
+  color: var(--accent,#00d4aa);
+  background: rgba(0,212,170,.1);
+  border-color: rgba(0,212,170,.25);
+  transform: translateY(-1px);
+}
+.cp-tool-btn svg { display:block; }
+
+.cp-voice-status {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; color:#ef4444; margin-right:auto;
+}
+.cp-voice-dot {
+  width:8px; height:8px; border-radius:50%; background:#ef4444;
+  animation:dotBounce .6s ease infinite alternate;
+}
+
+.cp-input-row {
+  display:flex; align-items:flex-end; gap:8px;
+  padding:5px 12px 12px;
+}
+.cp-input {
+  flex:1; background: var(--cp-input-bg, rgba(30,37,53,.8));
+  border:1px solid var(--cp-border, rgba(255,255,255,.07));
+  border-radius:13px; padding:10px 14px;
+  color:inherit; font-family:'Cairo',sans-serif; font-size:13px;
+  resize:none; outline:none; line-height:1.55;
+  max-height:80px; min-height:40px;
+  transition: border-color .2s, box-shadow .2s;
+  backdrop-filter: blur(8px);
+}
+.cp-input:focus {
+  border-color: rgba(0,212,170,.45);
+  box-shadow: 0 0 0 3px rgba(0,212,170,.08), 0 2px 8px rgba(0,0,0,.15);
+}
+.cp-input::placeholder { color: var(--cp-dim, rgba(255,255,255,.28)); }
+
+.cp-send {
+  width:40px; height:40px; border-radius:13px; border:none;
+  background: linear-gradient(145deg, var(--accent,#00d4aa), #6366f1);
+  color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: transform .2s cubic-bezier(.34,1.6,.64,1), box-shadow .2s;
+  flex-shrink:0;
+  box-shadow: 0 3px 12px rgba(0,212,170,.3);
+}
+.cp-send:hover:not(:disabled) {
+  transform:scale(1.1) translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,212,170,.45);
+}
+.cp-send:disabled { opacity:.35; cursor:not-allowed; }
+.cp-send svg { display:block; }
+
+/* streaming cursor */
+.cp-stream-cursor {
+  display:inline-block; width:2px; height:1em;
+  background:var(--accent,#00d4aa); margin-right:2px;
+  vertical-align:text-bottom; border-radius:1px;
+  animation:cpBlink .6s step-end infinite;
+}
+@keyframes cpBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
       `;
       document.head.appendChild(style);
     }
 
+
     // FAB
     const fab = document.createElement('button');
-    fab.id = 'chatFAB'; fab.className = 'float-chatbot'; fab.title = 'ALMAHS BOT';
-    fab.innerHTML = `🤖<span class="chat-fab-dot"></span>`;
+    fab.id = 'chatFAB'; fab.className = 'float-chatbot'; fab.title = 'ALMAHS Ai';
+    fab.innerHTML = `<svg class="ai-spark-svg" width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg><span class="chat-fab-dot"></span>`;
     fab.onclick = toggleChatPopup;
     document.body.appendChild(fab);
 
@@ -603,15 +1088,26 @@ ${nameCtx}
     popup.style.display = 'none';
     popup.innerHTML = `
       <div class="cp-header">
-        <div class="cp-av">👨‍💻</div>
+        <div class="cp-av"><svg class="ai-spark-svg ai-spark-sm" width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg></div>
         <div class="cp-info">
-          <div class="cp-name">ALMAHS BOT ${isAdmin ? '<span class="cp-admin-badge">👑 أدمن</span>' : ''}</div>
+          <div class="cp-name">ALMAHS Ai ${isAdmin ? '<span class="cp-admin-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20l2-8 6 4 6-4 2 8"/><circle cx="12" cy="8" r="3"/></svg> أدمن</span>' : ''}</div>
           <div class="cp-status">متاح الآن</div>
         </div>
         <div class="cp-header-actions">
-          <button class="cp-hbtn" onclick="window._cpToggleDark()" title="تغيير المظهر" id="cpDarkBtn">🌙</button>
-          <button class="cp-hbtn" onclick="window._cpClear()" title="مسح المحادثة">🗑</button>
-          <button class="cp-hbtn" onclick="window._closeChatPopup()">✕</button>
+          <button class="cp-hbtn" onclick="window._cpToggleDark()" title="تغيير المظهر" id="cpDarkBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+          <button class="cp-hbtn" onclick="window._cpClear()" title="مسح المحادثة"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          <button class="cp-hbtn" onclick="window._closeChatPopup()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
       <div class="cp-counter" id="cpCounter">
@@ -620,18 +1116,29 @@ ${nameCtx}
       </div>
       <div class="cp-messages" id="cpMessages">
         <div class="cp-empty" id="cpEmpty">
-          <div class="cp-empty-icon">👨‍💻</div>
-          <div class="cp-empty-title">${userName ? `أهلاً ${userName}! 👋` : 'أهلاً! 👋'}</div>
-          <div class="cp-empty-sub">مساعد منصة إبداع 🎓<br>اسألني عن الكورسات، الدفع، حسابك، أو أي سؤال دراسي! 🚀</div>
+          <div class="cp-empty-icon"><svg class="ai-spark-svg" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg></div>
+          <div class="cp-empty-title">${userName ? `أهلاً ${userName}!` : 'أهلاً!'}</div>
+          <div class="cp-empty-sub">مساعد منصة إبداع<br>اسألني عن الكورسات، الدفع، حسابك، أو أي سؤال دراسي!</div>
         </div>
       </div>
       <div class="cp-input-area">
         <!-- toolbar: voice + image + quiz + math -->
         <div class="cp-toolbar">
-          <button class="cp-tool-btn" id="cpVoiceBtn" onclick="window._cpToggleVoice()" title="تسجيل صوت">🎙️</button>
-          <button class="cp-tool-btn" onclick="document.getElementById('cpImgInput').click()" title="رفع صورة">📸</button>
-          <button class="cp-tool-btn" onclick="window._cpQuizMode()" title="اختبار سريع">📝</button>
-          <button class="cp-tool-btn" onclick="window._cpMathMode()" title="حل معادلة">🧮</button>
+          <button class="cp-tool-btn" id="cpVoiceBtn" onclick="window._cpToggleVoice()" title="تسجيل صوت"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+          <button class="cp-tool-btn" onclick="document.getElementById('cpImgInput').click()" title="رفع صورة"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+          <button class="cp-tool-btn" onclick="window._cpQuizMode()" title="اختبار سريع"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
+          <button class="cp-tool-btn" onclick="window._cpMathMode()" title="حل معادلة"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg></button>
           <input type="file" id="cpImgInput" accept="image/*" style="display:none" onchange="window._cpHandleImg(this)">
           <div class="cp-voice-status" id="cpVoiceStatus" style="display:none">
             <span class="cp-voice-dot"></span> جاري التسجيل...
@@ -641,7 +1148,7 @@ ${nameCtx}
         <div id="cpImgPreview" style="display:none;padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border);">
           <div style="position:relative;display:inline-block;">
             <img id="cpImgThumb" style="height:60px;border-radius:8px;object-fit:cover;">
-            <button onclick="window._cpClearImg()" style="position:absolute;top:-6px;right:-6px;background:#ef4444;border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            <button onclick="window._cpClearImg()" style="position:absolute;top:-6px;right:-6px;background:#ef4444;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:2px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
         </div>
         <div class="cp-input-row">
@@ -649,7 +1156,7 @@ ${nameCtx}
             placeholder="اكتب أو سجّل أو ارفع صورة..."
             onkeydown="window._cpKey(event)"
             oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
-          <button class="cp-send" id="cpSendBtn" onclick="window._cpSend()">➤</button>
+          <button class="cp-send" id="cpSendBtn" onclick="window._cpSend()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
       </div>`;
     document.body.appendChild(popup);
@@ -667,7 +1174,7 @@ ${nameCtx}
 
     // استرجع الـ dark mode setting
     const savedDark = localStorage.getItem('ibda3_bot_dark');
-    if (savedDark === 'false') { darkMode = false; popup.classList.remove('cp-dark'); popup.classList.add('cp-light'); document.getElementById('cpDarkBtn').textContent = '☀️'; }
+    if (savedDark === 'false') { darkMode = false; popup.classList.remove('cp-dark'); popup.classList.add('cp-light'); document.getElementById('cpDarkBtn').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`; }
   }
 
   // ── TOGGLE POPUP ──
@@ -700,9 +1207,9 @@ ${nameCtx}
     const timeGreet = hour < 12 ? 'صباح الخير' : hour < 17 ? 'مساء الخير' : 'مساء النور';
     const name = userName ? ` يا ${userName}` : '';
     const greetings = [
-      `${timeGreet}${name}! 👋 أنا ALMAHS BOT — مساعدك على منصة إبداع. إيه اللي تحتاجه النهارده؟ 🚀`,
-      `${timeGreet}${name}! 😊 أنا هنا أساعدك — سواء سؤال دراسي أو حاجة في المنصة، اسأل براحتك!`,
-      `أهلاً${name}! 🎓 أنا ALMAHS BOT، اسألني عن الكورسات، الدروس، أو أي حاجة تانية!`,
+      `${timeGreet}${name}! أنا ALMAHS Ai — مساعدك على منصة إبداع. إيه اللي تحتاجه النهارده؟`,
+      `${timeGreet}${name}! أنا هنا أساعدك — سواء سؤال دراسي أو حاجة في المنصة، اسأل براحتك!`,
+      `أهلاً${name}! أنا ALMAHS Ai، اسألني عن الكورسات، الدروس، أو أي حاجة تانية!`,
     ];
     const msg = greetings[Math.floor(Math.random() * greetings.length)];
     // أظهر الـ empty screen واخفيه
@@ -724,7 +1231,7 @@ ${nameCtx}
     darkMode = !darkMode;
     popup.classList.toggle('cp-dark',  darkMode);
     popup.classList.toggle('cp-light', !darkMode);
-    btn.textContent = darkMode ? '🌙' : '☀️';
+    btn.innerHTML = darkMode ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>` : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
     localStorage.setItem('ibda3_bot_dark', darkMode);
   };
 
@@ -738,9 +1245,20 @@ ${nameCtx}
     if (!c) return;
     c.innerHTML = `
       <div class="cp-empty" id="cpEmpty">
-        <div class="cp-empty-icon">👨‍💻</div>
-        <div class="cp-empty-title">${userName ? `أهلاً ${userName}! 👋` : 'أهلاً! 👋'}</div>
-        <div class="cp-empty-sub">مساعد منصة إبداع 🎓<br>اسألني عن الكورسات، الدفع، حسابك، أو أي سؤال دراسي! 🚀</div>
+        <div class="cp-empty-icon"><svg class="ai-spark-svg" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg></div>
+        <div class="cp-empty-title">${userName ? `أهلاً ${userName}!` : 'أهلاً!'}</div>
+        <div class="cp-empty-sub">مساعد منصة إبداع<br>اسألني عن الكورسات، الدفع، حسابك، أو أي سؤال دراسي!</div>
       </div>`;
     updateCounter();
     if (typeof showToast === 'function') showToast('تم مسح المحادثة 🗑');
@@ -1028,6 +1546,11 @@ ${nameCtx}
 
   // ── STREAMING API ──
   async function callClaudeStream(onChunk) {
+    // لو المفتاح مش متضاف، بلّغ المستخدم بدل ما ترمي 401
+    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) {
+      onChunk('⚠️ الـ AI مش متاح حالياً — المفتاح غير مضاف.', '⚠️ الـ AI مش متاح حالياً — المفتاح غير مضاف.');
+      return;
+    }
     const messages = chatHistory.map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
@@ -1089,6 +1612,7 @@ ${nameCtx}
 
   // ── API بدون streaming (للصور والصوت) ──
   async function callClaude() {
+    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) return '⚠️ الـ AI مش متاح حالياً.';
     const messages = chatHistory.map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
@@ -1135,13 +1659,24 @@ ${nameCtx}
     const row = document.createElement('div');
     row.className = 'cp-msg-row';
     row.innerHTML = `
-      <div class="cp-msg-av bot">🤖</div>
+      <div class="cp-msg-av bot"><svg class="ai-spark-svg ai-spark-sm" width="15" height="15" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg></div>
       <div style="max-width:78%;display:flex;flex-direction:column;gap:4px;align-items:flex-start">
         <div class="cp-bubble bot" id="${msgId}"><span class="cp-stream-cursor">▋</span></div>
         <div class="cp-actions" id="act_${msgId}" style="display:none">
-          <button class="cp-act-btn" onclick="window._cpCopy('${msgId}')" title="نسخ">📋</button>
-          <button class="cp-act-btn cp-like"   onclick="window._cpRate(this,'up')"   title="مفيد">👍</button>
-          <button class="cp-act-btn cp-dislike" onclick="window._cpRate(this,'dn')"  title="مش مفيد">👎</button>
+          <button class="cp-act-btn" onclick="window._cpCopy('${msgId}')" title="نسخ"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button class="cp-act-btn cp-like"   onclick="window._cpRate(this,'up')"   title="مفيد"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+          <button class="cp-act-btn cp-dislike" onclick="window._cpRate(this,'dn')"  title="مش مفيد"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></button>
         </div>
       </div>`;
     container.appendChild(row);
@@ -1179,14 +1714,25 @@ ${nameCtx}
     const html = isUser ? esc(content) : fmt(content);
 
     row.innerHTML = `
-      <div class="cp-msg-av ${isUser ? 'user' : 'bot'}">${isUser ? userInit : '🤖'}</div>
+      <div class="cp-msg-av ${isUser ? 'user' : 'bot'}">${isUser ? userInit : `<svg class="ai-spark-svg ai-spark-sm" width="15" height="15" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg>`}</div>
       <div style="max-width:78%;display:flex;flex-direction:column;gap:4px;align-items:${isUser?'flex-end':'flex-start'}">
         <div class="cp-bubble ${isUser ? 'user' : 'bot'}" id="${msgId}">${html}</div>
         ${!isUser ? `
         <div class="cp-actions">
-          <button class="cp-act-btn" onclick="window._cpCopy('${msgId}')" title="نسخ">📋</button>
-          <button class="cp-act-btn cp-like"   onclick="window._cpRate(this,'up')"   title="مفيد">👍</button>
-          <button class="cp-act-btn cp-dislike" onclick="window._cpRate(this,'dn')"  title="مش مفيد">👎</button>
+          <button class="cp-act-btn" onclick="window._cpCopy('${msgId}')" title="نسخ"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button class="cp-act-btn cp-like"   onclick="window._cpRate(this,'up')"   title="مفيد"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+          <button class="cp-act-btn cp-dislike" onclick="window._cpRate(this,'dn')"  title="مش مفيد"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></button>
         </div>` : ''}
       </div>`;
     container.appendChild(row);
@@ -1226,7 +1772,18 @@ ${nameCtx}
     if (!c) return id;
     const el = document.createElement('div');
     el.id = id; el.className = 'cp-msg-row';
-    el.innerHTML = `<div class="cp-msg-av bot">🤖</div><div class="cp-bubble bot cp-typing"><span></span><span></span><span></span></div>`;
+    el.innerHTML = `<div class="cp-msg-av bot"><svg class="ai-spark-svg ai-spark-sm" width="15" height="15" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/>
+  <rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/>
+  <circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/>
+  <circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+  <circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/>
+  <rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/>
+  <rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+  <rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/>
+</svg></div><div class="cp-bubble bot cp-typing"><span></span><span></span><span></span></div>`;
     c.appendChild(el); scrollCP(); return id;
   }
   function removeTypingCP(id) { document.getElementById(id)?.remove(); }
@@ -1234,11 +1791,21 @@ ${nameCtx}
   function scrollCP() { const c = document.getElementById('cpMessages'); if (c) setTimeout(() => c.scrollTop = c.scrollHeight, 40); }
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function fmt(t) {
-    return esc(t)
-      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-      .replace(/`(.+?)`/g,'<code>$1</code>')
-      .replace(/^- (.+)$/gm,'<li>$1</li>')
-      .replace(/\n/g,'<br>');
+    // 1) escape HTML
+    let s = esc(t);
+    // 2) bold & code
+    s = s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s = s.replace(/`(.+?)`/g,'<code>$1</code>');
+    // 3) wrap consecutive list lines in <ul>
+    s = s.replace(/((?:^- .+$\n?)+)/gm, (block) => {
+      const items = block.trim().split('\n').map(l => `<li>${l.replace(/^- /,'').trim()}</li>`).join('');
+      return `<ul style="margin:6px 0 6px 18px;padding:0;list-style:disc;">${items}</ul>`;
+    });
+    // 4) newlines → <br> (but not inside ul blocks)
+    s = s.replace(/\n/g,'<br>');
+    // 5) fix double <br> after </ul>
+    s = s.replace(/<\/ul><br>/g,'</ul>');
+    return s;
   }
 
   // ══════════════════════════════════════════
@@ -1258,7 +1825,7 @@ ${nameCtx}
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         isRecording = false;
-        document.getElementById('cpVoiceBtn').textContent   = '🎙️';
+        document.getElementById('cpVoiceBtn').innerHTML   = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`;
         document.getElementById('cpVoiceStatus').style.display = 'none';
         // حوّل لـ base64 وابعت للـ API
         const blob   = new Blob(audioChunks, { type: 'audio/webm' });
@@ -1276,7 +1843,7 @@ ${nameCtx}
       };
       mediaRecorder.start();
       isRecording = true;
-      document.getElementById('cpVoiceBtn').textContent      = '⏹️';
+      document.getElementById('cpVoiceBtn').innerHTML      = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`;
       document.getElementById('cpVoiceStatus').style.display = 'flex';
       if (typeof showToast === 'function') showToast('🎙️ جاري التسجيل — اضغط تاني لوقف');
     } catch(e) {
@@ -1369,6 +1936,7 @@ ${nameCtx}
 
   // API call مع صورة
   async function callClaudeWithContent(contentArray) {
+    if (!OR_KEY || OR_KEY.startsWith('REPLACE_')) return '⚠️ الـ AI مش متاح حالياً.';
     const prevMessages = chatHistory.slice(0,-1).map(m => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content
@@ -1418,7 +1986,7 @@ ${nameCtx}
     const canvas = document.createElement('canvas');
     canvas.width  = 260; canvas.height = 180;
     canvas.style.cssText = 'border-radius:10px;background:#0f1117;display:block;';
-    wrap.innerHTML = `<div class="cp-msg-av bot">📊</div><div style="max-width:78%"><div class="cp-bubble bot" style="padding:8px;"></div></div>`;
+    wrap.innerHTML = `<div class="cp-msg-av bot"><svg class="ai-spark-svg ai-spark-sm" width="15" height="15" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="8.5" x2="16" y2="5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle class="bot-antenna ai-node n1" cx="16" cy="4" r="2.2" fill="currentColor"/><rect class="bot-head" x="6" y="9" width="20" height="15" rx="4.5" fill="currentColor"/><circle cx="12" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/><circle cx="20" cy="15.5" r="2.8" fill="rgba(0,0,0,.55)"/><circle class="bot-eye-glow" cx="12" cy="15.5" r="1.3" fill="currentColor"/><circle class="bot-eye-glow e2" cx="20" cy="15.5" r="1.3" fill="currentColor"/><rect x="12.5" y="20" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,.4)"/><rect x="3" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/><rect x="25.5" y="12.5" width="3.5" height="6" rx="1.75" fill="currentColor" opacity="0.65"/></svg></div><div style="max-width:78%"><div class="cp-bubble bot" style="padding:8px;"></div></div>`;
     wrap.querySelector('.cp-bubble').appendChild(canvas);
     container.appendChild(wrap);
 
