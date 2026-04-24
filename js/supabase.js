@@ -479,7 +479,7 @@ const Courses = {
 
     this._fetchPromise = (async () => {
       try {
-        const data = await sb.select('courses', 'order=created_at.desc');
+        const data = await sb.select('courses', 'select=id,title,description,price,status,grade,cover_url,lessons_count,lessons,rating,students,hours,is_new,is_hot,emoji,category,created_at&order=created_at.desc');
         if (Array.isArray(data)) {
           this._cache = data; this._cacheTime = Date.now();
           localStorage.setItem('ibda3_courses', JSON.stringify(data));
