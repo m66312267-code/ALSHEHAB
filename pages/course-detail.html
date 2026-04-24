@@ -42,6 +42,7 @@
       animation: shimmer 3s linear infinite;
     }
     @keyframes shimmer { 0%{background-position:0% 0} 100%{background-position:200% 0} }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
     /* ambient glows */
     .cd-hero-glow-r {
@@ -639,22 +640,258 @@
               <textarea class="cd-notes-area" id="courseNotes" oninput="autoSaveNotes()" placeholder="اكتب ملاحظاتك أثناء المشاهدة..."></textarea>
             </div>
 
-            <!-- PDF VIEWER -->
-            <div class="cd-notes-card" id="pdfCard" style="display:none;">
-              <div class="cd-card-head">
-                <div class="cd-card-icon">📄</div>
-                <div class="cd-card-title">ملف الكورس PDF</div>
-                <a id="pdfDownloadBtn" href="#" target="_blank" rel="noopener noreferrer"
-                  style="margin-right:auto;display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);color:var(--accent);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;font-family:Cairo,sans-serif;text-decoration:none;transition:all .2s;"
-                  onmouseover="this.style.background='rgba(0,212,170,.2)'"
-                  onmouseout="this.style.background='rgba(0,212,170,.1)'">
-                  ⬇️ تحميل
-                </a>
+            <!-- PDF VIEWER — PROFESSIONAL -->
+            <div id="pdfCard" style="display:none; margin-bottom:22px;">
+
+              <!-- header bar -->
+              <div style="
+                background:linear-gradient(135deg,var(--bg2) 0%,var(--card) 100%);
+                border:1px solid var(--border);
+                border-bottom:none;
+                border-radius:18px 18px 0 0;
+                padding:14px 18px;
+                display:flex; align-items:center; gap:10px;
+                position:relative; overflow:hidden;
+              ">
+                <!-- top glow line -->
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),#6366f1,var(--accent));background-size:200% 100%;animation:shimmer 3s linear infinite;"></div>
+
+                <!-- icon -->
+                <div style="
+                  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+                  background:linear-gradient(135deg,rgba(0,212,170,.15),rgba(99,102,241,.15));
+                  border:1px solid rgba(0,212,170,.25);
+                  display:flex;align-items:center;justify-content:center;font-size:17px;
+                ">📄</div>
+
+                <!-- title -->
+                <div style="flex:1;">
+                  <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:14px;color:var(--text);">ملف الكورس</div>
+                  <div style="font-family:Cairo,sans-serif;font-size:11px;color:var(--text-dim);margin-top:1px;" id="pdfFileName">PDF</div>
+                </div>
+
+                <!-- controls -->
+                <div style="display:flex;align-items:center;gap:8px;margin-right:auto;">
+
+                  <!-- zoom out -->
+                  <button onclick="pdfZoomOut()" title="تصغير" style="
+                    width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+                    background:var(--bg3);color:var(--text-dim);cursor:pointer;
+                    font-size:15px;display:flex;align-items:center;justify-content:center;
+                    transition:all .2s;font-family:monospace;
+                  " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">−</button>
+
+                  <!-- zoom level -->
+                  <span id="pdfZoomLabel" style="font-family:Cairo,sans-serif;font-size:11px;color:var(--text-dim);min-width:34px;text-align:center;font-weight:700;">100%</span>
+
+                  <!-- zoom in -->
+                  <button onclick="pdfZoomIn()" title="تكبير" style="
+                    width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+                    background:var(--bg3);color:var(--text-dim);cursor:pointer;
+                    font-size:15px;display:flex;align-items:center;justify-content:center;
+                    transition:all .2s;font-family:monospace;
+                  " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">+</button>
+
+                  <!-- separator -->
+                  <div style="width:1px;height:24px;background:var(--border);margin:0 2px;"></div>
+
+                  <!-- fullscreen -->
+                  <button onclick="pdfFullscreen()" title="ملء الشاشة" style="
+                    width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+                    background:var(--bg3);color:var(--text-dim);cursor:pointer;
+                    font-size:14px;display:flex;align-items:center;justify-content:center;
+                    transition:all .2s;
+                  " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">⛶</button>
+
+                  <!-- download -->
+                  <a id="pdfDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" title="تحميل" style="
+                    width:32px;height:32px;border-radius:8px;border:1px solid rgba(0,212,170,.3);
+                    background:rgba(0,212,170,.08);color:var(--accent);cursor:pointer;
+                    font-size:14px;display:flex;align-items:center;justify-content:center;
+                    text-decoration:none;transition:all .2s;
+                  " onmouseover="this.style.background='rgba(0,212,170,.18)'"
+                     onmouseout="this.style.background='rgba(0,212,170,.08)'">⬇</a>
+                </div>
               </div>
-              <iframe id="pdfViewer"
-                style="width:100%;height:520px;border:none;border-radius:12px;background:var(--bg3);"
-                src=""></iframe>
+
+              <!-- page nav bar -->
+              <div style="
+                background:var(--bg2);
+                border:1px solid var(--border);
+                border-top:1px solid rgba(0,212,170,.1);
+                border-bottom:none;
+                padding:8px 18px;
+                display:flex; align-items:center; gap:10px; justify-content:center;
+              ">
+                <button onclick="pdfPrevPage()" id="pdfPrevBtn" style="
+                  padding:4px 14px;border-radius:20px;border:1px solid var(--border);
+                  background:var(--bg3);color:var(--text-dim);cursor:pointer;
+                  font-family:Cairo,sans-serif;font-size:11px;font-weight:700;transition:all .2s;
+                " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+                  &#8592; السابق
+                </button>
+
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="font-family:Cairo,sans-serif;font-size:12px;color:var(--text-dim);">صفحة</span>
+                  <input id="pdfPageInput" type="number" min="1" value="1"
+                    onchange="pdfGoToPage(this.value)"
+                    style="
+                      width:44px;text-align:center;padding:3px 6px;
+                      border-radius:8px;border:1px solid var(--border);
+                      background:var(--bg3);color:var(--text);
+                      font-family:Cairo,sans-serif;font-size:12px;font-weight:700;
+                    ">
+                  <span style="font-family:Cairo,sans-serif;font-size:12px;color:var(--text-dim);">من</span>
+                  <span id="pdfTotalPages" style="font-family:Cairo,sans-serif;font-size:12px;color:var(--accent);font-weight:900;">—</span>
+                </div>
+
+                <button onclick="pdfNextPage()" id="pdfNextBtn" style="
+                  padding:4px 14px;border-radius:20px;border:1px solid var(--border);
+                  background:var(--bg3);color:var(--text-dim);cursor:pointer;
+                  font-family:Cairo,sans-serif;font-size:11px;font-weight:700;transition:all .2s;
+                " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+                  التالي &#8594;
+                </button>
+              </div>
+
+              <!-- canvas area -->
+              <div id="pdfCanvasWrap" style="
+                border:1px solid var(--border);
+                border-top:none;
+                border-radius:0 0 18px 18px;
+                background:var(--bg3);
+                overflow:auto;
+                min-height:520px;
+                display:flex; flex-direction:column; align-items:center;
+                padding:20px 10px;
+                position:relative;
+              ">
+                <!-- loading state -->
+                <div id="pdfLoading" style="
+                  position:absolute;inset:0;display:flex;flex-direction:column;
+                  align-items:center;justify-content:center;gap:14px;
+                  background:var(--bg3);border-radius:0 0 18px 18px;
+                ">
+                  <div style="
+                    width:44px;height:44px;border-radius:50%;
+                    border:3px solid var(--border);
+                    border-top-color:var(--accent);
+                    animation:spin .8s linear infinite;
+                  "></div>
+                  <span style="font-family:Cairo,sans-serif;font-size:13px;color:var(--text-dim);">جاري تحميل الـ PDF...</span>
+                </div>
+
+                <!-- error state -->
+                <div id="pdfError" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px;">
+                  <div style="font-size:40px;">📭</div>
+                  <div style="font-family:Cairo,sans-serif;font-size:14px;color:var(--text-dim);text-align:center;">تعذّر تحميل الـ PDF</div>
+                  <a id="pdfErrorLink" href="#" target="_blank" style="
+                    display:inline-flex;align-items:center;gap:6px;
+                    background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);
+                    color:var(--accent);border-radius:20px;padding:8px 18px;
+                    font-size:12px;font-weight:700;font-family:Cairo,sans-serif;text-decoration:none;
+                  ">⬇️ تحميل الملف مباشرةً</a>
+                </div>
+
+                <canvas id="pdfCanvas" style="
+                  max-width:100%;
+                  border-radius:8px;
+                  box-shadow:0 4px 24px rgba(0,0,0,.3);
+                  display:none;
+                "></canvas>
+              </div>
             </div>
+
+            <!-- PDF.js script (loaded once) -->
+            <script>
+            (function(){
+              if (window._pdfJsLoaded) return;
+              window._pdfJsLoaded = true;
+              const s = document.createElement('script');
+              s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+              s.onload = () => {
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                if (window._pdfPendingUrl) loadPdfViewer(window._pdfPendingUrl);
+              };
+              document.head.appendChild(s);
+            })();
+
+            // State
+            let _pdfDoc = null, _pdfPage = 1, _pdfZoom = 1.0, _pdfUrl = '';
+
+            async function loadPdfViewer(url) {
+              _pdfUrl = url;
+              if (!window.pdfjsLib) { window._pdfPendingUrl = url; return; }
+              document.getElementById('pdfLoading').style.display = 'flex';
+              document.getElementById('pdfError').style.display   = 'none';
+              document.getElementById('pdfCanvas').style.display  = 'none';
+              try {
+                _pdfDoc = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+                const total = _pdfDoc.numPages;
+                document.getElementById('pdfTotalPages').textContent = total;
+                document.getElementById('pdfPageInput').max = total;
+                _pdfPage = 1;
+                await renderPdfPage(_pdfPage);
+              } catch(e) {
+                console.warn('PDF.js error:', e);
+                document.getElementById('pdfLoading').style.display = 'none';
+                document.getElementById('pdfError').style.display   = 'flex';
+                document.getElementById('pdfErrorLink').href = url;
+              }
+            }
+
+            async function renderPdfPage(num) {
+              if (!_pdfDoc) return;
+              document.getElementById('pdfLoading').style.display = 'flex';
+              try {
+                const page     = await _pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: _pdfZoom * (window.devicePixelRatio || 1) * 1.2 });
+                const canvas   = document.getElementById('pdfCanvas');
+                const ctx      = canvas.getContext('2d');
+                canvas.height  = viewport.height;
+                canvas.width   = viewport.width;
+                canvas.style.width  = (viewport.width  / (window.devicePixelRatio || 1)) + 'px';
+                canvas.style.height = (viewport.height / (window.devicePixelRatio || 1)) + 'px';
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                document.getElementById('pdfLoading').style.display = 'none';
+                document.getElementById('pdfCanvas').style.display  = 'block';
+                document.getElementById('pdfPageInput').value = num;
+                document.getElementById('pdfPrevBtn').disabled = num <= 1;
+                document.getElementById('pdfNextBtn').disabled = num >= _pdfDoc.numPages;
+              } catch(e) {
+                document.getElementById('pdfLoading').style.display = 'none';
+                document.getElementById('pdfError').style.display   = 'flex';
+              }
+            }
+
+            function pdfNextPage()  { if (_pdfDoc && _pdfPage < _pdfDoc.numPages) { _pdfPage++; renderPdfPage(_pdfPage); } }
+            function pdfPrevPage()  { if (_pdfDoc && _pdfPage > 1)                { _pdfPage--; renderPdfPage(_pdfPage); } }
+            function pdfGoToPage(v) { const n=parseInt(v); if (_pdfDoc && n>=1 && n<=_pdfDoc.numPages) { _pdfPage=n; renderPdfPage(n); } }
+
+            function pdfZoomIn()  { _pdfZoom = Math.min(_pdfZoom + 0.25, 3.0); document.getElementById('pdfZoomLabel').textContent = Math.round(_pdfZoom*100)+'%'; renderPdfPage(_pdfPage); }
+            function pdfZoomOut() { _pdfZoom = Math.max(_pdfZoom - 0.25, 0.5); document.getElementById('pdfZoomLabel').textContent = Math.round(_pdfZoom*100)+'%'; renderPdfPage(_pdfPage); }
+
+            function pdfFullscreen() {
+              const wrap = document.getElementById('pdfCanvasWrap');
+              if (document.fullscreenElement) document.exitFullscreen();
+              else wrap.requestFullscreen && wrap.requestFullscreen();
+            }
+
+            window.loadPdfViewer = loadPdfViewer;
+            window.pdfNextPage   = pdfNextPage;
+            window.pdfPrevPage   = pdfPrevPage;
+            window.pdfGoToPage   = pdfGoToPage;
+            window.pdfZoomIn     = pdfZoomIn;
+            window.pdfZoomOut    = pdfZoomOut;
+            window.pdfFullscreen = pdfFullscreen;
+            </script>
+            <!-- / PDF VIEWER -->
 
             <!-- COMMENTS -->
             <div class="cd-cmts-card">
@@ -926,14 +1163,23 @@
       pdfBtn.innerHTML = '📄 تحميل الـ PDF';
       document.getElementById('cdEnrollBtn').insertAdjacentElement('afterend', pdfBtn);
 
-      // إظهار الـ PDF viewer
+      // إظهار الـ PDF viewer الاحترافي
       const pdfCard = document.getElementById('pdfCard');
-      const pdfViewer = document.getElementById('pdfViewer');
-      const pdfDownload = document.getElementById('pdfDownloadBtn');
-      if (pdfCard && pdfViewer) {
+      if (pdfCard) {
         pdfCard.style.display = 'block';
-        pdfViewer.src = course.pdf_url;
-        if (pdfDownload) pdfDownload.href = course.pdf_url;
+        const dlBtn = document.getElementById('pdfDownloadBtn');
+        if (dlBtn) dlBtn.href = course.pdf_url;
+        // اسم الملف في الـ header
+        const fnEl = document.getElementById('pdfFileName');
+        if (fnEl) {
+          try {
+            const parts = course.pdf_url.split('/');
+            fnEl.textContent = decodeURIComponent(parts[parts.length - 1]).replace(/_/g,' ');
+          } catch(e) {}
+        }
+        // شغّل الـ viewer
+        if (window.loadPdfViewer) loadPdfViewer(course.pdf_url);
+        else window._pdfPendingUrl = course.pdf_url;
       }
     }
 
