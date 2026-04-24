@@ -179,14 +179,30 @@ const sb = {
 
   // ===== DATABASE REST =====
   async insert(table, data) {
-    const res = await fetch(`${this.url}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: this.headers({ 'Prefer': 'return=representation' }),
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json?.message || json?.error || 'insert failed');
-    return json;
+    // منع base64 من الدخول في DB (بيسبب بطء شديد)
+    const body = JSON.stringify(data);
+    if (body.length > 200000) {
+      throw new Error('البيانات كبيرة جداً — تأكد إن الصورة والـ PDF اترفعوا على Storage أولاً');
+    }
+    // timeout 15 ثانية على الـ insert
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const res = await fetch(`${this.url}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: this.headers({ 'Prefer': 'return=representation' }),
+        body,
+        signal: ctrl.signal,
+      });
+      clearTimeout(t);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.message || json?.error || 'insert failed');
+      return json;
+    } catch(e) {
+      clearTimeout(t);
+      if (e.name === 'AbortError') throw new Error('انتهى وقت الحفظ — تحقق من الاتصال بـ Supabase');
+      throw e;
+    }
   },
 
   async select(table, filter = '') {
@@ -479,7 +495,7 @@ const Courses = {
 
     this._fetchPromise = (async () => {
       try {
-        const data = await sb.select('courses', 'select=id,title,description,price,status,grade,cover_url,lessons_count,lessons,rating,students,hours,is_new,is_hot,emoji,category,created_at&order=created_at.desc');
+        const data = await sb.select('courses', 'order=created_at.desc');
         if (Array.isArray(data)) {
           this._cache = data; this._cacheTime = Date.now();
           localStorage.setItem('ibda3_courses', JSON.stringify(data));
