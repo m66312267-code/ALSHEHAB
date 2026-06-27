@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function getSystemPrompt() {
     const nameCtx  = userName ? `اسم الطالب اللي بيكلمك دلوقتي: "${userName}". نادِه باسمه بس في أول رد بس، بعد كده عادي.` : '';
     const page     = window.location.pathname.split('/').pop().replace('.html','') || 'dashboard';
-    const pageMap  = { dashboard:'الرئيسية', courses:'الكورسات', favorites:'المفضلة', profile:'حساب الطالب', quiz:'الاختبارات', planner:'خطة المذاكرة', support:'صفحة الدعم', about:'من نحن', 'course-detail':'تفاصيل الكورس', admin:'لوحة التحكم', payment:'الدفع' };
+    const pageMap  = { dashboard:'الرئيسية', courses:'الكورسات', profile:'حساب الطالب', quiz:'الاختبارات', support:'صفحة الدعم', about:'من نحن', 'course-detail':'تفاصيل الكورس', admin:'لوحة التحكم', payment:'الدفع' };
     const pageName = pageMap[page] || page;
     const hour     = new Date().getHours();
     const timeHint = hour < 12 ? 'الصبح' : hour < 17 ? 'بعد الضهر' : 'الليل';
@@ -517,14 +517,6 @@ ${nameCtx}
 - نتائج وتقارير فورية
 - إمكانية رؤية تاريخ الاختبارات
 
-📅 خطة المذاكرة (planner.html):
-- إضافة مهام مذاكرة بتاريخ ومادة وأولوية
-- تتبع إنجاز المهام
-- ممكن تطلب مني أضيف مهمة ليك مباشرة
-
-❤️ المفضلة (favorites.html):
-- حفظ الكورسات للرجوع ليها بسرعة
-- ممكن تضيف أو تشيل من المفضلة
 
 🔔 الإشعارات:
 - نظام إشعارات مباشر من الأدمن للطلاب
@@ -1357,17 +1349,14 @@ ${nameCtx}
 بالإضافة لردودك العادية، تقدر تنفذ مهام حقيقية على المنصة.
 لو الطالب طلب حاجة من دي، رد بـ JSON فقط بالشكل ده (من غير أي نص تاني):
 
-{"tool":"navigate","page":"courses"} — لفتح صفحة (courses/dashboard/favorites/planner/profile/quiz/about/support)
+{"tool":"navigate","page":"courses"} — لفتح صفحة (courses/dashboard/profile/quiz/about/support)
 {"tool":"get_grades"} — لجيب درجات الطالب
 {"tool":"clear_notifs"} — لمسح الإشعارات
-{"tool":"add_planner","title":"عنوان المهمة","subject":"المادة","date":"YYYY-MM-DD"} — لإضافة في خطة المذاكرة
-{"tool":"toggle_fav","action":"add/remove","course_id":"id","course_title":"عنوان الكورس"} — للمفضلة
 
 أمثلة:
 - "روحني على الكورسات" → {"tool":"navigate","page":"courses"}
 - "إيه درجاتي؟" → {"tool":"get_grades"}
 - "امسح إشعاراتي" → {"tool":"clear_notifs"}
-- "ضيف مذاكرة رياضيات بكرة" → {"tool":"add_planner","title":"مذاكرة رياضيات","subject":"رياضيات","date":"YYYY-MM-DD"}
 
 لو الطلب مش واحد من دول، رد عادي بالعربي.`;
 
@@ -1394,7 +1383,6 @@ ${nameCtx}
       case 'navigate': {
         const pages = {
           courses:'courses.html', dashboard:'dashboard.html',
-          favorites:'favorites.html', planner:'planner.html',
           profile:'profile.html', quiz:'quiz.html',
           about:'about.html', support:'support.html'
         };
@@ -1429,42 +1417,6 @@ ${nameCtx}
           if (typeof Notifs !== 'undefined') Notifs.updateBadge().catch(()=>{});
           return `✅ تم مسح كل إشعاراتك!`;
         } catch(e) { return `⚠️ حصل خطأ في مسح الإشعارات`; }
-      }
-
-      case 'add_planner': {
-        try {
-          const tasks = JSON.parse(localStorage.getItem('ibda3_plnv3') || '[]');
-          const today = new Date().toISOString().slice(0,10);
-          const newTask = {
-            id:      't_' + Date.now(),
-            title:   toolData.title   || 'مهمة جديدة',
-            subject: toolData.subject || 'عام',
-            date:    toolData.date    || today,
-            done:    false,
-            priority: 'medium',
-            color:   '#00d4aa',
-          };
-          tasks.push(newTask);
-          localStorage.setItem('ibda3_plnv3', JSON.stringify(tasks));
-          return `✅ تم إضافة **"${newTask.title}"** في خطة المذاكرة!\n📅 التاريخ: ${newTask.date}`;
-        } catch(e) { return `⚠️ حصل خطأ في إضافة المهمة`; }
-      }
-
-      case 'toggle_fav': {
-        if (!user) return `⚠️ لازم تكون مسجّل دخول`;
-        try {
-          if (typeof Courses !== 'undefined') {
-            await Courses.toggleFavorite(toolData.course_id || '');
-            const action = toolData.action === 'remove' ? 'شيل من' : 'إضافة في';
-            return `✅ تم ${action} المفضلة! ❤️`;
-          }
-          // fallback localStorage
-          const favs = JSON.parse(localStorage.getItem('ibda3_favorites') || '[]');
-          const idx  = favs.indexOf(toolData.course_id);
-          if (idx > -1) favs.splice(idx, 1); else favs.push(toolData.course_id);
-          localStorage.setItem('ibda3_favorites', JSON.stringify(favs));
-          return `✅ تم تحديث المفضلة! ❤️`;
-        } catch(e) { return `⚠️ حصل خطأ في المفضلة`; }
       }
 
       // ══ ADMIN TOOLS ══

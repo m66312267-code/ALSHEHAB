@@ -206,31 +206,34 @@ const sb = {
   },
 
   async select(table, filter = '') {
-    const res = await fetch(`${this.url}/rest/v1/${table}${filter ? '?' + filter : ''}`, {
+    let res = await fetch(`${this.url}/rest/v1/${table}${filter ? '?' + filter : ''}`, {
       headers: this.headers(),
     });
+    // ✅ FIX: لو الـ token انتهت، نعمل refresh وناخد request تاني
+    if (res.status === 401) {
+      await this.refreshSession().catch(() => {});
+      res = await fetch(`${this.url}/rest/v1/${table}${filter ? '?' + filter : ''}`, {
+        headers: this.headers(),
+      });
+    }
     const json = await res.json();
     if (!res.ok) throw new Error(json?.message || 'select failed');
     return json;
   },
 
   async update(table, data, filter) {
-    const res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, {
-      method: 'PATCH',
-      headers: this.headers({ 'Prefer': 'return=representation' }),
-      body: JSON.stringify(data),
-    });
+    const opts = { method:'PATCH', headers:this.headers({'Prefer':'return=representation'}), body:JSON.stringify(data) };
+    let res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, opts);
+    if (res.status === 401) { await this.refreshSession().catch(()=>{}); res = await fetch(`${this.url}/rest/v1/${table}?${filter}`, {...opts, headers:this.headers({'Prefer':'return=representation'})}); }
     const json = await res.json();
     if (!res.ok) throw new Error(json?.message || 'update failed');
     return json;
   },
 
   async upsert(table, data) {
-    const res = await fetch(`${this.url}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: this.headers({ 'Prefer': 'return=representation,resolution=merge-duplicates' }),
-      body: JSON.stringify(data),
-    });
+    const opts = { method:'POST', headers:this.headers({'Prefer':'return=representation,resolution=merge-duplicates'}), body:JSON.stringify(data) };
+    let res = await fetch(`${this.url}/rest/v1/${table}`, opts);
+    if (res.status === 401) { await this.refreshSession().catch(()=>{}); res = await fetch(`${this.url}/rest/v1/${table}`, {...opts, headers:this.headers({'Prefer':'return=representation,resolution=merge-duplicates'})}); }
     const json = await res.json();
     if (!res.ok) throw new Error(json?.message || 'upsert failed');
     return json;
@@ -566,41 +569,6 @@ const Courses = {
       await sb.update('enrollments', { progress, completed }, `user_id=eq.${user.id}&course_id=eq.${courseId}`);
     } catch(e) { console.warn('updateProgress error:', e); }
     if (completed) await XP.add(50, 'أكملت كورس بالكامل 🎓').catch(() => {});
-  },
-
-  async getFavorites() {
-    const user = sb.getUser();
-    if (!user) return JSON.parse(localStorage.getItem('ibda3_favs') || '[]');
-    try {
-      const data = await sb.select('favorites', `user_id=eq.${user.id}`);
-      if (Array.isArray(data)) {
-        const ids = data.map(f => f.course_id);
-        localStorage.setItem('ibda3_favs', JSON.stringify(ids));
-        return ids;
-      }
-    } catch {}
-    return JSON.parse(localStorage.getItem('ibda3_favs') || '[]');
-  },
-
-  async toggleFavorite(courseId) {
-    const user = sb.getUser();
-    const favs  = await this.getFavorites();
-    const isFav = favs.includes(courseId);
-    if (user) {
-      try {
-        if (isFav) await sb.delete('favorites', `user_id=eq.${user.id}&course_id=eq.${courseId}`);
-        else       await sb.insert('favorites', { user_id: user.id, course_id: courseId });
-      } catch(e) { console.warn('toggleFavorite error:', e); }
-    }
-    const local = JSON.parse(localStorage.getItem('ibda3_favs') || '[]');
-    if (isFav) {
-      const idx = local.indexOf(courseId);
-      if (idx !== -1) local.splice(idx, 1);
-    } else {
-      local.push(courseId);
-    }
-    localStorage.setItem('ibda3_favs', JSON.stringify(local));
-    return !isFav;
   },
 };
 
