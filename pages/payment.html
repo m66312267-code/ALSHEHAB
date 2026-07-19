@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
     html, body { overflow-x: hidden; max-width: 100%; }
     img { max-width: 100%; }
 
@@ -20,14 +20,14 @@
       pointer-events: none; z-index: 0; overflow: hidden;
     }
     .p-bg::before {
-      content: ''; position: absolute;
+      content: ""; position: absolute;
       width: 400px; height: 400px; border-radius: 50%;
       background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
       top: -120px; right: -120px;
       animation: bgFloat 9s ease-in-out infinite alternate;
     }
     .p-bg::after {
-      content: ''; position: absolute;
+      content: ""; position: absolute;
       width: 300px; height: 300px; border-radius: 50%;
       background: radial-gradient(circle, rgba(99,102,241,.1) 0%, transparent 70%);
       bottom: -80px; left: -80px;
@@ -66,7 +66,7 @@
       letter-spacing: .06em; margin: 18px 0 8px;
       display: flex; align-items: center; gap: 7px;
     }
-    .p-sec::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .p-sec::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 
     /* PAGE HEADER */
     .p-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
@@ -123,7 +123,7 @@
     }
     .p-course-card:hover { border-color: var(--accent); }
     .p-course-card::before {
-      content: ''; position: absolute; top: 0; right: 0;
+      content: ""; position: absolute; top: 0; right: 0;
       width: 60px; height: 60px;
       background: radial-gradient(circle, var(--glow), transparent 70%);
       pointer-events: none;
@@ -145,13 +145,8 @@
     .p-c-meta span { font-size: 10px; color: var(--text-dim); background: var(--bg3); padding: 2px 7px; border-radius: 20px; }
 
     /* TIMER */
-    .p-timer {
-      background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.3);
-      border-radius: 10px; padding: 9px 12px; margin: 12px 0;
-      display: flex; align-items: center; gap: 10px;
-      font-size: 12px; color: #f97316; font-weight: 700;
-    }
-    .p-timer-t { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    
+    
 
     /* METHODS */
     .p-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -169,7 +164,7 @@
       box-shadow: 0 0 0 3px var(--glow);
     }
     .p-method.sel::after {
-      content: '✓'; position: absolute; top: 5px; left: 5px;
+      content: "✓"; position: absolute; top: 5px; left: 5px;
       width: 17px; height: 17px; background: var(--accent); color: #000;
       border-radius: 50%; font-size: 9px; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
@@ -241,7 +236,7 @@
       padding: 0 13px; flex-shrink: 0;
       background: var(--bg3); border: 1px solid var(--border);
       border-radius: 10px; color: var(--accent);
-      font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 13px;
+      font-family: "Cairo", sans-serif; font-weight: 700; font-size: 13px;
       cursor: pointer; transition: all .25s; white-space: nowrap;
     }
     .p-coup-btn:hover { background: rgba(0,212,170,.1); border-color: var(--accent); }
@@ -252,7 +247,7 @@
     .p-input {
       width: 100%; background: var(--bg3); border: 1px solid var(--border);
       border-radius: 10px; padding: 11px 12px; color: var(--text);
-      font-family: 'Cairo', sans-serif; font-size: 14px;
+      font-family: "Cairo", sans-serif; font-size: 14px;
       outline: none; transition: border-color .25s, box-shadow .25s;
     }
     .p-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
@@ -294,7 +289,7 @@
     .p-btn {
       width: 100%; padding: 14px; background: var(--accent); border: none;
       border-radius: 12px; color: #000;
-      font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 900;
+      font-family: "Cairo", sans-serif; font-size: 15px; font-weight: 900;
       cursor: pointer; transition: all .3s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       box-shadow: 0 4px 20px var(--glow); margin-top: 8px;

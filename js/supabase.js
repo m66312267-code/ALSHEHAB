@@ -71,6 +71,36 @@ const sb = {
     return data;
   },
 
+  // ===== PASSWORD RECOVERY (آمن — عبر إيميل من Supabase مباشرة) =====
+  async requestPasswordReset(email) {
+    const redirectTo = window.location.origin + window.location.pathname;
+    const res = await fetch(`${this.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': this.key },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.msg || data.error_description || 'تعذر إرسال رابط الاستعادة');
+    }
+    return true;
+  },
+
+  async updatePasswordWithRecoveryToken(accessToken, newPassword) {
+    const res = await fetch(`${this.url}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': this.key,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ password: newPassword }),
+    });
+    const data = await res.json();
+    if (data.error || data.error_description) throw new Error(data.msg || data.error_description || 'تعذر تحديث كلمة السر');
+    return data;
+  },
+
   // ===== PHONE AUTH (Supabase Phone OTP) =====
 
   // تحويل رقم مصري → E.164  مثال: 01012345678 → +201012345678

@@ -16,7 +16,7 @@
   --border:rgba(124,58,237,0.2); --glow:rgba(124,58,237,0.5);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+body{font-family:"Cairo",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
 
 /* ===== SPLASH — Premium 2025 ===== */
 #splash {
@@ -60,7 +60,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   animation: spIn .5s cubic-bezier(.34,1.56,.64,1) .1s both;
 }
 .sp-logo-text {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: clamp(48px, 11vw, 80px); font-weight: 900; line-height: 1;
   background: linear-gradient(135deg, #00d4aa, #5eead4);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
@@ -70,7 +70,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 
 /* اسم المدرس */
 .sp-teacher {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: 22px; font-weight: 900;
   color: #fff;
   margin-bottom: 6px;
@@ -90,7 +90,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 .sp-subject-badge {
   padding: 4px 14px; border-radius: 20px;
   background: rgba(0,212,170,.1); border: 1px solid rgba(0,212,170,.25);
-  font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 700;
+  font-family: "Cairo", sans-serif; font-size: 11px; font-weight: 700;
   color: #00d4aa; letter-spacing: 1px;
 }
 
@@ -111,7 +111,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 }
 @keyframes spFill { to { width: 100%; } }
 .sp-loader-pct {
-  font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 700;
+  font-family: "Cairo", sans-serif; font-size: 11px; font-weight: 700;
   color: rgba(0,212,170,.5); min-width: 32px;
 }
 
@@ -119,7 +119,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 .sp-footer {
   position: absolute; bottom: 28px;
   display: flex; align-items: center; gap: 10px;
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: 11px; color: rgba(255,255,255,.2);
   letter-spacing: 2px;
   animation: spIn .5s ease .35s both;
@@ -127,7 +127,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 .sp-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.2); }
 
 .sp-dev-name {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: 13px; font-weight: 900;
   background: linear-gradient(90deg, #00d4aa, #6366f1, #a855f7, #00d4aa);
   background-size: 300% auto;
@@ -179,6 +179,162 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   background-size:70px 70px;
 }
 
+/* ===== CHECKER BACKGROUND — أرضية شطرنج بنفسجي بمنظور 3D ===== */
+#checkerBg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  perspective:1000px;
+  --chk-bg:
+    linear-gradient(45deg,#04020a 25%,transparent 25%,transparent 75%,#04020a 75%,#04020a),
+    linear-gradient(45deg,#04020a 25%,rgb(255, 255, 255) 25%,rgb(252, 250, 255) 75%,#04020a 75%,#04020a);
+  --chk-size:60px 60px;
+  --chk-pos:0 0,30px 30px;
+  background-color:#04020a;
+  background-image:var(--chk-bg);
+  background-size:var(--chk-size);
+  background-position:var(--chk-pos);
+  box-shadow:inset 0 0 500px #04020a;
+}
+#checkerBg::before{
+  content:"";
+  position:absolute;top:55%;left:0;width:100%;height:150%;
+  background-image:var(--chk-bg);
+  background-size:var(--chk-size);
+  background-position:var(--chk-pos);
+  transform-origin:top;
+  transform:rotateX(80deg);
+  box-shadow:0 -100px 500px #04020a, inset 0 100px 500px #04020a;
+}
+@media (max-width:640px){
+  #checkerBg{ --chk-size:40px 40px; --chk-pos:0 0,20px 20px; }
+}
+
+/* ===== LOGIN BUTTON — Uiverse by StealthWorm, recolored ===== */
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+  height: 3.3rem;
+  background-size: 300% 300%;
+  cursor: pointer;
+  backdrop-filter: blur(1rem);
+  border-radius: 5rem;
+  transition: 0.5s;
+  animation: gradient_301 5s ease infinite;
+  border: double 4px transparent;
+  background-image: linear-gradient(#04020a, #04020a),
+    linear-gradient(
+      137.48deg,
+      #7c3aed 10%,
+      #a855f7 45%,
+      #ec4899 67%,
+      #f472b6 87%
+    );
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+#container-stars {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: 0.5s;
+  backdrop-filter: blur(1rem);
+  border-radius: 5rem;
+}
+.btn strong {
+  z-index: 2;
+  font-family: "Cairo", sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0;
+  color: #ffffff;
+  text-shadow: 0 0 4px white;
+}
+#glow {
+  position: absolute;
+  display: flex;
+  width: 100%;
+}
+#glow .circle {
+  width: 100%;
+  height: 30px;
+  filter: blur(2rem);
+  animation: pulse_3011 4s infinite;
+  z-index: -1;
+}
+#glow .circle:nth-of-type(1) {
+  background: rgba(236, 72, 153, 0.636);
+}
+#glow .circle:nth-of-type(2) {
+  background: rgba(168, 85, 247, 0.704);
+}
+.btn:hover #container-stars {
+  z-index: 1;
+  background-color: #04020a;
+}
+.btn:hover {
+  transform: scale(1.1);
+}
+.btn:active {
+  border: double 4px #ec4899;
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  animation: none;
+}
+.btn:active #glow .circle {
+  background: #ec4899;
+}
+#stars {
+  position: relative;
+  background: transparent;
+  width: 200rem;
+  height: 200rem;
+}
+#stars::after {
+  content: "";
+  position: absolute;
+  top: -10rem;
+  left: -100rem;
+  width: 100%;
+  height: 100%;
+  animation: animStarRotate 90s linear infinite;
+  background-image: radial-gradient(#ffffff 1px, transparent 1%);
+  background-size: 50px 50px;
+}
+#stars::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 170%;
+  height: 500%;
+  animation: animStar 60s linear infinite;
+  background-image: radial-gradient(#ffffff 1px, transparent 1%);
+  background-size: 50px 50px;
+  opacity: 0.5;
+}
+@keyframes animStar {
+  from { transform: translateY(0); }
+  to { transform: translateY(-135rem); }
+}
+@keyframes animStarRotate {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0); }
+}
+@keyframes gradient_301 {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes pulse_3011 {
+  0% { transform: scale(0.75); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+  100% { transform: scale(0.75); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+
 /* ===== AUTH BOX — تصميم أبيض نضيف ===== */
 .auth-wrap{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -197,11 +353,11 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 @keyframes boxReveal{from{opacity:0;transform:translateY(50px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
 .auth-box::before{display:none !important;}
 .auth-box::after{display:none !important;}
-.auth-corner-bl{display:none !important;}
+
 
 /* Header */
 .auth-logo{
-  font-family:'Cairo',sans-serif !important;
+  font-family:"Cairo",sans-serif !important;
   font-size:15px !important;font-weight:400 !important;
   color:#888 !important;letter-spacing:0 !important;
   text-align:right;display:block;margin-bottom:6px !important;
@@ -209,7 +365,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   animation:none !important;
 }
 .auth-sub{
-  font-family:'Cairo',sans-serif !important;
+  font-family:"Cairo",sans-serif !important;
   font-size:18px !important;font-weight:900 !important;
   color:#1a1a2e !important;letter-spacing:0 !important;
   text-align:right;display:block;
@@ -226,7 +382,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 }
 .ltab{
   flex:1;padding:10px;border:none;border-radius:9px;
-  font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;
+  font-family:"Cairo",sans-serif;font-size:13px;font-weight:700;
   color:#888;background:transparent;cursor:pointer;transition:all .25s;
 }
 .ltab.active{
@@ -244,7 +400,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   flex:1;text-align:center;padding:10px !important;border-radius:9px !important;
   font-size:13px !important;font-weight:700 !important;
   color:#888 !important;cursor:pointer;transition:all .25s !important;
-  font-family:'Cairo',sans-serif;
+  font-family:"Cairo",sans-serif;
 }
 .auth-tab.active{
   background:#ffffff !important;color:#1a1a2e !important;
@@ -257,7 +413,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   font-size:13px !important;font-weight:700 !important;
   color:#444 !important;letter-spacing:0 !important;
   display:block;margin-bottom:8px !important;
-  font-family:'Cairo',sans-serif !important;
+  font-family:"Cairo",sans-serif !important;
   text-transform:none !important;
 }
 .inp{
@@ -265,7 +421,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   border:1.5px solid #e2e6ea !important;
   border-radius:12px !important;
   color:#1a1a2e !important;
-  font-family:'Cairo',sans-serif !important;font-size:14px !important;
+  font-family:"Cairo",sans-serif !important;font-size:14px !important;
   padding:14px 16px !important;width:100% !important;
   transition:all .25s !important;margin-bottom:16px !important;
 }
@@ -292,7 +448,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 .btn-full{
   width:100% !important;padding:15px !important;
   background:#7c3aed !important;
-  color:#fff !important;font-family:'Cairo',sans-serif !important;
+  color:#fff !important;font-family:"Cairo",sans-serif !important;
   font-weight:900 !important;font-size:16px !important;
   border:none !important;border-radius:12px !important;
   cursor:pointer !important;
@@ -364,7 +520,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   border:1px solid rgba(124,58,237,0.18);
   border-radius:20px;padding:7px 16px;
   font-size:11px;color:rgba(100,80,180,0.7);
-  letter-spacing:.3px;font-family:'Cairo',sans-serif;
+  letter-spacing:.3px;font-family:"Cairo",sans-serif;
   transition:all .3s;cursor:default;
 }
 .dev-credit:hover{
@@ -407,7 +563,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .btn-back{
   width:100%;padding:14px;background:#f3f4f6;color:#555;
-  font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;
+  font-family:"Cairo",sans-serif;font-size:14px;font-weight:700;
   border:none;border-radius:12px;cursor:pointer;transition:all .2s;
 }
 .btn-back:hover{background:#e5e7eb;}
@@ -424,34 +580,11 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
 .cookie-accept{
   background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;
-  border-radius:8px;padding:7px 16px;font-family:'Cairo',sans-serif;font-weight:700;
+  border-radius:8px;padding:7px 16px;font-family:"Cairo",sans-serif;font-weight:700;
   font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;
   box-shadow:0 0 15px rgba(124,58,237,.3);
 }
 .cookie-accept:hover{transform:scale(1.05);}
-
-.settings-panel{
-  position:fixed;bottom:80px;left:20px;z-index:8000;
-  background:rgba(8,4,15,.96);border:1px solid rgba(124,58,237,.2);
-  border-radius:14px;padding:16px;width:200px;
-  backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(0,0,0,.6);display:none;
-}
-.settings-panel.show{display:block;animation:fadeUp .3s ease;}
-.settings-panel h4{font-size:10px;color:rgba(168,85,247,.4);letter-spacing:2px;margin-bottom:10px;font-family:'Cairo',sans-serif;}
-.theme-dots{display:flex;gap:8px;margin-bottom:14px;}
-.tdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;}
-.tdot.active{border-color:white;transform:scale(1.2);}
-.ftab{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.1);color:rgba(245,230,255,.5);border-radius:8px;padding:7px;font-family:'Cairo',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
-.ftab.active,.ftab:hover{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.4);color:#a855f7;}
-
-.float-settings{
-  position:fixed;bottom:28px;left:20px;z-index:8000;
-  width:44px;height:44px;background:rgba(8,4,15,.9);
-  border:1px solid rgba(124,58,237,.25);border-radius:10px;
-  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(10px);transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.4);
-}
-.float-settings:hover{transform:rotate(90deg);border-color:rgba(124,58,237,.6);box-shadow:0 0 20px rgba(124,58,237,.2);}
 
 #toast{
   position:fixed;bottom:28px;right:20px;z-index:99998;
@@ -540,7 +673,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   z-index:3;
 }
 .teacher-name {
-  font-family:'Cairo','Cairo',sans-serif;
+  font-family:"Cairo","Cairo",sans-serif;
   font-size:18px; font-weight:900;
   background:linear-gradient(135deg,#a855f7,#ec4899,#f472b6);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -548,7 +681,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 }
 .teacher-title {
   font-size:11px; color:rgba(245,230,255,0.45);
-  letter-spacing:3px; font-family:'Cairo',sans-serif;
+  letter-spacing:3px; font-family:"Cairo",sans-serif;
   text-transform:uppercase;
 }
 
@@ -607,16 +740,13 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   .grade-btn { padding:10px 4px !important; font-size:11px !important; }
 
   /* Splash screen */
-  .splash-title { font-size:clamp(40px,15vw,70px) !important; }
+  
   .splash-sub { font-size:9px !important; letter-spacing:3px !important; }
-  .splash-rocket { font-size:40px !important; }
-  .hud-bar-wrap { padding:10px 12px !important; margin:0 16px !important; }
+  
+  
 
   /* Hide heavy effects on mobile */
-  .particle, .shooting-star { display:none !important; }
-
-  /* Settings button */
-  .float-settings { bottom:16px !important; right:16px !important; }
+  
 
   /* Notif dropdown */
   .notif-dropdown { right:-80px !important; width:260px !important; }
@@ -647,7 +777,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 
 
 /* ===== LABEL ===== */
-.inp-label{font-size:11px !important;font-weight:700 !important;color:rgba(168,85,247,.7) !important;letter-spacing:1px !important;margin-bottom:6px !important;display:block !important;font-family:'Cairo',sans-serif !important;}
+.inp-label{font-size:11px !important;font-weight:700 !important;color:rgba(168,85,247,.7) !important;letter-spacing:1px !important;margin-bottom:6px !important;display:block !important;font-family:"Cairo",sans-serif !important;}
 
 
     /* SVG icons in nav */
@@ -660,8 +790,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
     .bottom-nav-item.active span svg { stroke: var(--accent); }
     .icon-btn svg { display: block; }
     .menu-btn svg { display: block; }
-    .float-settings svg { display: block; }
-</style>
+  </style>
   <style>
     .sp-logo-icon svg { display:block; stroke: var(--accent, #00d4aa); }
     .step-lbl svg { display:inline-block; vertical-align:middle; margin-left:4px; }
@@ -678,8 +807,8 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 <body>
 
 <!-- CURSOR -->
-<!-- STARS -->
-<div id="starField"></div>
+<!-- CHECKER BACKGROUND -->
+<div id="checkerBg"></div>
 
 <div id="toast"></div>
 <div class="offline-badge" id="offlineBadge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> أنت غير متصل بالإنترنت</div>
@@ -747,23 +876,6 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
   <button class="cookie-accept" onclick="acceptCookies()">موافق</button>
 </div>
 
-<!-- SETTINGS -->
-<div class="settings-panel" id="settingsPanel">
-  <h4>THEME COLOR</h4>
-  <div class="theme-dots">
-    <div class="tdot" style="background:#00d4aa;" onclick="setColor('green')"></div>
-    <div class="tdot" style="background:#3b82f6;" onclick="setColor('blue')"></div>
-    <div class="tdot" style="background:#a855f7;" onclick="setColor('purple')"></div>
-    <div class="tdot active" style="background:#7c3aed;" onclick="setColor('orange')"></div>
-  </div>
-  <h4>MODE</h4>
-  <div style="display:flex;gap:6px;">
-    <button class="ftab active" onclick="setMode('dark')" style="flex:1;">داكن</button>
-    <button class="ftab" onclick="setMode('light')" style="flex:1;">فاتح</button>
-  </div>
-</div>
-<button class="float-settings" onclick="toggleSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></button>
-
 <!-- AUTH -->
 <div class="auth-wrap" id="authWrap">
   <div class="auth-box">
@@ -802,7 +914,18 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 
       <span class="forgot-link" onclick="switchAuth('reset')">نسيت كلمة السر؟</span>
 
-      <button class="btn-full" id="loginBtn" onclick="doLogin()">دخول</button>
+      <div style="display:flex;justify-content:center;margin-top:4px;">
+        <button type="button" class="btn" id="loginBtn" onclick="doLogin()">
+          <strong>دخول</strong>
+          <div id="container-stars">
+            <div id="stars"></div>
+          </div>
+          <div id="glow">
+            <div class="circle"></div>
+            <div class="circle"></div>
+          </div>
+        </button>
+      </div>
 
       <p class="auth-bottom-link">ليس لديك حساب؟ <a onclick="switchAuth('register')">إنشاء حساب</a></p>
       <div class="policy-links">
@@ -897,20 +1020,27 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
     <!-- ══ RESET ══ -->
     <div class="auth-form" id="form-reset">
       <div class="auth-logo">استعادة كلمة السر</div>
-      <div class="auth-sub"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> طلب تغيير كلمة السر</div>
-      <div style="background:#faf5ff;border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#7c3aed;line-height:1.8;">
-        💬 هتتبعت رسالة واتساب للأدمن بمعلوماتك<br>وهيغيرلك الباسورد في أقرب وقت<br>ملاحظه لما تسجل دخول تاني بعد م نغير كلمه السر ابقي ادخل غير اسمك من البروفيل
+
+      <div id="reset-request-step">
+        <div class="auth-sub"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> استعادة آمنة عبر الإيميل</div>
+        <div style="background:#faf5ff;border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#7c3aed;line-height:1.8;">
+          🔒 اكتب إيميلك وهنبعتلك لينك آمن، تدوس عليه وتحدد كلمة سر جديدة بنفسك مباشرة — من غير ما حد تاني (حتى إحنا) يشوف كلمة السر بتاعتك.
+        </div>
+        <label class="inp-label">البريد الإلكتروني <span style="color:#dc2626">*</span></label>
+        <input class="inp" type="email" placeholder="example@gmail.com" id="reset-email">
+        <button class="btn-full" id="resetRequestBtn" onclick="doRequestReset()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> إرسال رابط الاستعادة</button>
       </div>
-      <label class="inp-label">الاسم الثلاثي <span style="color:#dc2626">*</span></label>
-      <input class="inp" type="text" placeholder="اسمك ثلاثي" id="reset-name">
-      <label class="inp-label">البريد الإلكتروني <span style="color:#dc2626">*</span></label>
-      <input class="inp" type="email" placeholder="example@gmail.com" id="reset-email">
-      <label class="inp-label">كلمة السر الجديدة <span style="color:#dc2626">*</span></label>
-      <div class="pass-wrap" style="margin-bottom:16px;">
-        <input class="inp" type="password" placeholder=" وحيات امك م تنسي الباسورد تاني عشان خاطري" id="reset-newpass" style="margin-bottom:0!important;">
-        <button class="eye-btn" onclick="togglePass('reset-newpass',this)" tabindex="-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+
+      <div id="reset-confirm-step" style="display:none;">
+        <div class="auth-sub"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> اكتب كلمة السر الجديدة</div>
+        <label class="inp-label">كلمة السر الجديدة <span style="color:#dc2626">*</span></label>
+        <div class="pass-wrap" style="margin-bottom:16px;">
+          <input class="inp" type="password" placeholder="كلمة سر جديدة (6 أحرف على الأقل)" id="reset-newpass" style="margin-bottom:0!important;">
+          <button class="eye-btn" onclick="togglePass('reset-newpass',this)" tabindex="-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <button class="btn-full" id="resetConfirmBtn" onclick="doConfirmReset()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> تحديث كلمة السر</button>
       </div>
-      <button class="btn-full" id="resetBtn" onclick="doReset()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> إرسال طلب التغيير</button>
+
       <p class="auth-bottom-link"><a onclick="switchAuth('login')">← رجوع لتسجيل الدخول</a></p>
     </div>
 
@@ -940,7 +1070,7 @@ const phoneRx=/^01[0-9]{9}$/;
 function showError(msg){const el=document.getElementById('authError');el.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> `+msg;el.style.display='block';document.getElementById('authSuccess').style.display='none';el.style.animation='none';el.offsetHeight;el.style.animation='shakeErr .35s ease';}
 function showSuccess(msg){const el=document.getElementById('authSuccess');el.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> `+msg;el.style.display='block';document.getElementById('authError').style.display='none';}
 function hideMessages(){document.getElementById('authError').style.display='none';document.getElementById('authSuccess').style.display='none';}
-function setLoading(id,on,txt){const b=document.getElementById(id);if(!b)return;b.disabled=on;b.textContent=on?'جاري...':txt;}
+function setLoading(id,on,txt){const b=document.getElementById(id);if(!b)return;b.disabled=on;const lbl=b.querySelector('strong');if(lbl){lbl.textContent=on?'جاري...':txt;}else{b.textContent=on?'جاري...':txt;}}
 
 function togglePass(inputId,btn){
   const inp=document.getElementById(inputId);
@@ -954,6 +1084,11 @@ function switchAuth(tab){
   // لو بنفتح register ابدأ من step1
   if(tab==='register'){
     [1,2,3].forEach(i=>document.getElementById('rstep'+i).style.display= i===1?'block':'none');
+  }
+  // لو بنفتح reset عادي (مش من لينك الإيميل) ارجع لخطوة إدخال الإيميل
+  if(tab==='reset' && !window.__recoveryAccessToken){
+    document.getElementById('reset-request-step').style.display = 'block';
+    document.getElementById('reset-confirm-step').style.display = 'none';
   }
   hideMessages();
 }
@@ -1066,31 +1201,54 @@ async function doRegister(){
 }
 
 // ── RESET — WhatsApp ──
-function doReset(){
-  const name    = document.getElementById('reset-name').value.trim();
-  const email   = document.getElementById('reset-email').value.trim();
-  const newpass = document.getElementById('reset-newpass').value;
-
-  if(!name)            { showError('اكتب اسمك الكامل'); return; }
+async function doRequestReset(){
+  const email = document.getElementById('reset-email').value.trim();
   if(!email || !email.includes('@')) { showError('أدخل إيميل صحيح'); return; }
-  if(newpass.length < 6) { showError('كلمة السر لازم تكون 6 أحرف على الأقل'); return; }
 
-  const msg = `🔐 طلب تغيير كلمة السر — منصة إبداع
-━━━━━━━━━━━━━━━━
-👤 الاسم: ${name}
-📧 الإيميل: ${email}
-🔑 الباسورد الجديد: ${newpass}
-━━━━━━━━━━━━━━━━
-⏰ ${new Date().toLocaleString('ar-EG')}`;
-
-  const waUrl = 'https://wa.me/201063786533?text=' + encodeURIComponent(msg);
-  window.open(waUrl, '_blank');
-  showSuccess('✅ تم فتح واتساب! ابعت الرسالة للأدمن وهيرد عليك قريباً 🚀');
-  // مسح الحقول بعد الإرسال
-  document.getElementById('reset-name').value = '';
-  document.getElementById('reset-email').value = '';
-  document.getElementById('reset-newpass').value = '';
+  hideMessages(); setLoading('resetRequestBtn', true, 'إرسال رابط الاستعادة');
+  try{
+    await sb.requestPasswordReset(email);
+    showSuccess('✅ بعتنالك لينك على إيميلك، افتحه من نفس الجهاز وهيوديك تحدد كلمة سر جديدة');
+    document.getElementById('reset-email').value = '';
+  }catch(e){
+    showError(e.message || 'تعذر إرسال الرابط، حاول تاني');
+  }finally{
+    setLoading('resetRequestBtn', false, 'إرسال رابط الاستعادة');
+  }
 }
+
+async function doConfirmReset(){
+  const newpass = document.getElementById('reset-newpass').value;
+  if(newpass.length < 6) { showError('كلمة السر لازم تكون 6 أحرف على الأقل'); return; }
+  const token = window.__recoveryAccessToken;
+  if(!token) { showError('انتهت صلاحية الرابط، ارجع اطلب رابط جديد'); return; }
+
+  hideMessages(); setLoading('resetConfirmBtn', true, 'تحديث كلمة السر');
+  try{
+    await sb.updatePasswordWithRecoveryToken(token, newpass);
+    showSuccess('✅ اتغيرت كلمة السر بنجاح! سجل دخول بيها دلوقتي');
+    document.getElementById('reset-newpass').value = '';
+    history.replaceState(null, '', window.location.pathname);
+    setTimeout(() => switchAuth('login'), 1500);
+  }catch(e){
+    showError(e.message || 'تعذر تحديث كلمة السر، ارجع اطلب رابط جديد');
+  }finally{
+    setLoading('resetConfirmBtn', false, 'تحديث كلمة السر');
+  }
+}
+
+// لو المستخدم جاي من لينك الاستعادة في الإيميل (فيه access_token + type=recovery في الرابط)
+(function detectRecoveryLink(){
+  const hash = window.location.hash;
+  if(!hash || !hash.includes('type=recovery')) return;
+  const params = new URLSearchParams(hash.slice(1));
+  const token = params.get('access_token');
+  if(!token) return;
+  window.__recoveryAccessToken = token;
+  switchAuth('reset');
+  document.getElementById('reset-request-step').style.display = 'none';
+  document.getElementById('reset-confirm-step').style.display = 'block';
+})();
 
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
@@ -1098,7 +1256,11 @@ document.addEventListener('keydown',e=>{
   if(!active)return;
   const id=active.id;
   if(id==='form-login') doLogin();
-  else if(id==='form-reset') doReset();
+  else if(id==='form-reset') {
+    const confirmStep = document.getElementById('reset-confirm-step');
+    if(confirmStep && confirmStep.style.display !== 'none') doConfirmReset();
+    else doRequestReset();
+  }
   else if(id==='form-register'){
     const s1=document.getElementById('rstep1');
     const s2=document.getElementById('rstep2');

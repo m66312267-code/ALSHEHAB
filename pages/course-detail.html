@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    /* ══════════════════════════════════════════
+/* ══════════════════════════════════════════
        COURSE DETAIL — PREMIUM REDESIGN ✨
     ══════════════════════════════════════════ */
 
@@ -36,7 +36,7 @@
     }
     /* top glow strip */
     .cd-hero::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      content:""; position:absolute; top:0; left:0; right:0; height:3px;
       background: linear-gradient(90deg, var(--accent), #6366f1, var(--accent));
       background-size: 200% 100%;
       animation: shimmer 3s linear infinite;
@@ -62,15 +62,8 @@
     .cd-hero-inner { display:flex; gap:24px; align-items:flex-start; position:relative; z-index:1; padding:28px 28px 24px; }
 
     /* thumbnail */
-    .cd-thumb-wrap {
-      flex-shrink:0; position:relative;
-      width:100px; height:100px;
-      border-radius:20px;
-      overflow:hidden;
-      box-shadow:0 6px 28px rgba(0,0,0,.4);
-      border:2px solid rgba(255,255,255,.07);
-    }
-    .cd-thumb-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+    
+    
     .cd-emoji-big {
       width:100px; height:100px; border-radius:20px;
       background:linear-gradient(135deg, var(--bg3), var(--bg2));
@@ -200,7 +193,7 @@
       border-radius:22px; padding:20px;
       box-shadow:0 2px 16px rgba(0,0,0,.18);
     }
-    .cd-notes-card { margin-bottom:18px; }
+    
 
     .cd-card-head {
       display:flex; align-items:center; gap:10px;
@@ -226,10 +219,7 @@
     }
     .cd-notes-area:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,212,170,.08); }
 
-    .cd-autosave {
-      font-size:11px; color:var(--accent); margin-top:7px;
-      opacity:0; transition:opacity .3s; display:flex; align-items:center; gap:4px;
-    }
+    
 
     /* ── COMMENTS ── */
     .cd-cmt-count {
@@ -246,7 +236,7 @@
       border-bottom:1px solid transparent !important; align-items:center;
     }
     .cd-cmt-item.is-admin-cmt::before {
-      content:''; position:absolute; inset:0; border-radius:16px; padding:1.5px;
+      content:""; position:absolute; inset:0; border-radius:16px; padding:1.5px;
       background:linear-gradient(135deg, var(--accent), #6366f1);
       -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite:xor; mask-composite:exclude;
@@ -470,7 +460,7 @@
     .icon-btn svg { display: block; }
     .menu-btn svg { display: block; }
     .float-settings svg { display: block; }
-</style>
+  </style>
 </head>
 <body>
 
